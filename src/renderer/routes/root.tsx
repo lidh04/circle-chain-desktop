@@ -1,4 +1,8 @@
-import { Outlet, Link } from "react-router-dom";
+import {
+  Outlet,
+  Link,
+  useNavigate,
+} from "react-router-dom";
 import * as React from 'react';
 import Box from '@mui/material/Box';
 import { styled, ThemeProvider, createTheme } from '@mui/material/styles';
@@ -16,13 +20,12 @@ import KeyboardArrowDown from '@mui/icons-material/KeyboardArrowDown';
 import Home from '@mui/icons-material/Home';
 import Settings from '@mui/icons-material/Settings';
 import People from '@mui/icons-material/People';
-import PermMedia from '@mui/icons-material/PermMedia';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import LoginIcon from '@mui/icons-material/Login';
+import LogoutIcon from '@mui/icons-material/Logout';
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import PaidIcon from '@mui/icons-material/Paid';
 import AppRegistrationIcon from '@mui/icons-material/AppRegistration';
-
 
 
 const FireNav = styled(List)<{ component?: React.ElementType }>({
@@ -43,25 +46,46 @@ export default function Root() {
   const [open, setOpen] = React.useState(true);
   const [accountOpen, setAccountOpen] = React.useState(false);
   const [login, setLogin] = React.useState(false);
+  const navigate = useNavigate();
 
   const walletData = [
-    { icon: <AddCircleIcon />, label: 'Create' },
-    { icon: <AccountBalanceWalletIcon />, label: 'Info' },
-    { icon: <PaidIcon />, label: 'Trans' },
+    {
+      icon: <AddCircleIcon />,
+      label: 'Create',
+      handleClick: () => {
+        navigate("/create-wallet");
+      },
+    },
+    {
+      icon: <AccountBalanceWalletIcon />,
+      label: 'Info',
+      handleClick: () => {
+        navigate("/wallet-info");
+      },
+    },
+    {
+      icon: <PaidIcon />,
+      label: 'Trans',
+      handleClick: () => {
+        navigate("/wallet-trans");
+      },
+    },
   ];
   const accountData = [
     {
       icon: <LoginIcon />,
       label: 'Login',
       handleClick: () => {
-        setLogin(true);
+        navigate("/signin");
+        //setLogin(true);
       },
     },
     {
       icon: <AppRegistrationIcon />,
       label: 'Signup',
       handleClick: () => {
-        setLogin(true);
+        navigate("/signup");
+        //setLogin(true);
       },
     },
   ];
@@ -70,9 +94,17 @@ export default function Root() {
       icon: <People />,
       label: 'Profile',
       handleClick: () => {
+        navigate("/profile");
+        //setLogin(false);
+      },
+    },
+    {
+      icon: <LogoutIcon />,
+      label: 'Logout',
+      handleClick: () => {
         setLogin(false);
       },
-    }
+    },
   ];
 
   return (
@@ -208,6 +240,7 @@ export default function Root() {
                      <ListItemButton
                        key={item.label}
                        sx={{ py: 0, minHeight: 32, color: 'rgba(255,255,255,.8)' }}
+                       onClick={item.handleClick}
                      >
                        <ListItemIcon sx={{ color: 'inherit' }}>
                          {item.icon}
