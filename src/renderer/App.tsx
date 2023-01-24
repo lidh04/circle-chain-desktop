@@ -1,50 +1,120 @@
-import { MemoryRouter as Router, Routes, Route } from 'react-router-dom';
+import React from "react";
+import {
+  MemoryRouter as Router,
+  Link,
+  Routes,
+  Route,
+  createBrowserRouter,
+  RouterProvider,
+  createMemoryRouter,
+} from 'react-router-dom';
+import Button from '@mui/material/Button';
+import Box from '@mui/material/Box';
+import LoginIcon from '@mui/icons-material/Login';
+import AppRegistrationIcon from '@mui/icons-material/AppRegistration';
+import ErrorPage from './routes/error-page';
+import Root from "./routes/root";
 import icon from '../../assets/icon.svg';
 import './App.css';
 
 const Hello = () => {
+
+  const gotoLogin = () => {
+    console.log("navigate to signin");
+  };
+  const gotoRegister = () => {
+    console.log("navigate to signup");
+  };
   return (
     <div>
-      <div className="Hello">
+      <div className="hello">
         <img width="200" alt="icon" src={icon} />
       </div>
-      <h1>electron-react-boilerplate</h1>
-      <div className="Hello">
-        <a
-          href="https://electron-react-boilerplate.js.org/"
-          target="_blank"
-          rel="noreferrer"
+      <h1 className="hello">
+        {"circle chain app"}
+      </h1>
+      <div className="hello">
+        <Box
+          sx={{
+            '& > :not(style)': {
+              m: 1,
+            },
+          }}
         >
-          <button type="button">
-            <span role="img" aria-label="books">
-              📚
-            </span>
-            Read our docs
-          </button>
-        </a>
-        <a
-          href="https://github.com/sponsors/electron-react-boilerplate"
-          target="_blank"
-          rel="noreferrer"
-        >
-          <button type="button">
-            <span role="img" aria-label="folded hands">
-              🙏
-            </span>
-            Donate
-          </button>
-        </a>
+          <Button
+            variant="contained"
+            startIcon={<LoginIcon />}
+            color="primary"
+            onClick={gotoLogin}>
+            Login
+          </Button>
+          <Button
+            variant="contained"
+            startIcon={<AppRegistrationIcon />}
+            color="secondary"
+            onClick={gotoRegister}>
+            Signup
+          </Button>
+        </Box>
       </div>
     </div>
   );
 };
 
+const Login = () => {
+  return (
+    <div>
+      <h1>Login</h1>
+      <div>
+        <Link to="/index">Back</Link>
+      </div>
+    </div>
+  );
+};
+
+const Register = () => {
+  return (
+    <div>
+      <h1>Register</h1>
+      <div>
+        <Link to="/index">Back</Link>
+      </div>
+    </div>
+  );
+};
+
+const router = createMemoryRouter([
+  {
+    path: "/",
+    element: <Root />,
+    errorElement: <ErrorPage />,
+    children: [
+      {
+        path: "signin",
+        element: <Login />,
+        errorElement: <ErrorPage />,
+      },
+      {
+        path: "signup",
+        element: <Register />,
+        errorElement: <ErrorPage />,
+      },
+      {
+        path: "index",
+        element: <Hello />,
+        errorElement: <ErrorPage />,
+      },
+    ]
+}], {
+  initialEntries: ["/"],
+  initialIndex: 1,
+});
+
+
 export default function App() {
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<Hello />} />
-      </Routes>
-    </Router>
+    <React.StrictMode>
+      <RouterProvider router={router} />
+    </React.StrictMode>
   );
 }
