@@ -106,9 +106,12 @@ export default function Root() {
       },
     },
   ];
+  const goHome = () => {
+    navigate('/home');
+  };
 
   return (
-    <div className="root" style={{ display: "flex", width: "1000px"}}>
+    <div className="root" style={{ display: "flex", width: "100%"}}>
       <div className="sidebar" style={{padding: "1rem 2rem", borderRight: "solid 1px #999" }}>
         <Box sx={{ display: 'flex' }}>
           <ThemeProvider
@@ -143,12 +146,12 @@ export default function Root() {
                 </ListItemButton>
                 <Divider />
                 <ListItem component="div" disablePadding>
-                  <ListItemButton sx={{ height: 56 }}>
+                  <ListItemButton sx={{ height: 56 }} onClick={goHome}>
                     <ListItemIcon>
                       <Home color="primary" />
                     </ListItemIcon>
                     <ListItemText
-                      primary="Go Home"
+                      primary="Home"
                       primaryTypographyProps={{
                         color: 'primary',
                         fontWeight: 'medium',

@@ -1,63 +1,50 @@
-import {
-  Container,
-  Grid,
-  Box,
-  Typography,
-  Stack,
-  FormControlLabel,
-  Checkbox,
-} from '@mui/material';
+import { Container, Grid, Box, Typography, Stack } from '@mui/material';
 import LoadingButton from '@mui/lab/LoadingButton';
 import { FC } from 'react';
 import { useForm, SubmitHandler, FormProvider } from 'react-hook-form';
-import { Link } from 'react-router-dom';
-import { literal, object, string, TypeOf } from 'zod';
+import { object, string, TypeOf } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import FormInput from '../components/FormInput';
-import styled from '@emotion/styled';
+import { LinkItem } from './login';
 
-// 👇 Styled React Route Dom Link Component
-export const LinkItem = styled(Link)`
-  text-decoration: none;
-  color: #3683dc;
-  &:hover {
-    text-decoration: underline;
-    color: #5ea1b6;
-  }
-`;
-
-// 👇 Login Schema with Zod
-const loginSchema = object({
+// 👇 SignUp Schema with Zod
+const signupSchema = object({
+  name: string().min(1, 'Name is required').max(70),
   email: string().min(1, 'Email is required').email('Email is invalid'),
   password: string()
     .min(1, 'Password is required')
     .min(8, 'Password must be more than 8 characters')
     .max(32, 'Password must be less than 32 characters'),
-  persistUser: literal(true).optional(),
+  passwordConfirm: string().min(1, 'Please confirm your password'),
+}).refine((data) => data.password === data.passwordConfirm, {
+  path: ['passwordConfirm'],
+  message: 'Passwords do not match',
 });
 
-// 👇 Infer the Schema to get the TS Type
-type ILogin = TypeOf<typeof loginSchema>;
+// 👇 Infer the Schema to get TypeScript Type
+type ISignUp = TypeOf<typeof signupSchema>;
 
-const LoginPage: FC = () => {
+const SignupPage: FC = () => {
   // 👇 Default Values
-  const defaultValues: ILogin = {
+  const defaultValues: ISignUp = {
+    name: '',
     email: '',
     password: '',
+    passwordConfirm: '',
   };
 
-  // 👇 The object returned from useForm Hook
-  const methods = useForm<ILogin>({
-    resolver: zodResolver(loginSchema),
+  // 👇 Object containing all the methods returned by useForm
+  const methods = useForm<ISignUp>({
+    resolver: zodResolver(signupSchema),
     defaultValues,
   });
 
-  // 👇 Submit Handler
-  const onSubmitHandler: SubmitHandler<ILogin> = (values: ILogin) => {
-    console.log(values);
+  // 👇 Form Handler
+  const onSubmitHandler: SubmitHandler<ISignUp> = (values: ISignUp) => {
+    console.log(JSON.stringify(values, null, 4));
   };
 
-  // 👇 JSX to be rendered
+  // 👇 Returned JSX
   return (
     <Container
       maxWidth="sm"
@@ -73,15 +60,27 @@ const LoginPage: FC = () => {
           item
           sx={{ maxWidth: '45rem', width: '100%' }}
         >
-          <FormProvider {...methods}>
-            <Grid
-              container
-              sx={{
-                boxShadow: { sm: '0 0 0px #ddd' },
-                py: '1rem',
-                px: '1rem',
-              }}
-            >
+          <Grid
+            container
+            sx={{
+              borxShadow: { sm: '0 0 0px #ddd' },
+              py: '1rem',
+              px: '1rem',
+            }}
+          >
+            <FormProvider {...methods}>
+              <Typography
+                variant='h4'
+                component='h1'
+                sx={{
+                  textAlign: 'center',
+                  width: '100%',
+                  mb: '0.5rem',
+                  pb: { sm: '3rem' },
+                }}
+              >
+                Welcome To CircleChain!
+              </Typography>
               <Grid
                 item
                 container
@@ -111,9 +110,16 @@ const LoginPage: FC = () => {
                       component='h1'
                       sx={{ textAlign: 'center', mb: '1.5rem' }}
                     >
-                      Log into your account
+                      Create new your account
                     </Typography>
 
+                    <FormInput
+                      label='Name'
+                      type='text'
+                      name='name'
+                      focused
+                      required
+                    />
                     <FormInput
                       label='Enter your email'
                       type='email'
@@ -128,28 +134,12 @@ const LoginPage: FC = () => {
                       required
                       focused
                     />
-
-                    <FormControlLabel
-                      control={
-                        <Checkbox
-                          size='small'
-                          aria-label='remember me'
-                          required
-                          {...methods.register('persistUser')}
-                        />
-                      }
-                      label={
-                        <Typography
-                          variant='body2'
-                          sx={{
-                            fontSize: '0.8rem',
-                            fontWeight: 400,
-                            color: '#5e5b5d',
-                          }}
-                        >
-                          Remember me
-                        </Typography>
-                      }
+                    <FormInput
+                      type='password'
+                      label='Confirm Password'
+                      name='passwordConfirm'
+                      required
+                      focused
                     />
 
                     <LoadingButton
@@ -163,7 +153,7 @@ const LoginPage: FC = () => {
                         marginInline: 'auto',
                       }}
                     >
-                      Login
+                      Sign Up
                     </LoadingButton>
                   </Box>
                 </Grid>
@@ -171,21 +161,16 @@ const LoginPage: FC = () => {
               <Grid container justifyContent='center'>
                 <Stack sx={{ mt: '3rem', textAlign: 'center' }}>
                   <Typography sx={{ fontSize: '0.9rem', mb: '1rem' }}>
-                    Need an account?{' '}
-                    <LinkItem to='/signup'>Sign up here</LinkItem>
-                  </Typography>
-                  <Typography sx={{ fontSize: '0.9rem' }}>
-                    Forgot your{' '}
-                    <LinkItem to='/forgot-password'>password?</LinkItem>
+                    Already have an account? <LinkItem to='/signin'>Login</LinkItem>
                   </Typography>
                 </Stack>
               </Grid>
-            </Grid>
-          </FormProvider>
+            </FormProvider>
+          </Grid>
         </Grid>
       </Grid>
     </Container>
   );
 };
 
-export default LoginPage;
+export default SignupPage;

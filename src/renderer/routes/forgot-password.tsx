@@ -27,33 +27,28 @@ export const LinkItem = styled(Link)`
 `;
 
 // 👇 Login Schema with Zod
-const loginSchema = object({
+const resetSchema = object({
   email: string().min(1, 'Email is required').email('Email is invalid'),
-  password: string()
-    .min(1, 'Password is required')
-    .min(8, 'Password must be more than 8 characters')
-    .max(32, 'Password must be less than 32 characters'),
-  persistUser: literal(true).optional(),
 });
 
 // 👇 Infer the Schema to get the TS Type
-type ILogin = TypeOf<typeof loginSchema>;
+type IReset = TypeOf<typeof resetSchema>;
 
-const LoginPage: FC = () => {
+const ForgotPassword: FC = () => {
   // 👇 Default Values
-  const defaultValues: ILogin = {
+  const defaultValues: IReset = {
     email: '',
     password: '',
   };
 
   // 👇 The object returned from useForm Hook
-  const methods = useForm<ILogin>({
-    resolver: zodResolver(loginSchema),
+  const methods = useForm<IReset>({
+    resolver: zodResolver(resetSchema),
     defaultValues,
   });
 
   // 👇 Submit Handler
-  const onSubmitHandler: SubmitHandler<ILogin> = (values: ILogin) => {
+  const onSubmitHandler: SubmitHandler<IReset> = (values: IReset) => {
     console.log(values);
   };
 
@@ -111,7 +106,7 @@ const LoginPage: FC = () => {
                       component='h1'
                       sx={{ textAlign: 'center', mb: '1.5rem' }}
                     >
-                      Log into your account
+                      Reset your password
                     </Typography>
 
                     <FormInput
@@ -121,37 +116,6 @@ const LoginPage: FC = () => {
                       focused
                       required
                     />
-                    <FormInput
-                      type='password'
-                      label='Password'
-                      name='password'
-                      required
-                      focused
-                    />
-
-                    <FormControlLabel
-                      control={
-                        <Checkbox
-                          size='small'
-                          aria-label='remember me'
-                          required
-                          {...methods.register('persistUser')}
-                        />
-                      }
-                      label={
-                        <Typography
-                          variant='body2'
-                          sx={{
-                            fontSize: '0.8rem',
-                            fontWeight: 400,
-                            color: '#5e5b5d',
-                          }}
-                        >
-                          Remember me
-                        </Typography>
-                      }
-                    />
-
                     <LoadingButton
                       loading={false}
                       type='submit'
@@ -163,7 +127,7 @@ const LoginPage: FC = () => {
                         marginInline: 'auto',
                       }}
                     >
-                      Login
+                      Reset
                     </LoadingButton>
                   </Box>
                 </Grid>
@@ -171,12 +135,12 @@ const LoginPage: FC = () => {
               <Grid container justifyContent='center'>
                 <Stack sx={{ mt: '3rem', textAlign: 'center' }}>
                   <Typography sx={{ fontSize: '0.9rem', mb: '1rem' }}>
+                    Already have an account? <LinkItem to='/signin'>Login</LinkItem>
+                  </Typography>
+
+                  <Typography sx={{ fontSize: '0.9rem', mb: '1rem' }}>
                     Need an account?{' '}
                     <LinkItem to='/signup'>Sign up here</LinkItem>
-                  </Typography>
-                  <Typography sx={{ fontSize: '0.9rem' }}>
-                    Forgot your{' '}
-                    <LinkItem to='/forgot-password'>password?</LinkItem>
                   </Typography>
                 </Stack>
               </Grid>
@@ -188,4 +152,4 @@ const LoginPage: FC = () => {
   );
 };
 
-export default LoginPage;
+export default ForgotPassword;

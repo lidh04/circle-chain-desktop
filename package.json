@@ -112,7 +112,9 @@
     "@emotion/react": "^11.10.5",
     "@emotion/styled": "^11.10.5",
     "@fontsource/roboto": "^4.5.8",
+    "@hookform/resolvers": "^2.9.10",
     "@mui/icons-material": "^5.11.0",
+    "@mui/lab": "^5.0.0-alpha.117",
     "@mui/material": "^5.11.6",
     "@mui/styled-engine-sc": "^5.11.0",
     "electron-debug": "^3.2.0",
@@ -120,8 +122,10 @@
     "electron-updater": "^5.2.3",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-hook-form": "^7.42.1",
     "react-router-dom": "^6.4.0",
-    "styled-components": "^5.3.6"
+    "styled-components": "^5.3.6",
+    "zod": "^3.20.2"
   },
   "devDependencies": {
     "@electron/notarize": "^1.2.3",
