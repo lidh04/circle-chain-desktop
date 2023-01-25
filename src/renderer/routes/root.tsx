@@ -1,6 +1,5 @@
 import {
   Outlet,
-  Link,
   useNavigate,
 } from "react-router-dom";
 import * as React from 'react';
@@ -95,7 +94,6 @@ export default function Root() {
       label: 'Profile',
       handleClick: () => {
         navigate("/profile");
-        //setLogin(false);
       },
     },
     {
@@ -103,12 +101,17 @@ export default function Root() {
       label: 'Logout',
       handleClick: () => {
         setLogin(false);
+        navigate("/home");
       },
     },
   ];
   const goHome = () => {
     navigate('/home');
   };
+
+  React.useEffect(() => {
+    setLogin(true);
+  }, []);
 
   return (
     <div className="root" style={{ display: "flex", width: "100%"}}>

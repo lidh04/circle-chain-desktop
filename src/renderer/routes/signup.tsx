@@ -117,6 +117,7 @@ const SignupPage: FC = () => {
                       label='Enter your name'
                       type='text'
                       name='name'
+                      required
                     />
                     <FormInput
                       label='Enter your email'
