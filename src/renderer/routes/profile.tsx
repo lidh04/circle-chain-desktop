@@ -42,7 +42,7 @@ export default function Profile() {
         alignItems="center"
         mt={2}
         spacing={2}
-        sx={{ width: "560px", height: "auto" }}
+        sx={{ width: "100%", height: "auto" }}
       >
         <Avatar {...stringAvatar('John Doe')} />
         <h1>John Doe</h1>

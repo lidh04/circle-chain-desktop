@@ -115,7 +115,7 @@ export default function Root() {
 
   return (
     <div className="root" style={{ display: "flex", width: "100%"}}>
-      <div className="sidebar" style={{padding: "1rem 2rem", borderRight: "solid 1px #999" }}>
+      <div className="sidebar" style={{padding: "1rem 2rem", borderRight: "solid 1px #999", width: "321px" }}>
         <Box sx={{ display: 'flex' }}>
           <ThemeProvider
             theme={createTheme({
