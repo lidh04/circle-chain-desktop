@@ -118,7 +118,6 @@ const LoginPage: FC = () => {
                       label='Enter your email'
                       type='email'
                       name='email'
-                      focused
                       required
                     />
                     <FormInput
@@ -126,7 +125,6 @@ const LoginPage: FC = () => {
                       label='Password'
                       name='password'
                       required
-                      focused
                     />
 
                     <FormControlLabel

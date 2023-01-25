@@ -114,17 +114,14 @@ const SignupPage: FC = () => {
                     </Typography>
 
                     <FormInput
-                      label='Name'
+                      label='Enter your name'
                       type='text'
                       name='name'
-                      focused
-                      required
                     />
                     <FormInput
                       label='Enter your email'
                       type='email'
                       name='email'
-                      focused
                       required
                     />
                     <FormInput
@@ -132,14 +129,12 @@ const SignupPage: FC = () => {
                       label='Password'
                       name='password'
                       required
-                      focused
                     />
                     <FormInput
                       type='password'
                       label='Confirm Password'
                       name='passwordConfirm'
                       required
-                      focused
                     />
 
                     <LoadingButton

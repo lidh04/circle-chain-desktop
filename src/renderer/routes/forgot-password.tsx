@@ -113,7 +113,6 @@ const ForgotPassword: FC = () => {
                       label='Enter your email'
                       type='email'
                       name='email'
-                      focused
                       required
                     />
                     <LoadingButton
