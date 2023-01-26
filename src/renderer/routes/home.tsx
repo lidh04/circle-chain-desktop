@@ -27,19 +27,20 @@ export default function Home() {
         {"CircleChain app"}
       </h1>
       <div>
-        <p><h2>Introduction</h2></p>
+        <h2>Introduction</h2>
         <p>
           CircleChain app is blockchain based application. Its token is circle coin, the unit of <i>cc</i> is <i>li</i>, 1<i>cc</i> = 100,000<i>li</i>.
         </p>
         <p>
-          When a new block is mined, the coin base for miner is 10<i>cc</i>(1,000,000<i>li</i>). Not only circle coin is mined out, there are two other assets mined out: identity and ownership. So there are the three types of assets in new block:<br/>
-    <ul>
-      <li>1. circle coin</li>
-      <li>2. ownership uid</li>
-      <li>3. idenity uid</li>
-    </ul>
+          When a new block is mined, the coin base for miner is 10<i>cc</i>(1,000,000<i>li</i>). Not only circle coin is mined out, there are two other assets mined out: identity and ownership. So there are the three types of assets in new block:
         </p>
-        <p><h2>What's the difference?</h2></p>
+        <ul>
+          <li>1. circle coin</li>
+          <li>2. ownership uid</li>
+          <li>3. idenity uid</li>
+        </ul>
+
+        <h2>What's the difference?</h2>
         <p>
           The circle coin is just the coin token used to exchange for virtual assets including ownership, identity, authority of usage etc. All the virtual assets will be exchanged by circle coin.
         </p>
@@ -52,30 +53,30 @@ export default function Home() {
         <p>
           The identity can also be transfered from one address to the other address with some coin fees(10<i>li</i>). When one identity is transfered, the new identity uid will be generated to the transfer. The transfer and receiver are not constrained exception for the same address. So you can use your own two different addresses: one for the transfer, the other for the receiver, with some transfer coin fees, you can 'buy' some identity assets for you.
         </p>
-        <p><h2>How to use?</h2></p>
-        <p><h3>Anonymous user</h3></p>
+        <h2>How to use?</h2>
+        <h3>Anonymous user</h3>
         <p>Anonymous user can use wallet functions: create wallet, list wallet info, show transactions etc. All the data are stored in local storage encrypted with high security algorithms.</p>
-        <p><h4>Create wallet</h4></p>
+        <h4>Create wallet</h4>
         <p>Anonymous user can create local wallet with public and private keys. The wallet data is saved in local storaged encrypted with specific encryptions.</p>
 
-        <p><h4>List wallet</h4></p>
+        <h4>List wallet</h4>
         <p>Anonymous user can list his wallet information: wallet address, public key, balance, ownership and identity assets etc.</p>
 
-        <p><h4>Transactions</h4></p>
+        <h4>Transactions</h4>
         <p>Anonymous user can list recently transactions: income transactions and spent transactions</p>
 
-        <p><h3>Account user</h3></p>
+        <h3>Account user</h3>
         <p>Account user is the user who register in the app and then login the app. Account user will post the encrypted wallet data which is ecrypted with high security algorithms to p2p and open source circle node data server. Account user should not remember or write down the private key relevant contents. He only use his registered email to enjoy all the blockchain services.</p>
-        <p><h4>Create wallet</h4></p>
+        <h4>Create wallet</h4>
         <p>Account user can create cloud wallet with public and private keys. The wallet data is saved in the cloud server encrypted with specific high security encryptions.</p>
 
-        <p><h4>List wallet</h4></p>
+        <h4>List wallet</h4>
         <p>Account user can list his wallet information: wallet address, public key, balance, ownership and identity assets etc.</p>
 
-        <p><h4>Transactions</h4></p>
+        <h4>Transactions</h4>
         <p>Account user can list recently transactions: income transactions and spent transactions</p>
 
-        <p><h4>How to register or login?</h4></p>
+        <h4>How to register or login?</h4>
         <p>Please click the following buttons: If you are new user, please click 'Signup' to register, if you are old user, please click "Signin" to login.</p>
         {!login &&
          <div className="hello">
