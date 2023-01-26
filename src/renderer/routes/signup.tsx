@@ -110,7 +110,7 @@ const SignupPage: FC = () => {
                       component='h1'
                       sx={{ textAlign: 'center', mb: '1.5rem' }}
                     >
-                      Create new your account
+                      CREATE NEW YOUR ACCOUNT
                     </Typography>
 
                     <FormInput

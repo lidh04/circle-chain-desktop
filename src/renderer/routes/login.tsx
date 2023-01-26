@@ -73,6 +73,18 @@ const LoginPage: FC = () => {
           item
           sx={{ maxWidth: '45rem', width: '100%' }}
         >
+          <Typography
+            variant='h4'
+            component='h1'
+            sx={{
+              textAlign: 'center',
+              width: '100%',
+              mb: '0.5rem',
+              pb: { sm: '3rem' },
+            }}
+          >
+            Welcome To CircleChain!
+          </Typography>
           <FormProvider {...methods}>
             <Grid
               container
@@ -111,7 +123,7 @@ const LoginPage: FC = () => {
                       component='h1'
                       sx={{ textAlign: 'center', mb: '1.5rem' }}
                     >
-                      Log into your account
+                      LOG INTO YOUR ACCOUNT
                     </Typography>
 
                     <FormInput
@@ -133,7 +145,7 @@ const LoginPage: FC = () => {
                           size='small'
                           aria-label='remember me'
                           required
-                          {...methods.register('persistUser')}
+                        {...methods.register('persistUser')}
                         />
                       }
                       label={

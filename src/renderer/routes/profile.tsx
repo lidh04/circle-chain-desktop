@@ -43,9 +43,9 @@ export default function Profile() {
       spacing={2}
       sx={{ width: "100%", height: "auto" }}
     >
-      <Avatar {...stringAvatar('John Doe')} />
-      <h1>John Doe</h1>
-      <p className="title">john@gmail.com</p>
+      <Avatar {...stringAvatar('Charles li')} />
+      <h1>Charles li</h1>
+      <p className="title">lidh04@gmail.com</p>
     </Stack>
   );
 }

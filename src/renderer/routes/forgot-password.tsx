@@ -5,13 +5,13 @@ import {
   Typography,
   Stack,
   FormControlLabel,
-  Checkbox,
 } from '@mui/material';
+import * as React from 'react';
 import LoadingButton from '@mui/lab/LoadingButton';
 import { FC } from 'react';
 import { useForm, SubmitHandler, FormProvider } from 'react-hook-form';
 import { Link } from 'react-router-dom';
-import { literal, object, string, TypeOf } from 'zod';
+import { object, string, TypeOf } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import FormInput from '../components/FormInput';
 import styled from '@emotion/styled';
@@ -35,10 +35,11 @@ const resetSchema = object({
 type IReset = TypeOf<typeof resetSchema>;
 
 const ForgotPassword: FC = () => {
+  const [resetSucc, setResetSucc] = React.useState(false);
+  const [email, setEmail] = React.useState("");
   // 👇 Default Values
   const defaultValues: IReset = {
     email: '',
-    password: '',
   };
 
   // 👇 The object returned from useForm Hook
@@ -50,6 +51,8 @@ const ForgotPassword: FC = () => {
   // 👇 Submit Handler
   const onSubmitHandler: SubmitHandler<IReset> = (values: IReset) => {
     console.log(values);
+    setEmail(values.email);
+    setResetSucc(true);
   };
 
   // 👇 JSX to be rendered
@@ -68,6 +71,18 @@ const ForgotPassword: FC = () => {
           item
           sx={{ maxWidth: '45rem', width: '100%' }}
         >
+          <Typography
+            variant='h4'
+            component='h1'
+            sx={{
+              textAlign: 'center',
+              width: '100%',
+              mb: '0.5rem',
+              pb: { sm: '3rem' },
+            }}
+          >
+            Welcome To CircleChain!
+          </Typography>
           <FormProvider {...methods}>
             <Grid
               container
@@ -92,43 +107,53 @@ const ForgotPassword: FC = () => {
                   xs={12}
                   sm={12}
                 >
-                  <Box
-                    display='flex'
-                    flexDirection='column'
-                    component='form'
-                    noValidate
-                    autoComplete='off'
-                    sx={{ paddingRight: { sm: '3rem' } }}
-                    onSubmit={methods.handleSubmit(onSubmitHandler)}
+                  <Typography
+                    variant='h6'
+                    component='h1'
+                    sx={{ textAlign: 'center', mb: '1.5rem' }}
                   >
-                    <Typography
-                      variant='h6'
-                      component='h1'
-                      sx={{ textAlign: 'center', mb: '1.5rem' }}
-                    >
-                      Reset your password
-                    </Typography>
+                    RESET YOUR PASSWORD
+                  </Typography>
 
-                    <FormInput
-                      label='Enter your email'
-                      type='email'
-                      name='email'
-                      required
-                    />
-                    <LoadingButton
-                      loading={false}
-                      type='submit'
-                      variant='contained'
-                      sx={{
-                        py: '0.8rem',
-                        mt: 2,
-                        width: '32%',
-                        marginInline: 'auto',
-                      }}
-                    >
-                      Reset
-                    </LoadingButton>
-                  </Box>
+                  {!resetSucc &&
+                   <Box
+                     display='flex'
+                     flexDirection='column'
+                     component='form'
+                     noValidate
+                     autoComplete='off'
+                     sx={{ paddingRight: { sm: '3rem' } }}
+                     onSubmit={methods.handleSubmit(onSubmitHandler)}
+                   >
+                     <FormInput
+                       label='Enter your email'
+                       type='email'
+                       name='email'
+                       required
+                     />
+                     <LoadingButton
+                       loading={false}
+                       type='submit'
+                       variant='contained'
+                       sx={{
+                         py: '0.8rem',
+                         mt: 2,
+                         width: '32%',
+                         marginInline: 'auto',
+                       }}
+                     >
+                       Reset
+                     </LoadingButton>
+                   </Box>
+                  }
+                  {resetSucc &&
+                   <Typography sx={{ fontSize: '1rem', mb: '1rem' }}>
+                     Your password is reset successfully.<br/>
+                     Your reset password was sent to your email: {email}.<br/>
+                     Please open your email and login using the reset password.<br/>
+                     When you login with reset password, please change the password as soon as possible.
+                   </Typography>
+                  }
                 </Grid>
               </Grid>
               <Grid container justifyContent='center'>
