@@ -1,6 +1,14 @@
-import { Typography } from '@mui/material';
+import {
+  Button,
+  Grid,
+  MenuItem,
+  Select,
+  TextField,
+  Typography
+} from '@mui/material';
 import Paper from '@mui/material/Paper';
 import * as React from 'react';
+import SearchIcon from '@mui/icons-material/Search';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -79,6 +87,7 @@ const rows = [
 export default function WalletInfo() {
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
+  const [address, setAddress] = React.useState("");
 
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage);
@@ -87,6 +96,21 @@ export default function WalletInfo() {
   const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
     setRowsPerPage(+event.target.value);
     setPage(0);
+  };
+
+  const handleSelectChange = (event: Rreact.ChangeEvent<HTMLInputElement>) => {
+    const value = event.target.value;
+    console.log("selected target vaule:", value);
+  };
+
+  const handleAddressChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const value = event.target.value;
+    console.log("input address:", value);
+    setAddress(value);
+  };
+
+  const handleSearch = () => {
+    console.log("use click search button, search by address:", address);
   };
 
   return (
@@ -98,6 +122,40 @@ export default function WalletInfo() {
       >
         Wallet Information
       </Typography>
+      <Grid container spacing={2} sx={{ mb: '1rem', mt: '1rem', padding: '0.3rem 1rem' }}>
+        <Grid item xs={3}>
+          <Select
+            labelId="Filters"
+            id="filter-by-address"
+            value={"address"}
+            label="Filters"
+            onChange={handleSelectChange}
+            sx={{ width: "100%" }}
+          >
+            <MenuItem value={"address"}>Search by Address</MenuItem>
+          </Select>
+        </Grid>
+        <Grid item xs={7}>
+          <TextField
+            id="address-textfield"
+            label=""
+            variant="outlined"
+            sx={{ width: "100%"}}
+            onChange={handleAddressChange}
+          />
+        </Grid>
+        <Grid item xs={2}>
+          <Button
+            variant="contained"
+            startIcon={<SearchIcon />}
+            color="primary"
+            onClick={handleSearch}
+            sx={{ width: "100%", height: "100%", maxWidth: "180px" }}
+          >
+            Search
+          </Button>
+        </Grid>
+      </Grid>
       <TableContainer sx={{ maxHeight: 540 }}>
         <Table stickyHeader aria-label="sticky table">
           <TableHead>

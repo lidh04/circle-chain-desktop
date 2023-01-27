@@ -1,6 +1,14 @@
-import { Typography } from '@mui/material';
+import {
+  Button,
+  Grid,
+  MenuItem,
+  Select,
+  TextField,
+  Typography
+} from '@mui/material';
 import Paper from '@mui/material/Paper';
 import * as React from 'react';
+import SearchIcon from '@mui/icons-material/Search';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -77,6 +85,8 @@ const rows = [
 
 export default function WalletInfo() {
   const [page, setPage] = React.useState(0);
+  const [filter, setFilter] = React.useState("from");
+  const [input, setInput] = React.useState("");
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
 
   const handleChangePage = (event: unknown, newPage: number) => {
@@ -88,6 +98,22 @@ export default function WalletInfo() {
     setPage(0);
   };
 
+  const handleSelectChange= (event: Rreact.ChangeEvent<HTMLInputElement>) => {
+    const value = event.target.value;
+    console.log("selected target vaule:", value);
+    setFilter(value);
+  };
+
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const value = event.target.value;
+    console.log("input:", value);
+    setInput(value);
+  };
+
+  const handleSearch = () => {
+    console.log("use click search button, search by input:", input, "filter:", filter);
+  };
+
   return (
     <Paper sx={{ width: '100%', overflow: 'hidden' }}>
       <Typography
@@ -97,6 +123,43 @@ export default function WalletInfo() {
       >
         Wallet Transactions
       </Typography>
+      <Grid container spacing={2} sx={{ mb: '1rem', mt: '1rem', padding: '0.3rem 1rem' }}>
+        <Grid item xs={3}>
+          <Select
+            labelId="Filters"
+            id="filter-by-address"
+            value={filter}
+            label="Filters"
+            onChange={handleSelectChange}
+            sx={{ width: "100%" }}
+          >
+            <MenuItem value={"from"}>Search by From</MenuItem>
+            <MenuItem value={"to"}>Search by to</MenuItem>
+            <MenuItem value={"type"}>Search by Type</MenuItem>
+          </Select>
+        </Grid>
+        <Grid item xs={7}>
+          <TextField
+            id="input-textfield"
+            label=""
+            variant="outlined"
+            sx={{ width: "100%"}}
+            onChange={handleInputChange}
+          />
+        </Grid>
+        <Grid item xs={2}>
+          <Button
+            variant="contained"
+            startIcon={<SearchIcon />}
+            color="primary"
+            onClick={handleSearch}
+            sx={{ width: "100%", height: "100%", maxWidth: "180px" }}
+          >
+            Search
+          </Button>
+        </Grid>
+      </Grid>
+
       <TableContainer sx={{ maxHeight: 540 }}>
         <Table stickyHeader aria-label="sticky table">
           <TableHead>
