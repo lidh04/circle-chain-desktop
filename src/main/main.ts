@@ -81,6 +81,7 @@ const createWindow = async () => {
     },
   });
   //mainWindow.setResizable(false);
+  mainWindow.maximize();
   mainWindow.loadURL(resolveHtmlPath('index.html'));
 
   mainWindow.on('ready-to-show', () => {

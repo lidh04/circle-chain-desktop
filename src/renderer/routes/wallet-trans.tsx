@@ -18,7 +18,7 @@ import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
 
 interface Column {
-  id: 'name' | 'code' | 'population' | 'size' | 'density';
+  id: 'from' | 'to' | 'trans' | 'timestamp';
   label: string;
   minWidth?: number;
   align?: 'right';
@@ -29,21 +29,15 @@ const columns: readonly Column[] = [
   { id: 'from', label: 'From', minWidth: 150 },
   { id: 'to', label: 'To', minWidth: 150 },
   {
-    id: 'type',
-    label: 'Type',
-    minWidth: 60,
-    align: 'right',
-  },
-  {
-    id: 'content',
-    label: 'Content',
-    minWidth: 60,
+    id: 'trans',
+    label: 'Trans',
+    minWidth: 100,
     align: 'right',
   },
   {
     id: 'timestamp',
     label: 'Timestamp',
-    minWidth: 100,
+    minWidth: 120,
     align: 'right',
   },
 ];
@@ -51,36 +45,34 @@ const columns: readonly Column[] = [
 interface Data {
   from: string;
   to: string;
-  type: string;
-  content: string;
+  trans: string;
   timestamp: string;
 }
 
 function createData(
   from: string,
-  to: number,
-  type: string,
-  content: string,
+  to: string,
+  trans: string,
 ): Data {
-  return { from, to, type, content, timestamp: '2022-10-11 22:00:00' };
+  return { from, to, trans, timestamp: '2022-10-11 22:00:00' };
 }
 
 const rows = [
-  createData('1MVQfJrU3mK3M62hygJz9pmgBxVoGzPaKj', "1Lnj3A96SEix2nyY3RTm5rbqCX4tNuAXLn", "BAL", "100"),
-  createData('12UdA785W3Y6M3SR8HxxExe7PRcwvVg88S', "14q7erUx3bMWjzhjrx5NeK1LUKSiWe5UMY", "IDT", "0de5a851ef1cda49de81689cb1"),
-  createData('1L8eRrBuWnBxcQ6DKCDkkPM7ozxDcmpho1', "1FYnGyxYA5XyyjiPSGGgGJgjX8VnvQ4xw", "IDT", "0de5a851ef1cda49de81689cb1"),
-  createData('16rcESr6pm3x3PByQH6JEbJBzZkf5W5NQk', "1AVJGYtEKaS6P39yNGCuEPPy2xXL9Tzw5T", "OWN", "0de5a851ef1cda49de81689cb1"),
-  createData('1745rpVqjXSntEniXdFhvuRHNESoYpyynp', "1HQeLrWD7n9rp95aTRF9iZzE9NvtVCeXTN", "OWN", "0de5a851ef1cda49de81689cb1"),
-  createData('1Jhf7pUtmqK2ZqR9du7xa6uL1Qxdc14atG', "1NHYhHDdgoiMXcWCxtEceADyTCjGw5b4Gy", "OWN", "0de5a851ef1cda49de81689cb1"),
-  createData('1rmzxfP5J1QjYXMa9zmSC7dCBLTDciBda', "15GNsHp8AJFWacHNb1RA8gmMm4Zmh1mX2A", "OWN", "0de5a851ef1cda49de81689cb1"),
-  createData('12vU588JA4zGMA7gKDRuu3HGLrr3BxhkBt', "12GYQK9nSDBxn3TDy9uj9rnxGVuVbEDwWr", "BAL", "300"),
-  createData('12cSSRmfLMH8s5MrxeEdtgbKWnk28Si6cr', "1J4KmSGEjrjK81ciYuA9vxA46eRLYMTQB3", "IDT", "0de5a851ef1cda49de81689cb1"),
-  createData('1APGzvGwcDKWDobEEDiHtEehVz4G4jWeoR', "18xGLNHgwb29PTnoRqcNEFouNS9PV1yJG1", "IDT", "0de5a851ef1cda49de81689cb1"),
-  createData('1HDv7a7PqbYugZjaVJtMxvsnvpk7GS554s', "16dZa5gevGk9zeKf9f6ARnkdN7cDRz9bCj", "BAL", "200"),
-  createData('1EnfGqqXhUgo2fU63JMxJf7jgM1cSQULKg', "1GchqM3Ujw1gqEf3cuDDsxNEDHMnnui2kw", "BAL", "300"),
-  createData('1N7Y3QdRjm8KVEi2e2ejPjriAskHcxLFJu', "1AH3MHtDTWLCysJvVVhPC6nHJ9ZVJhEetx", "IDT", "0de5a851ef1cda49de81689cb1"),
-  createData('14hF1BynFVnBEFKxyo51FHmJksVwfxg4sg', "1XDbzJqry3nuNmtDEHZ16yZK2HGpcSdbc", "OWN", "0de5a851ef1cda49de81689cb1"),
-  createData('1NMhhRzQtyhocMa31kB5hhtXy2fRPy2rn', "1L3iLnooMexN3SLz6sDvYaWNtZ7nxZvwXn", "OWN", "0de5a851ef1cda49de81689cb1"),
+  createData('1MVQfJrU3mK3M62hygJz9pmgBxVoGzPaKj', "1Lnj3A96SEix2nyY3RTm5rbqCX4tNuAXLn", "BAL: 100"),
+  createData('12UdA785W3Y6M3SR8HxxExe7PRcwvVg88S', "14q7erUx3bMWjzhjrx5NeK1LUKSiWe5UMY", "IDT: 0de5a851ef1cda49de81689cb1"),
+  createData('1L8eRrBuWnBxcQ6DKCDkkPM7ozxDcmpho1', "1FYnGyxYA5XyyjiPSGGgGJgjX8VnvQ4xw", "IDT: 0de5a851ef1cda49de81689cb1"),
+  createData('16rcESr6pm3x3PByQH6JEbJBzZkf5W5NQk', "1AVJGYtEKaS6P39yNGCuEPPy2xXL9Tzw5T", "OWN: 0de5a851ef1cda49de81689cb1"),
+  createData('1745rpVqjXSntEniXdFhvuRHNESoYpyynp', "1HQeLrWD7n9rp95aTRF9iZzE9NvtVCeXTN", "OWN: 0de5a851ef1cda49de81689cb1"),
+  createData('1Jhf7pUtmqK2ZqR9du7xa6uL1Qxdc14atG', "1NHYhHDdgoiMXcWCxtEceADyTCjGw5b4Gy", "OWN: 0de5a851ef1cda49de81689cb1"),
+  createData('1rmzxfP5J1QjYXMa9zmSC7dCBLTDciBda', "15GNsHp8AJFWacHNb1RA8gmMm4Zmh1mX2A", "OWN: 0de5a851ef1cda49de81689cb1"),
+  createData('12vU588JA4zGMA7gKDRuu3HGLrr3BxhkBt', "12GYQK9nSDBxn3TDy9uj9rnxGVuVbEDwWr", "BAL: 300"),
+  createData('12cSSRmfLMH8s5MrxeEdtgbKWnk28Si6cr', "1J4KmSGEjrjK81ciYuA9vxA46eRLYMTQB3", "IDT: 0de5a851ef1cda49de81689cb1"),
+  createData('1APGzvGwcDKWDobEEDiHtEehVz4G4jWeoR', "18xGLNHgwb29PTnoRqcNEFouNS9PV1yJG1", "IDT: 0de5a851ef1cda49de81689cb1"),
+  createData('1HDv7a7PqbYugZjaVJtMxvsnvpk7GS554s', "16dZa5gevGk9zeKf9f6ARnkdN7cDRz9bCj", "BAL: 200"),
+  createData('1EnfGqqXhUgo2fU63JMxJf7jgM1cSQULKg', "1GchqM3Ujw1gqEf3cuDDsxNEDHMnnui2kw", "BAL: 300"),
+  createData('1N7Y3QdRjm8KVEi2e2ejPjriAskHcxLFJu', "1AH3MHtDTWLCysJvVVhPC6nHJ9ZVJhEetx", "IDT: 0de5a851ef1cda49de81689cb1"),
+  createData('14hF1BynFVnBEFKxyo51FHmJksVwfxg4sg', "1XDbzJqry3nuNmtDEHZ16yZK2HGpcSdbc", "OWN: 0de5a851ef1cda49de81689cb1"),
+  createData('1NMhhRzQtyhocMa31kB5hhtXy2fRPy2rn', "1L3iLnooMexN3SLz6sDvYaWNtZ7nxZvwXn", "OWN: 0de5a851ef1cda49de81689cb1"),
 ];
 
 export default function WalletInfo() {
@@ -134,8 +126,9 @@ export default function WalletInfo() {
             sx={{ width: "100%" }}
           >
             <MenuItem value={"from"}>Search by From</MenuItem>
-            <MenuItem value={"to"}>Search by to</MenuItem>
+            <MenuItem value={"to"}>Search by To</MenuItem>
             <MenuItem value={"type"}>Search by Type</MenuItem>
+            <MenuItem value={"uuid"}>Search by AssetId</MenuItem>
           </Select>
         </Grid>
         <Grid item xs={7}>
@@ -161,7 +154,7 @@ export default function WalletInfo() {
       </Grid>
 
       <TableContainer sx={{ maxHeight: 540 }}>
-        <Table stickyHeader aria-label="sticky table">
+        <Table stickyHeader aria-label="transaction table">
           <TableHead>
             <TableRow>
               {columns.map((column) => (

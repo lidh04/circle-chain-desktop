@@ -18,11 +18,11 @@ import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
 
 interface Column {
-  id: 'name' | 'code' | 'population' | 'size' | 'density';
+  id: 'address' | 'balance' | 'identity' | 'ownership' | 'keywords';
   label: string;
   minWidth?: number;
   align?: 'right';
-  format?: (value: number) => string;
+  htmlContent?: boolean;
 }
 
 const columns: readonly Column[] = [
@@ -45,6 +45,7 @@ const columns: readonly Column[] = [
     label: 'Keywords',
     minWidth: 200,
     align: 'right',
+    htmlContent: true,
   },
 ];
 
@@ -62,9 +63,10 @@ function createData(
   identity: number,
   ownership: number,
 ): Data {
-  const getKeywords = (address) => "申即静竞味聚...";
+  const getKeywords = (address: string) => address;
   return { address, balance, identity, ownership, keywords: getKeywords(address) };
 }
+
 
 const rows = [
   createData('1MVQfJrU3mK3M62hygJz9pmgBxVoGzPaKj', 100, 0, 0),
@@ -111,6 +113,10 @@ export default function WalletInfo() {
 
   const handleSearch = () => {
     console.log("use click search button, search by address:", address);
+  };
+
+  const showKeywords = (address: string) => {
+    console.log("click address:", address);
   };
 
   return (
@@ -181,9 +187,8 @@ export default function WalletInfo() {
                       const value = row[column.id];
                       return (
                         <TableCell key={column.id} align={column.align}>
-                          {column.format && typeof value === 'number'
-                          ? column.format(value)
-                          : value}
+                          {column.htmlContent
+                          ? <Button variant="text" onClick={() => showKeywords(value as string)}>{"Show"}</Button> : value}
                         </TableCell>
                       );
                     })}
