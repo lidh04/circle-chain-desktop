@@ -14,6 +14,7 @@ import ForgotPassword from "./routes/forgot-password";
 import Profile from "./routes/profile";
 import CreateWallet from "./routes/create-wallet";
 import WalletInfo from "./routes/wallet-info";
+import WalletPayment from './routes/wallet-payment';
 import WalletTrans from "./routes/wallet-trans";
 import './App.css';
 
@@ -57,6 +58,11 @@ const router = createMemoryRouter([
       {
         path: "wallet-info",
         element: <WalletInfo />,
+        errorElement: <ErrorPage />,
+      },
+      {
+        path: "wallet-payment",
+        element: <WalletPayment />,
         errorElement: <ErrorPage />,
       },
       {

@@ -6,6 +6,7 @@ import {
   TextField,
   Typography
 } from '@mui/material';
+import { styled } from '@mui/material/styles';
 import Paper from '@mui/material/Paper';
 import * as React from 'react';
 import SearchIcon from '@mui/icons-material/Search';
@@ -16,6 +17,15 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
+
+const Note = styled('div')(({ theme }) => ({
+  ...theme.typography.paragraph,
+  //backgroundColor: theme.palette.background.paper,
+  padding: theme.spacing(1),
+  textAlign: "center",
+  fontSize: "13px",
+  margin: "10px 5px",
+}));
 
 interface Column {
   id: 'from' | 'to' | 'trans' | 'timestamp';
@@ -154,6 +164,11 @@ export default function WalletInfo() {
       </Grid>
 
       <TableContainer sx={{ maxHeight: 540 }}>
+        <Note>
+          BAL: stands for balance of the transaction;
+          IDT: stands for identity id of the transaction;
+          OWN: stands for owership id of the transaction.
+        </Note>
         <Table stickyHeader aria-label="transaction table">
           <TableHead>
             <TableRow>

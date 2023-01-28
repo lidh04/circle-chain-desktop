@@ -24,6 +24,7 @@ import LoginIcon from '@mui/icons-material/Login';
 import LogoutIcon from '@mui/icons-material/Logout';
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import PaidIcon from '@mui/icons-material/Paid';
+import ReceiptIcon from '@mui/icons-material/Receipt';
 import AppRegistrationIcon from '@mui/icons-material/AppRegistration';
 
 
@@ -57,14 +58,21 @@ export default function Root() {
     },
     {
       icon: <AccountBalanceWalletIcon />,
-      label: 'Info',
+      label: 'Balance',
       handleClick: () => {
         navigate("/wallet-info");
       },
     },
     {
       icon: <PaidIcon />,
-      label: 'Trans',
+      label: 'Payment',
+      handleClick: () => {
+        navigate("/wallet-payment");
+      },
+    },
+    {
+      icon: <ReceiptIcon />,
+      label: 'Transaction',
       handleClick: () => {
         navigate("/wallet-trans");
       },
