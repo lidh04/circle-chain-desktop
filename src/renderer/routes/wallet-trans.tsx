@@ -19,6 +19,7 @@ import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
 import InputLabel from '@mui/material/InputLabel';
 import FormControl from '@mui/material/FormControl';
+import {useSearchParams,} from "react-router-dom";
 
 const Note = styled('div')(({ theme }) => ({
   ...theme.typography.paragraph,
@@ -92,6 +93,12 @@ export default function WalletInfo() {
   const [filter, setFilter] = React.useState("from");
   const [input, setInput] = React.useState("");
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
+  const [queryParameters] = useSearchParams();
+
+  React.useEffect(() => {
+    const addr = queryParameters.get("address");
+    setInput(addr);
+  }, [queryParameters, setInput]);
 
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage);
@@ -152,6 +159,7 @@ export default function WalletInfo() {
             label=""
             variant="outlined"
             sx={{ width: "100%"}}
+            value={input}
             onChange={handleInputChange}
           />
         </Grid>

@@ -11,9 +11,7 @@ import {
   Typography
 } from '@mui/material';
 import FormControl from '@mui/material/FormControl';
-import {
-  useSearchParams,
-} from "react-router-dom";
+import {useSearchParams,} from "react-router-dom";
 import { LoadingButton } from '@mui/lab';
 import InputLabel from '@mui/material/InputLabel';
 import SearchIcon from '@mui/icons-material/Search';
