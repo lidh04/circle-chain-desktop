@@ -17,6 +17,8 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
+import InputLabel from '@mui/material/InputLabel';
+import FormControl from '@mui/material/FormControl';
 
 const Note = styled('div')(({ theme }) => ({
   ...theme.typography.paragraph,
@@ -68,18 +70,18 @@ function createData(
 }
 
 const rows = [
-  createData('1MVQfJrU3mK3M62hygJz9pmgBxVoGzPaKj', "1Lnj3A96SEix2nyY3RTm5rbqCX4tNuAXLn", "BAL: 100"),
+  createData('1MVQfJrU3mK3M62hygJz9pmgBxVoGzPaKj', "1Lnj3A96SEix2nyY3RTm5rbqCX4tNuAXLn", "CRY: 100"),
   createData('12UdA785W3Y6M3SR8HxxExe7PRcwvVg88S', "14q7erUx3bMWjzhjrx5NeK1LUKSiWe5UMY", "IDT: 0de5a851ef1cda49de81689cb1"),
   createData('1L8eRrBuWnBxcQ6DKCDkkPM7ozxDcmpho1', "1FYnGyxYA5XyyjiPSGGgGJgjX8VnvQ4xw", "IDT: 0de5a851ef1cda49de81689cb1"),
   createData('16rcESr6pm3x3PByQH6JEbJBzZkf5W5NQk', "1AVJGYtEKaS6P39yNGCuEPPy2xXL9Tzw5T", "OWN: 0de5a851ef1cda49de81689cb1"),
   createData('1745rpVqjXSntEniXdFhvuRHNESoYpyynp', "1HQeLrWD7n9rp95aTRF9iZzE9NvtVCeXTN", "OWN: 0de5a851ef1cda49de81689cb1"),
   createData('1Jhf7pUtmqK2ZqR9du7xa6uL1Qxdc14atG', "1NHYhHDdgoiMXcWCxtEceADyTCjGw5b4Gy", "OWN: 0de5a851ef1cda49de81689cb1"),
   createData('1rmzxfP5J1QjYXMa9zmSC7dCBLTDciBda', "15GNsHp8AJFWacHNb1RA8gmMm4Zmh1mX2A", "OWN: 0de5a851ef1cda49de81689cb1"),
-  createData('12vU588JA4zGMA7gKDRuu3HGLrr3BxhkBt', "12GYQK9nSDBxn3TDy9uj9rnxGVuVbEDwWr", "BAL: 300"),
+  createData('12vU588JA4zGMA7gKDRuu3HGLrr3BxhkBt', "12GYQK9nSDBxn3TDy9uj9rnxGVuVbEDwWr", "CRY: 300"),
   createData('12cSSRmfLMH8s5MrxeEdtgbKWnk28Si6cr', "1J4KmSGEjrjK81ciYuA9vxA46eRLYMTQB3", "IDT: 0de5a851ef1cda49de81689cb1"),
   createData('1APGzvGwcDKWDobEEDiHtEehVz4G4jWeoR', "18xGLNHgwb29PTnoRqcNEFouNS9PV1yJG1", "IDT: 0de5a851ef1cda49de81689cb1"),
-  createData('1HDv7a7PqbYugZjaVJtMxvsnvpk7GS554s', "16dZa5gevGk9zeKf9f6ARnkdN7cDRz9bCj", "BAL: 200"),
-  createData('1EnfGqqXhUgo2fU63JMxJf7jgM1cSQULKg', "1GchqM3Ujw1gqEf3cuDDsxNEDHMnnui2kw", "BAL: 300"),
+  createData('1HDv7a7PqbYugZjaVJtMxvsnvpk7GS554s', "16dZa5gevGk9zeKf9f6ARnkdN7cDRz9bCj", "CRY: 200"),
+  createData('1EnfGqqXhUgo2fU63JMxJf7jgM1cSQULKg', "1GchqM3Ujw1gqEf3cuDDsxNEDHMnnui2kw", "CRY: 300"),
   createData('1N7Y3QdRjm8KVEi2e2ejPjriAskHcxLFJu', "1AH3MHtDTWLCysJvVVhPC6nHJ9ZVJhEetx", "IDT: 0de5a851ef1cda49de81689cb1"),
   createData('14hF1BynFVnBEFKxyo51FHmJksVwfxg4sg', "1XDbzJqry3nuNmtDEHZ16yZK2HGpcSdbc", "OWN: 0de5a851ef1cda49de81689cb1"),
   createData('1NMhhRzQtyhocMa31kB5hhtXy2fRPy2rn', "1L3iLnooMexN3SLz6sDvYaWNtZ7nxZvwXn", "OWN: 0de5a851ef1cda49de81689cb1"),
@@ -127,19 +129,22 @@ export default function WalletInfo() {
       </Typography>
       <Grid container spacing={2} sx={{ mb: '1rem', mt: '1rem', padding: '0.3rem 1rem' }}>
         <Grid item xs={3}>
-          <Select
-            labelId="Filters"
-            id="filter-by-address"
-            value={filter}
-            label="Filters"
-            onChange={handleSelectChange}
-            sx={{ width: "100%" }}
-          >
-            <MenuItem value={"from"}>Search by From</MenuItem>
-            <MenuItem value={"to"}>Search by To</MenuItem>
-            <MenuItem value={"type"}>Search by Type</MenuItem>
-            <MenuItem value={"uuid"}>Search by AssetId</MenuItem>
-          </Select>
+          <FormControl sx={{ m: 0, width: "100%" }}>
+            <InputLabel id="assetType">{filter}</InputLabel>
+            <Select
+              labelId="Filters"
+              id="filter-by-address"
+              value={filter}
+              label="Filters"
+              onChange={handleSelectChange}
+              sx={{ width: "100%" }}
+            >
+              <MenuItem value={"from"}>Search by From</MenuItem>
+              <MenuItem value={"to"}>Search by To</MenuItem>
+              <MenuItem value={"type"}>Search by Type</MenuItem>
+              <MenuItem value={"uuid"}>Search by AssetId</MenuItem>
+            </Select>
+          </FormControl>
         </Grid>
         <Grid item xs={7}>
           <TextField
@@ -165,7 +170,7 @@ export default function WalletInfo() {
 
       <TableContainer sx={{ maxHeight: 540 }}>
         <Note>
-          BAL: stands for balance of the transaction;
+          CRY: stands for currency value of the transaction;
           IDT: stands for identity id of the transaction;
           OWN: stands for owership id of the transaction.
         </Note>

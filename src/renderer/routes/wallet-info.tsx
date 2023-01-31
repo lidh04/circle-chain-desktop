@@ -13,6 +13,8 @@ import { styled } from '@mui/material/styles';
 import {
   useNavigate,
 } from "react-router-dom";
+import InputLabel from '@mui/material/InputLabel';
+import FormControl from '@mui/material/FormControl';
 import Avatar from '@mui/material/Avatar';
 import CloseIcon from '@mui/icons-material/Close';
 import Dialog from '@mui/material/Dialog';
@@ -48,6 +50,12 @@ interface Column {
 interface OperationsDialogProps {
   open: boolean;
   onClose: (value?: string) => void;
+}
+
+interface AddressDialogProps {
+  open: boolean;
+  onClose: (value?: string) => void;
+  address: string;
 }
 
 const columns: readonly Column[] = [
@@ -208,8 +216,8 @@ function BootstrapDialogTitle(props: DialogTitleProps) {
   );
 }
 
-function AddressDialog(props: OperationsDialogProps) {
-  const { onClose, open } = props;
+function AddressDialog(props: AddressDialogProps) {
+  const { onClose, open, address } = props;
 
   const handleClose = () => {
     onClose();
@@ -257,7 +265,7 @@ function AddressDialog(props: OperationsDialogProps) {
             <Typography
               sx={{ fontSize: "12px"}}
             >
-              address: {"1MVQfJrU3mK3M62hygJz9pmgBxVoGzPaKj"}
+              address: {address}
             </Typography>
           </Stack>
         </DialogContent>
@@ -314,6 +322,7 @@ export default function WalletInfo() {
 
   const showKeywords = (address: string) => {
     console.log("click address for keywords:", address);
+    setAddress(address);
     setOpenKeywords(true);
   };
 
@@ -323,6 +332,7 @@ export default function WalletInfo() {
 
   const openTrans = (address: string) => {
     console.log("click address for trans:", address);
+    setAddress(address);
     setOpen(true);
   };
 
@@ -337,16 +347,19 @@ export default function WalletInfo() {
       </Typography>
       <Grid container spacing={2} sx={{ mb: '1rem', mt: '1rem', padding: '0.3rem 1rem' }}>
         <Grid item xs={3}>
-          <Select
-            labelId="Filters"
-            id="filter-by-address"
-            value={"address"}
-            label="Filters"
-            onChange={handleSelectChange}
-            sx={{ width: "100%" }}
-          >
-            <MenuItem value={"address"}>Search by Address</MenuItem>
-          </Select>
+          <FormControl sx={{ m: 0, width: "100%" }}>
+            <InputLabel id="addressInputlabel">{"address"}</InputLabel>
+            <Select
+              labelId="Filters"
+              id="filter-by-address"
+              value={"address"}
+              label="Filters"
+              onChange={handleSelectChange}
+              sx={{ width: "100%" }}
+            >
+              <MenuItem value={"address"}>Search by Address</MenuItem>
+            </Select>
+          </FormControl>
         </Grid>
         <Grid item xs={7}>
           <TextField
@@ -424,6 +437,7 @@ export default function WalletInfo() {
       <AddressDialog
         open={openKeywords}
         onClose={handleAddressDialogClose}
+        address={address}
       />
     </Paper>
   );
