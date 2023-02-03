@@ -147,6 +147,7 @@ export default function WalletPayment() {
             sx={{ width: "100%" }}
             isOptionEqualToValue={(option: AutocompleteOption, value: AutocompleteOption) => option.label === value.label}
             onInputChange={handleAddressChange}
+            value={address}
             renderInput={(params) => <TextField {...params} label="Enter your address" />}
           />
         </Grid>
