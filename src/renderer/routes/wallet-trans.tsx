@@ -96,8 +96,10 @@ export default function WalletInfo() {
   const [queryParameters] = useSearchParams();
 
   React.useEffect(() => {
-    const addr = queryParameters.get("address");
-    setInput(addr);
+    const addr = queryParameters.get('address');
+    if (addr) {
+      setInput(addr);
+    }
   }, [queryParameters, setInput]);
 
   const handleChangePage = (event: unknown, newPage: number) => {

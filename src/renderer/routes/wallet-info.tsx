@@ -10,9 +10,8 @@ import {
 } from '@mui/material';
 import { blue } from '@mui/material/colors';
 import { styled } from '@mui/material/styles';
-import {
-  useNavigate,
-} from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import Autocomplete from '@mui/material/Autocomplete';
 import InputLabel from '@mui/material/InputLabel';
 import FormControl from '@mui/material/FormControl';
 import Avatar from '@mui/material/Avatar';
@@ -129,6 +128,14 @@ const rows = [
   createData('14hF1BynFVnBEFKxyo51FHmJksVwfxg4sg', 5000, 200, 923),
   createData('1NMhhRzQtyhocMa31kB5hhtXy2fRPy2rn', 3900, 210, 851),
 ];
+
+interface AutocompleteOption {
+  label: string;
+}
+
+const addresses: AutocompleteOption[] = rows.map((row) => ({
+  label: row.address,
+}));
 
 function OperationsDialog(props: OperationsDialogProps) {
   const { onClose, open } = props;
@@ -310,9 +317,8 @@ export default function WalletInfo() {
     console.log("selected target vaule:", value);
   };
 
-  const handleAddressChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const value = event.target.value;
-    console.log("input address:", value);
+  const handleAddressChange = (event: React.SyntheticEvent, value: string, reason: string) => {
+    console.log("input value:", value, "reason:", reason);
     setAddress(value);
   };
 
@@ -362,12 +368,14 @@ export default function WalletInfo() {
           </FormControl>
         </Grid>
         <Grid item xs={7}>
-          <TextField
-            id="address-textfield"
-            label=""
-            variant="outlined"
-            sx={{ width: "100%"}}
-            onChange={handleAddressChange}
+          <Autocomplete
+            disablePortal
+            id="combo-box-demo"
+            options={addresses}
+            sx={{ width: "100%" }}
+            isOptionEqualToValue={(option: AutocompleteOption, value: AutocompleteOption) => option.label === value.label}
+            onInputChange={handleAddressChange}
+            renderInput={(params) => <TextField {...params} label="Enter your address" />}
           />
         </Grid>
         <Grid item xs={2}>
