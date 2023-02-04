@@ -6,6 +6,7 @@ import {
   TextField,
   Typography
 } from '@mui/material';
+import Autocomplete from '@mui/material/Autocomplete';
 import { styled } from '@mui/material/styles';
 import Paper from '@mui/material/Paper';
 import * as React from 'react';
@@ -55,6 +56,34 @@ const columns: readonly Column[] = [
   },
 ];
 
+type AutocompleteOption = string;
+const types = ['CRY', 'IDT', 'OWN'];
+const addresses: AutocompleteOption[] = [
+  '1MVQfJrU3mK3M62hygJz9pmgBxVoGzPaKj',
+  '12UdA785W3Y6M3SR8HxxExe7PRcwvVg88S',
+  '1L8eRrBuWnBxcQ6DKCDkkPM7ozxDcmpho1',
+  '16rcESr6pm3x3PByQH6JEbJBzZkf5W5NQk',
+  '1745rpVqjXSntEniXdFhvuRHNESoYpyynp',
+  '1Jhf7pUtmqK2ZqR9du7xa6uL1Qxdc14atG',
+  '1rmzxfP5J1QjYXMa9zmSC7dCBLTDciBda',
+  '12vU588JA4zGMA7gKDRuu3HGLrr3BxhkBt',
+  '12cSSRmfLMH8s5MrxeEdtgbKWnk28Si6cr',
+  '1APGzvGwcDKWDobEEDiHtEehVz4G4jWeoR',
+  '1HDv7a7PqbYugZjaVJtMxvsnvpk7GS554s',
+  '1EnfGqqXhUgo2fU63JMxJf7jgM1cSQULKg',
+  '1N7Y3QdRjm8KVEi2e2ejPjriAskHcxLFJu',
+  '14hF1BynFVnBEFKxyo51FHmJksVwfxg4sg',
+  '1NMhhRzQtyhocMa31kB5hhtXy2fRPy2rn',
+];
+const uuids: AutocompleteOption[] = [
+  '0de5a851ef1cda49de81689cb1',
+  '0de5a851ef1cda49de81689cb2',
+  '0de5a851ef1cda49de81689cb3',
+  '0de5a851ef1cda49de81689cb4',
+  '0de5a851ef1cda49de81689cb5',
+  '0de5a851ef1cda49de81689cb6',
+];
+
 interface Data {
   from: string;
   to: string;
@@ -98,6 +127,9 @@ export default function WalletInfo() {
   React.useEffect(() => {
     const addr = queryParameters.get('address');
     if (addr) {
+      if (!addresses.includes(addr)) {
+        addresses.push(addr);
+      }
       setInput(addr);
     }
   }, [queryParameters, setInput]);
@@ -117,9 +149,8 @@ export default function WalletInfo() {
     setFilter(value);
   };
 
-  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const value = event.target.value;
-    console.log("input:", value);
+  const handleInputChange = (event: React.SyntheticEvent, value: string, reason: string) => {
+    console.log("input value:", value, "reason:", reason);
     setInput(value);
   };
 
@@ -156,14 +187,40 @@ export default function WalletInfo() {
           </FormControl>
         </Grid>
         <Grid item xs={7}>
-          <TextField
-            id="input-textfield"
-            label=""
-            variant="outlined"
-            sx={{ width: "100%"}}
-            value={input}
-            onChange={handleInputChange}
-          />
+          {filter === 'type' &&
+           <Autocomplete
+             disablePortal
+             id="type-auto-complete"
+             options={types}
+             sx={{ width: "100%" }}
+             isOptionEqualToValue={(option: AutocompleteOption, value: AutocompleteOption) => option === value}
+             onInputChange={handleInputChange}
+             renderInput={(params) => <TextField {...params} label="Enter type" />}
+           />
+          }
+          {(filter === 'from' || filter === 'to') &&
+           <Autocomplete
+             disablePortal
+             id="address-box-demo"
+             options={addresses}
+             value={input ? input : addresses[0]}
+             sx={{ width: "100%" }}
+             isOptionEqualToValue={(option: AutocompleteOption, value: AutocompleteOption) => option === value}
+             onInputChange={handleInputChange}
+             renderInput={(params) => <TextField {...params} label="Enter address" />}
+           />
+          }
+          {filter === 'uuid' &&
+           <Autocomplete
+             disablePortal
+             id="uuid-box-demo"
+             options={uuids}
+             sx={{ width: "100%" }}
+             isOptionEqualToValue={(option: AutocompleteOption, value: AutocompleteOption) => option === value}
+             onInputChange={handleInputChange}
+             renderInput={(params) => <TextField {...params} label="Enter uuid" />}
+           />
+          }
         </Grid>
         <Grid item xs={2}>
           <Button

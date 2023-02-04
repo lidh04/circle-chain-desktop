@@ -67,6 +67,9 @@ export default function WalletPayment() {
   React.useEffect(() => {
     const addr = queryParameters.get('address');
     if (addr) {
+      if (!addresses.includes(addr)) {
+        addresses.push(addr);
+      }
       setAddress(addr);
     }
   }, [queryParameters, setAddress]);
@@ -145,9 +148,9 @@ export default function WalletPayment() {
             id="combo-box-demo"
             options={addresses}
             sx={{ width: "100%" }}
-            isOptionEqualToValue={(option: AutocompleteOption, value: AutocompleteOption) => option.label === value.label}
+            isOptionEqualToValue={(option: AutocompleteOption, value: AutocompleteOption) => option === value}
             onInputChange={handleAddressChange}
-            value={address}
+            value={address ? address : addresses[0]}
             renderInput={(params) => <TextField {...params} label="Enter your address" />}
           />
         </Grid>
@@ -226,7 +229,7 @@ export default function WalletPayment() {
              id="ownership-auto-complete"
              options={ownerships}
              sx={{ width: "100%" }}
-             isOptionEqualToValue={(option: AutocompleteOption, value: AutocompleteOption) => option.label === value.label}
+             isOptionEqualToValue={(option: AutocompleteOption, value: AutocompleteOption) => option === value}
              onInputChange={handleInputAssetChange}
              renderInput={(params) => <TextField {...params} label="Enter your ownership asset" />}
            />
@@ -237,7 +240,7 @@ export default function WalletPayment() {
              id="identity-auto-complete"
              options={identities}
              sx={{ width: "100%" }}
-             isOptionEqualToValue={(option: AutocompleteOption, value: AutocompleteOption) => option.label === value.label}
+             isOptionEqualToValue={(option: AutocompleteOption, value: AutocompleteOption) => option === value}
              onInputChange={handleInputAssetChange}
              renderInput={(params) => <TextField {...params} label="Enter your identity asset" />}
            />
