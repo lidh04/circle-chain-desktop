@@ -6,11 +6,11 @@ import {
   Select,
   Stack,
   TextField,
-  Typography
+  Typography,
 } from '@mui/material';
 import { blue } from '@mui/material/colors';
 import { styled } from '@mui/material/styles';
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from 'react-router-dom';
 import Autocomplete from '@mui/material/Autocomplete';
 import InputLabel from '@mui/material/InputLabel';
 import FormControl from '@mui/material/FormControl';
@@ -38,9 +38,14 @@ import TableHead from '@mui/material/TableHead';
 import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
 
-
 interface Column {
-  id: 'address' | 'balance' | 'identity' | 'ownership' | 'operation' | 'keywords';
+  id:
+    | 'address'
+    | 'balance'
+    | 'identity'
+    | 'ownership'
+    | 'operation'
+    | 'keywords';
   label: string;
   minWidth?: number;
   align?: 'right';
@@ -99,7 +104,7 @@ function createData(
   address: string,
   balance: number,
   identity: number,
-  ownership: number,
+  ownership: number
 ): Data {
   return {
     address,
@@ -141,7 +146,7 @@ function OperationsDialog(props: OperationsDialogProps) {
   const { onClose, open } = props;
 
   const handleClose = () => {
-    onClose("");
+    onClose('');
   };
 
   const handleListItemClick = (value: string) => {
@@ -237,7 +242,10 @@ function AddressDialog(props: AddressDialogProps) {
         aria-labelledby="customized-dialog-title"
         open={open}
       >
-        <BootstrapDialogTitle id="customized-dialog-title" onClose={handleClose}>
+        <BootstrapDialogTitle
+          id="customized-dialog-title"
+          onClose={handleClose}
+        >
           Address Keywords
         </BootstrapDialogTitle>
         <DialogContent dividers>
@@ -247,19 +255,21 @@ function AddressDialog(props: AddressDialogProps) {
             alignItems="center"
             mt={2}
             spacing={2}
-            sx={{ width: "100%", height: "auto" }}
+            sx={{ width: '100%', height: 'auto' }}
           >
             <Typography gutterBottom>
-              {"「申即静」"}<br/>
-              {"竞味聚识咸，"}<br/>
-              {"嚷气鞭兼即。"}<br/>
-              {"匙稀遗翼饱，"}<br/>
-              {"美肢遮台斗。"}
+              '「申即静」'
+              <br />
+              '竞味聚识咸，'
+              <br />
+              '嚷气鞭兼即。'
+              <br />
+              '匙稀遗翼饱，'
+              <br />
+              '美肢遮台斗。'
             </Typography>
 
-            <Typography gutterBottom>
-              Address QrCode:
-            </Typography>
+            <Typography gutterBottom>Address QrCode:</Typography>
             <Box
               component="img"
               sx={{
@@ -269,9 +279,7 @@ function AddressDialog(props: AddressDialogProps) {
               alt="The new address qrcode."
               src="https://circle-node.net/static/release/circle-node.jpg"
             />
-            <Typography
-              sx={{ fontSize: "12px"}}
-            >
+            <Typography sx={{ fontSize: '12px' }}>
               address: {address}
             </Typography>
           </Stack>
@@ -290,7 +298,7 @@ export default function WalletInfo() {
   const [page, setPage] = React.useState(0);
   const [searchedRows, setSearchedRows] = React.useState<Data[] | null>(null);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
-  const [address, setAddress] = React.useState("");
+  const [address, setAddress] = React.useState('');
   const [open, setOpen] = React.useState(false);
   const [openKeywords, setOpenKeywords] = React.useState(false);
   const navigate = useNavigate();
@@ -301,9 +309,9 @@ export default function WalletInfo() {
 
   const handleDialogClose = (value?: string) => {
     setOpen(false);
-    if (value === "searchByAddress") {
+    if (value === 'searchByAddress') {
       navigate(`/wallet-trans?address=${address}`);
-    } else if (value === "payWithAddress") {
+    } else if (value === 'payWithAddress') {
       navigate(`/wallet-payment?address=${address}`);
     }
   };
@@ -312,23 +320,29 @@ export default function WalletInfo() {
     setPage(newPage);
   };
 
-  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChangeRowsPerPage = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     setRowsPerPage(+event.target.value);
     setPage(0);
   };
 
   const handleSelectChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
-    console.log("selected target vaule:", value);
+    console.log('selected target vaule:', value);
   };
 
-  const handleAddressChange = (event: React.SyntheticEvent, value: string, reason: string) => {
-    console.log("input value:", value, "reason:", reason);
+  const handleAddressChange = (
+    event: React.SyntheticEvent,
+    value: string,
+    reason: string
+  ) => {
+    console.log('input value:', value, 'reason:', reason);
     setAddress(value);
   };
 
   const handleSearch = () => {
-    console.log("use click search button, search by address:", address);
+    console.log('use click search button, search by address:', address);
     if (address) {
       const findRows = rows.filter((row) => row.address === address);
       setSearchedRows(findRows);
@@ -337,9 +351,9 @@ export default function WalletInfo() {
     }
   };
 
-  const showKeywords = (address: string) => {
-    console.log("click address for keywords:", address);
-    setAddress(address);
+  const showKeywords = (addr: string) => {
+    console.log('click address for keywords:', addr);
+    setAddress(addr);
     setOpenKeywords(true);
   };
 
@@ -347,34 +361,38 @@ export default function WalletInfo() {
     setOpenKeywords(false);
   };
 
-  const openTrans = (address: string) => {
-    console.log("click address for trans:", address);
-    setAddress(address);
+  const openTrans = (addr: string) => {
+    console.log('click address for trans:', addr);
+    setAddress(addr);
     setOpen(true);
   };
 
   return (
     <Paper sx={{ width: '100%', overflow: 'hidden' }}>
       <Typography
-        variant='h6'
-        component='h1'
-        sx={{ textAlign: 'center', mb: '1rem', mt: "1rem" }}
+        variant="h6"
+        component="h1"
+        sx={{ textAlign: 'center', mb: '1rem', mt: '1rem' }}
       >
         Wallet Balance
       </Typography>
-      <Grid container spacing={2} sx={{ mb: '1rem', mt: '1rem', padding: '0.3rem 1rem' }}>
+      <Grid
+        container
+        spacing={2}
+        sx={{ mb: '1rem', mt: '1rem', padding: '0.3rem 1rem' }}
+      >
         <Grid item xs={3}>
-          <FormControl sx={{ m: 0, width: "100%" }}>
-            <InputLabel id="addressInputlabel">{"address"}</InputLabel>
+          <FormControl sx={{ m: 0, width: '100%' }}>
+            <InputLabel id="addressInputlabel">address</InputLabel>
             <Select
               labelId="Filters"
               id="filter-by-address"
-              value={"address"}
+              value="address"
               label="Filters"
               onChange={handleSelectChange}
-              sx={{ width: "100%" }}
+              sx={{ width: '100%' }}
             >
-              <MenuItem value={"address"}>Search by Address</MenuItem>
+              <MenuItem value="address">Search by Address</MenuItem>
             </Select>
           </FormControl>
         </Grid>
@@ -383,10 +401,15 @@ export default function WalletInfo() {
             disablePortal
             id="combo-box-demo"
             options={addresses}
-            sx={{ width: "100%" }}
-            isOptionEqualToValue={(option: AutocompleteOption, value: AutocompleteOption) => option.label === value.label}
+            sx={{ width: '100%' }}
+            isOptionEqualToValue={(
+              option: AutocompleteOption,
+              value: AutocompleteOption
+            ) => option.label === value.label}
             onInputChange={handleAddressChange}
-            renderInput={(params) => <TextField {...params} label="Enter your address" />}
+            renderInput={(params) => (
+              <TextField {...params} label="Enter your address" />
+            )}
           />
         </Grid>
         <Grid item xs={2}>
@@ -395,7 +418,7 @@ export default function WalletInfo() {
             startIcon={<SearchIcon />}
             color="primary"
             onClick={handleSearch}
-            sx={{ width: "100%", height: "100%", maxWidth: "180px" }}
+            sx={{ width: '100%', height: '100%', maxWidth: '180px' }}
           >
             Search
           </Button>
@@ -417,26 +440,44 @@ export default function WalletInfo() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {searchedRows && searchedRows
-              .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-              .map((row) => {
-                return (
-                  <TableRow hover role="checkbox" tabIndex={-1} key={row.address}>
-                    {columns.map((column) => {
-                      const value = row[column.id];
-                      return (
-                        <TableCell key={column.id} align={column.align}>
-                          {column.id === 'keywords'
-                          ? <Button variant="text" onClick={() => showKeywords(value as string)}>{"Show"}</Button>
-                          : (column.id === 'operation'
-                           ? <Button variant="text" onClick={() => openTrans(value as string)}>{"Open"}</Button> : value)
-                          }
-                        </TableCell>
-                      );
-                    })}
-                  </TableRow>
-                );
-            })}
+            {searchedRows &&
+              searchedRows
+                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                .map((row) => {
+                  return (
+                    <TableRow
+                      hover
+                      role="checkbox"
+                      tabIndex={-1}
+                      key={row.address}
+                    >
+                      {columns.map((column) => {
+                        const value = row[column.id];
+                        return (
+                          <TableCell key={column.id} align={column.align}>
+                            {column.id === 'keywords' ? (
+                              <Button
+                                variant="text"
+                                onClick={() => showKeywords(value as string)}
+                              >
+                                Show
+                              </Button>
+                            ) : column.id === 'operation' ? (
+                              <Button
+                                variant="text"
+                                onClick={() => openTrans(value as string)}
+                              >
+                                Open
+                              </Button>
+                            ) : (
+                              value
+                            )}
+                          </TableCell>
+                        );
+                      })}
+                    </TableRow>
+                  );
+                })}
           </TableBody>
         </Table>
       </TableContainer>
@@ -449,10 +490,7 @@ export default function WalletInfo() {
         onPageChange={handleChangePage}
         onRowsPerPageChange={handleChangeRowsPerPage}
       />
-      <OperationsDialog
-        open={open}
-        onClose={handleDialogClose}
-      />
+      <OperationsDialog open={open} onClose={handleDialogClose} />
       <AddressDialog
         open={openKeywords}
         onClose={handleAddressDialogClose}

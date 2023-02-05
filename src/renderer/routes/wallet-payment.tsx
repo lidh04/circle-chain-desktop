@@ -51,9 +51,9 @@ const ownerships: AutocompleteOption[] = [
   '1N7Y3QdRjm8KVEi2e2ejPjriAskHcxLFJu',
   '14hF1BynFVnBEFKxyo51FHmJksVwfxg4sg',
   '1NMhhRzQtyhocMa31kB5hhtXy2fRPy2rn',
-]
+];
 
-const assetTypes = [ 'CRY', 'OWN', 'IDT', ];
+const assetTypes = ['CRY', 'OWN', 'IDT'];
 
 export default function WalletPayment() {
   const [payType, setPayType] = React.useState('from');
@@ -75,7 +75,9 @@ export default function WalletPayment() {
   }, [queryParameters, setAddress]);
 
   const handlePayTypeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const value = event.target.value;
+    const {
+      target: { value },
+    } = event;
     setPayType(value);
     if (value === 'from') {
       setPayType2('to');
@@ -85,13 +87,19 @@ export default function WalletPayment() {
     console.log('pay type:', value);
   };
 
-  const handleAddressChange = (event: React.SyntheticEvent, value: string, reason: string) => {
-    console.log("input value:", value, "reason:", reason);
+  const handleAddressChange = (
+    event: React.SyntheticEvent,
+    value: string,
+    reason: string
+  ) => {
+    console.log('input value:', value, 'reason:', reason);
     setAddress(value);
   };
 
   const handleEmailChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const value = event.target.value;
+    const {
+      target: { value },
+    } = event;
     setOtherEmail(value);
     console.log('email:', value);
   };
@@ -100,20 +108,30 @@ export default function WalletPayment() {
     console.log('use click search button, handle by payType:', payType);
   };
 
-  const handleAssetTypeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const value = event.target.value;
-    setAssetType(value);
+  const handleAssetTypeChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const {
+      target: { value },
+    } = event;
+    setAssetType(parseInt(value, 10));
     console.log('asset type:', value);
   };
 
   const handleAssetChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const value = event.target.value;
+    const {
+      target: { value },
+    } = event;
     setAsset(value);
     console.log('asset:', value);
   };
 
-  const handleInputAssetChange = (event: React.SyntheticEvent, value: string, reason: string) => {
-    console.log("input value:", value, "reason:", reason);
+  const handleInputAssetChange = (
+    event: React.SyntheticEvent,
+    value: string,
+    reason: string
+  ) => {
+    console.log('input value:', value, 'reason:', reason);
     setAsset(value);
   };
   return (
@@ -125,20 +143,26 @@ export default function WalletPayment() {
       >
         Wallet Payment
       </Typography>
-      <Grid container spacing={2} sx={{ mb: '1rem', mt: '1rem', padding: '0.3rem 1rem' }}>
+      <Grid
+        container
+        spacing={2}
+        sx={{ mb: '1rem', mt: '1rem', padding: '0.3rem 1rem' }}
+      >
         <Grid item xs={3}>
-          <FormControl sx={{ m: 0, width: "100%" }}>
-            <InputLabel id="demo-simple-select-error-label1">{payType}</InputLabel>
+          <FormControl sx={{ m: 0, width: '100%' }}>
+            <InputLabel id="demo-simple-select-error-label1">
+              {payType}
+            </InputLabel>
             <Select
               labelId="Filters"
               id="filter-by-address"
               value={payType}
               label="Filters"
               onChange={handlePayTypeChange}
-              sx={{ width: "100%" }}
+              sx={{ width: '100%' }}
             >
-              <MenuItem value={"from"}>Pay From</MenuItem>
-              <MenuItem value={"to"}>Receive To</MenuItem>
+              <MenuItem value="from">Pay From</MenuItem>
+              <MenuItem value="to">Receive To</MenuItem>
             </Select>
           </FormControl>
         </Grid>
@@ -147,28 +171,40 @@ export default function WalletPayment() {
             disablePortal
             id="combo-box-demo"
             options={addresses}
-            sx={{ width: "100%" }}
-            isOptionEqualToValue={(option: AutocompleteOption, value: AutocompleteOption) => option === value}
+            sx={{ width: '100%' }}
+            isOptionEqualToValue={(
+              option: AutocompleteOption,
+              value: AutocompleteOption
+            ) => option === value}
             onInputChange={handleAddressChange}
-            value={address ? address : addresses[0]}
-            renderInput={(params) => <TextField {...params} label="Enter your address" />}
+            value={address}
+            freeSolo
+            renderInput={(params) => (
+              <TextField {...params} label="Enter your address" />
+            )}
           />
         </Grid>
       </Grid>
 
-      <Grid container spacing={2} sx={{ mb: '1rem', mt: '1rem', padding: '0.3rem 1rem' }}>
+      <Grid
+        container
+        spacing={2}
+        sx={{ mb: '1rem', mt: '1rem', padding: '0.3rem 1rem' }}
+      >
         <Grid item xs={3}>
-          <FormControl sx={{ m: 0, width: "100%" }} disabled>
-            <InputLabel id="demo-simple-select-error-label2">{payType2}</InputLabel>
+          <FormControl sx={{ m: 0, width: '100%' }} disabled>
+            <InputLabel id="demo-simple-select-error-label2">
+              {payType2}
+            </InputLabel>
             <Select
               labelId="Filters2"
               id="filter-by-address"
               value={payType2}
               label="Filters"
-              sx={{ width: "100%" }}
+              sx={{ width: '100%' }}
             >
-              <MenuItem value={"from"}>Pay From</MenuItem>
-              <MenuItem value={"to"}>Receive To</MenuItem>
+              <MenuItem value="from">Pay From</MenuItem>
+              <MenuItem value="to">Receive To</MenuItem>
             </Select>
           </FormControl>
         </Grid>
@@ -177,7 +213,7 @@ export default function WalletPayment() {
             id="address-textfield"
             label="Input other Address"
             variant="outlined"
-            sx={{ width: "100%"}}
+            sx={{ width: '100%' }}
             value={otherEmail}
             onChange={handleEmailChange}
           />
@@ -188,16 +224,20 @@ export default function WalletPayment() {
             startIcon={<SearchIcon />}
             color="primary"
             onClick={handleSearch}
-            sx={{ width: "100%", height: "100%", maxWidth: "180px" }}
+            sx={{ width: '100%', height: '100%', maxWidth: '180px' }}
           >
             Search
           </Button>
         </Grid>
       </Grid>
 
-      <Grid container spacing={2} sx={{ mb: '1rem', mt: '1rem', padding: '0.3rem 1rem' }}>
+      <Grid
+        container
+        spacing={2}
+        sx={{ mb: '1rem', mt: '1rem', padding: '0.3rem 1rem' }}
+      >
         <Grid item xs={3}>
-          <FormControl sx={{ m: 0, width: "100%" }}>
+          <FormControl sx={{ m: 0, width: '100%' }}>
             <InputLabel id="assetType">{assetTypes[assetType]}</InputLabel>
             <Select
               labelId="Filters"
@@ -205,7 +245,7 @@ export default function WalletPayment() {
               value={assetType}
               label="Filters"
               onChange={handleAssetTypeChange}
-              sx={{ width: "100%" }}
+              sx={{ width: '100%' }}
             >
               <MenuItem value={0}>CURRENCY</MenuItem>
               <MenuItem value={1}>OWNERSHIP</MenuItem>
@@ -214,53 +254,67 @@ export default function WalletPayment() {
           </FormControl>
         </Grid>
         <Grid item xs={7}>
-          {assetType === 0 &&
-           <TextField
-             id="asset-field"
-             label="Enter  currency"
-             variant="outlined"
-             sx={{ width: "100%"}}
-             onChange={handleAssetChange}
-           />
-          }
-          {assetType === 1 &&
-           <Autocomplete
-             disablePortal
-             id="ownership-auto-complete"
-             options={ownerships}
-             sx={{ width: "100%" }}
-             isOptionEqualToValue={(option: AutocompleteOption, value: AutocompleteOption) => option === value}
-             onInputChange={handleInputAssetChange}
-             renderInput={(params) => <TextField {...params} label="Enter your ownership asset" />}
-           />
-          }
-          {assetType === 2 &&
-           <Autocomplete
-             disablePortal
-             id="identity-auto-complete"
-             options={identities}
-             sx={{ width: "100%" }}
-             isOptionEqualToValue={(option: AutocompleteOption, value: AutocompleteOption) => option === value}
-             onInputChange={handleInputAssetChange}
-             renderInput={(params) => <TextField {...params} label="Enter your identity asset" />}
-           />
-          }
+          {assetType === 0 && (
+            <TextField
+              id="asset-field"
+              label="Enter  currency"
+              variant="outlined"
+              sx={{ width: '100%' }}
+              onChange={handleAssetChange}
+            />
+          )}
+          {assetType === 1 && (
+            <Autocomplete
+              disablePortal
+              id="ownership-auto-complete"
+              options={ownerships}
+              sx={{ width: '100%' }}
+              isOptionEqualToValue={(
+                option: AutocompleteOption,
+                value: AutocompleteOption
+              ) => option === value}
+              onInputChange={handleInputAssetChange}
+              renderInput={(params) => (
+                <TextField {...params} label="Enter your ownership asset" />
+              )}
+            />
+          )}
+          {assetType === 2 && (
+            <Autocomplete
+              disablePortal
+              id="identity-auto-complete"
+              options={identities}
+              sx={{ width: '100%' }}
+              isOptionEqualToValue={(
+                option: AutocompleteOption,
+                value: AutocompleteOption
+              ) => option === value}
+              onInputChange={handleInputAssetChange}
+              renderInput={(params) => (
+                <TextField {...params} label="Enter your identity asset" />
+              )}
+            />
+          )}
         </Grid>
         <Grid item xs={2}>
-          {assetType !== 0 &&
-           <Button
-             variant="contained"
-             startIcon={<SearchIcon />}
-             color="primary"
-             onClick={handleSearch}
-             sx={{ width: "100%", height: "100%", maxWidth: "180px" }}
-           >
-             Search
-           </Button>
-          }
+          {assetType !== 0 && (
+            <Button
+              variant="contained"
+              startIcon={<SearchIcon />}
+              color="primary"
+              onClick={handleSearch}
+              sx={{ width: '100%', height: '100%', maxWidth: '180px' }}
+            >
+              Search
+            </Button>
+          )}
         </Grid>
       </Grid>
-      <Grid container spacing={2} sx={{ mb: '1rem', mt: '1rem', padding: '0.3rem 1rem' }}>
+      <Grid
+        container
+        spacing={2}
+        sx={{ mb: '1rem', mt: '1rem', padding: '0.3rem 1rem' }}
+      >
         <Grid item xs={12}>
           <Stack
             direction="column"
@@ -268,12 +322,12 @@ export default function WalletPayment() {
             alignItems="center"
             mt={2}
             spacing={2}
-            sx={{ width: "100%", height: "auto" }}
+            sx={{ width: '100%', height: 'auto' }}
           >
             <LoadingButton
               loading={false}
-              type='submit'
-              variant='contained'
+              type="submit"
+              variant="contained"
               startIcon={<PaymentIcon />}
               sx={{
                 py: '0.4rem',

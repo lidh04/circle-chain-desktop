@@ -25,9 +25,9 @@ function stringAvatar(name: string) {
   return {
     sx: {
       bgcolor: stringToColor(name),
-      width: "80px",
-      height: "80px",
-      fontSize: "2.5rem",
+      width: '80px',
+      height: '80px',
+      fontSize: '2.5rem',
     },
     children: `${name.split(' ')[0][0]}${name.split(' ')[1][0]}`,
   };
@@ -41,7 +41,7 @@ export default function Profile() {
       alignItems="center"
       mt={2}
       spacing={2}
-      sx={{ width: "100%", height: "auto" }}
+      sx={{ width: '100%', height: 'auto' }}
     >
       <Avatar {...stringAvatar('Charles li')} />
       <h1>Charles li</h1>

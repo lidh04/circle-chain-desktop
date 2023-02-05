@@ -50,12 +50,12 @@ const FormInput: FC<FormInputProps> = ({ name, ...otherProps }) => {
     <Controller
       control={control}
       name={name}
-      defaultValue=''
+      defaultValue=""
       render={({ field }) => (
         <CssTextField
           {...field}
           {...otherProps}
-          variant='outlined'
+          variant="outlined"
           sx={{ mb: '1.5rem' }}
           error={!!errors[name]}
           helperText={

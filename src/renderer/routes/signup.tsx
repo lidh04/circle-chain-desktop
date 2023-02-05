@@ -46,20 +46,14 @@ const SignupPage: FC = () => {
 
   // 👇 Returned JSX
   return (
-    <Container
-      maxWidth="sm"
-      sx={{ height: '100vh', maxWidth: "560px" }}
-    >
+    <Container maxWidth="sm" sx={{ height: '100vh', maxWidth: '560px' }}>
       <Grid
         container
-        justifyContent='center'
-        alignItems='center'
+        justifyContent="center"
+        alignItems="center"
         sx={{ width: '100%', height: 'auto' }}
       >
-        <Grid
-          item
-          sx={{ maxWidth: '45rem', width: '100%' }}
-        >
+        <Grid item sx={{ maxWidth: '45rem', width: '100%' }}>
           <Grid
             container
             sx={{
@@ -70,8 +64,8 @@ const SignupPage: FC = () => {
           >
             <FormProvider {...methods}>
               <Typography
-                variant='h4'
-                component='h1'
+                variant="h4"
+                component="h1"
                 sx={{
                   textAlign: 'center',
                   width: '100%',
@@ -84,64 +78,60 @@ const SignupPage: FC = () => {
               <Grid
                 item
                 container
-                justifyContent='space-between'
+                justifyContent="space-between"
                 rowSpacing={5}
                 sx={{
                   maxWidth: { sm: '45rem' },
                   marginInline: 'auto',
                 }}
               >
-                <Grid
-                  item
-                  xs={12}
-                  sm={12}
-                >
+                <Grid item xs={12} sm={12}>
                   <Box
-                    display='flex'
-                    flexDirection='column'
-                    component='form'
+                    display="flex"
+                    flexDirection="column"
+                    component="form"
                     noValidate
-                    autoComplete='off'
+                    autoComplete="off"
                     sx={{ paddingRight: { sm: '3rem' } }}
                     onSubmit={methods.handleSubmit(onSubmitHandler)}
                   >
                     <Typography
-                      variant='h6'
-                      component='h1'
+                      variant="h6"
+                      component="h1"
                       sx={{ textAlign: 'center', mb: '1.5rem' }}
                     >
                       CREATE NEW YOUR ACCOUNT
                     </Typography>
 
                     <FormInput
-                      label='Enter your name'
-                      type='text'
-                      name='name'
+                      label="Enter your name"
+                      type="text"
+                      name="name"
                       required
                     />
                     <FormInput
-                      label='Enter your email'
-                      type='email'
-                      name='email'
+                      label="Enter your email"
+                      type="email"
+                      name="email"
                       required
                     />
                     <FormInput
-                      type='password'
-                      label='Password'
-                      name='password'
+                      type="password"
+                      label="Password"
+                      name="password"
                       required
                     />
                     <FormInput
-                      type='password'
-                      label='Confirm Password'
-                      name='passwordConfirm'
+                      type="password"
+                      label="Confirm Password"
+                      name="passwordConfirm"
                       required
                     />
 
                     <LoadingButton
                       loading={false}
-                      type='submit'
-                      variant='contained'
+                      type="submit"
+                      variant="contained"
                       sx={{
                         py: '0.8rem',
                         mt: 2,
@@ -154,10 +144,11 @@ const SignupPage: FC = () => {
                   </Box>
                 </Grid>
               </Grid>
-              <Grid container justifyContent='center'>
+              <Grid container justifyContent="center">
                 <Stack sx={{ mt: '3rem', textAlign: 'center' }}>
                   <Typography sx={{ fontSize: '0.9rem', mb: '1rem' }}>
-                    Already have an account? <LinkItem to='/signin'>Login</LinkItem>
+                    Already have an account?{' '}
+                    <LinkItem to="/signin">Login</LinkItem>
                   </Typography>
                 </Stack>
               </Grid>

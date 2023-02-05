@@ -1,7 +1,4 @@
-import {
-  Outlet,
-  useNavigate,
-} from "react-router-dom";
+import { Outlet, useNavigate } from 'react-router-dom';
 import * as React from 'react';
 import Box from '@mui/material/Box';
 import { styled, ThemeProvider, createTheme } from '@mui/material/styles';
@@ -26,7 +23,6 @@ import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import PaidIcon from '@mui/icons-material/Paid';
 import ReceiptIcon from '@mui/icons-material/Receipt';
 import AppRegistrationIcon from '@mui/icons-material/AppRegistration';
-
 
 const FireNav = styled(List)<{ component?: React.ElementType }>({
   '& .MuiListItemButton-root': {
@@ -53,28 +49,28 @@ export default function Root() {
       icon: <AddCircleIcon />,
       label: 'Create',
       handleClick: () => {
-        navigate("/create-wallet");
+        navigate('/create-wallet');
       },
     },
     {
       icon: <AccountBalanceWalletIcon />,
       label: 'Balance',
       handleClick: () => {
-        navigate("/wallet-info");
+        navigate('/wallet-info');
       },
     },
     {
       icon: <PaidIcon />,
       label: 'Payment',
       handleClick: () => {
-        navigate("/wallet-payment");
+        navigate('/wallet-payment');
       },
     },
     {
       icon: <ReceiptIcon />,
       label: 'Transaction',
       handleClick: () => {
-        navigate("/wallet-trans");
+        navigate('/wallet-trans');
       },
     },
   ];
@@ -83,16 +79,16 @@ export default function Root() {
       icon: <LoginIcon />,
       label: 'Login',
       handleClick: () => {
-        navigate("/signin");
-        //setLogin(true);
+        navigate('/signin');
+        // setLogin(true);
       },
     },
     {
       icon: <AppRegistrationIcon />,
       label: 'Signup',
       handleClick: () => {
-        navigate("/signup");
-        //setLogin(true);
+        navigate('/signup');
+        // setLogin(true);
       },
     },
   ];
@@ -101,7 +97,7 @@ export default function Root() {
       icon: <People />,
       label: 'Profile',
       handleClick: () => {
-        navigate("/profile");
+        navigate('/profile');
       },
     },
     {
@@ -109,7 +105,7 @@ export default function Root() {
       label: 'Logout',
       handleClick: () => {
         setLogin(false);
-        navigate("/home");
+        navigate('/home');
       },
     },
   ];
@@ -122,8 +118,15 @@ export default function Root() {
   }, []);
 
   return (
-    <div className="root" style={{ display: "flex", width: "100%"}}>
-      <div className="sidebar" style={{padding: "1rem 2rem", borderRight: "solid 1px #999", width: "321px" }}>
+    <div className="root" style={{ display: 'flex', width: '100%' }}>
+      <div
+        className="sidebar"
+        style={{
+          padding: '1rem 2rem',
+          borderRight: 'solid 1px #999',
+          width: '321px',
+        }}
+      >
         <Box sx={{ display: 'flex' }}>
           <ThemeProvider
             theme={createTheme({
@@ -201,7 +204,9 @@ export default function Root() {
                       }}
                     >
                       <Settings />
-                      <ArrowRight sx={{ position: 'absolute', right: 4, opacity: 0 }} />
+                      <ArrowRight
+                        sx={{ position: 'absolute', right: 4, opacity: 0 }}
+                      />
                     </IconButton>
                   </Tooltip>
                 </ListItem>
@@ -220,7 +225,9 @@ export default function Root() {
                       px: 3,
                       pt: 2.5,
                       pb: open ? 0 : 2.5,
-                      '&:hover, &:focus': { '& svg': { opacity: open ? 1 : 0 } },
+                      '&:hover, &:focus': {
+                        '& svg': { opacity: open ? 1 : 0 },
+                      },
                     }}
                   >
                     <ListItemText
@@ -250,21 +257,28 @@ export default function Root() {
                     />
                   </ListItemButton>
                   {open &&
-                   walletData.map((item) => (
-                     <ListItemButton
-                       key={item.label}
-                       sx={{ py: 0, minHeight: 32, color: 'rgba(255,255,255,.8)' }}
-                       onClick={item.handleClick}
-                     >
-                       <ListItemIcon sx={{ color: 'inherit' }}>
-                         {item.icon}
-                       </ListItemIcon>
-                       <ListItemText
-                         primary={item.label}
-                         primaryTypographyProps={{ fontSize: 14, fontWeight: 'medium' }}
-                       />
-                     </ListItemButton>
-                  ))}
+                    walletData.map((item) => (
+                      <ListItemButton
+                        key={item.label}
+                        sx={{
+                          py: 0,
+                          minHeight: 32,
+                          color: 'rgba(255,255,255,.8)',
+                        }}
+                        onClick={item.handleClick}
+                      >
+                        <ListItemIcon sx={{ color: 'inherit' }}>
+                          {item.icon}
+                        </ListItemIcon>
+                        <ListItemText
+                          primary={item.label}
+                          primaryTypographyProps={{
+                            fontSize: 14,
+                            fontWeight: 'medium',
+                          }}
+                        />
+                      </ListItemButton>
+                    ))}
 
                   {/* Account section */}
                   <ListItemButton
@@ -274,7 +288,9 @@ export default function Root() {
                       px: 3,
                       pt: 2.5,
                       pb: open ? 0 : 2.5,
-                      '&:hover, &:focus': { '& svg': { opacity: open ? 1 : 0 } },
+                      '&:hover, &:focus': {
+                        '& svg': { opacity: open ? 1 : 0 },
+                      },
                     }}
                   >
                     <ListItemText
@@ -290,7 +306,9 @@ export default function Root() {
                         noWrap: true,
                         fontSize: 12,
                         lineHeight: '16px',
-                        color: accountOpen ? 'rgba(0,0,0,0)' : 'rgba(255,255,255,0.5)',
+                        color: accountOpen
+                          ? 'rgba(0,0,0,0)'
+                          : 'rgba(255,255,255,0.5)',
                       }}
                       sx={{ my: 0 }}
                     />
@@ -298,50 +316,68 @@ export default function Root() {
                       sx={{
                         mr: -1,
                         opacity: 0,
-                        transform: accountOpen ? 'rotate(-180deg)' : 'rotate(0)',
+                        transform: accountOpen
+                          ? 'rotate(-180deg)'
+                          : 'rotate(0)',
                         transition: '0.2s',
                       }}
                     />
                   </ListItemButton>
-                  {accountOpen && !login &&
-                   accountData.map((item) => (
-                     <ListItemButton
-                       key={item.label}
-                       sx={{ py: 0, minHeight: 32, color: 'rgba(255,255,255,.8)' }}
-                       onClick={item.handleClick}
-                     >
-                       <ListItemIcon sx={{ color: 'inherit' }}>
-                         {item.icon}
-                       </ListItemIcon>
-                       <ListItemText
-                         primary={item.label}
-                         primaryTypographyProps={{ fontSize: 14, fontWeight: 'medium' }}
-                       />
-                     </ListItemButton>
-                  ))}
-                  {accountOpen && login &&
-                   loginAccountData.map((item) => (
-                     <ListItemButton
-                       key={item.label}
-                       sx={{ py: 0, minHeight: 32, color: 'rgba(255,255,255,.8)' }}
-                       onClick={item.handleClick}
-                     >
-                       <ListItemIcon sx={{ color: 'inherit' }}>
-                         {item.icon}
-                       </ListItemIcon>
-                       <ListItemText
-                         primary={item.label}
-                         primaryTypographyProps={{ fontSize: 14, fontWeight: 'medium' }}
-                       />
-                     </ListItemButton>
-                  ))}
+                  {accountOpen &&
+                    !login &&
+                    accountData.map((item) => (
+                      <ListItemButton
+                        key={item.label}
+                        sx={{
+                          py: 0,
+                          minHeight: 32,
+                          color: 'rgba(255,255,255,.8)',
+                        }}
+                        onClick={item.handleClick}
+                      >
+                        <ListItemIcon sx={{ color: 'inherit' }}>
+                          {item.icon}
+                        </ListItemIcon>
+                        <ListItemText
+                          primary={item.label}
+                          primaryTypographyProps={{
+                            fontSize: 14,
+                            fontWeight: 'medium',
+                          }}
+                        />
+                      </ListItemButton>
+                    ))}
+                  {accountOpen &&
+                    login &&
+                    loginAccountData.map((item) => (
+                      <ListItemButton
+                        key={item.label}
+                        sx={{
+                          py: 0,
+                          minHeight: 32,
+                          color: 'rgba(255,255,255,.8)',
+                        }}
+                        onClick={item.handleClick}
+                      >
+                        <ListItemIcon sx={{ color: 'inherit' }}>
+                          {item.icon}
+                        </ListItemIcon>
+                        <ListItemText
+                          primary={item.label}
+                          primaryTypographyProps={{
+                            fontSize: 14,
+                            fontWeight: 'medium',
+                          }}
+                        />
+                      </ListItemButton>
+                    ))}
                 </Box>
               </FireNav>
             </Paper>
           </ThemeProvider>
         </Box>
       </div>
-      <div className="detail" style={{ padding: "1rem 2rem", width: "70%"}}>
+      <div className="detail" style={{ padding: '1rem 2rem', width: '70%' }}>
         <Outlet />
       </div>
     </div>

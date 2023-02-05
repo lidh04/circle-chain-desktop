@@ -13,8 +13,8 @@ import { useForm, SubmitHandler, FormProvider } from 'react-hook-form';
 import { Link } from 'react-router-dom';
 import { literal, object, string, TypeOf } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import FormInput from '../components/FormInput';
 import styled from '@emotion/styled';
+import FormInput from '../components/FormInput';
 
 // 👇 Styled React Route Dom Link Component
 export const LinkItem = styled(Link)`
@@ -59,23 +59,17 @@ const LoginPage: FC = () => {
 
   // 👇 JSX to be rendered
   return (
-    <Container
-      maxWidth="sm"
-      sx={{ height: '100vh', maxWidth: "560px" }}
-    >
+    <Container maxWidth="sm" sx={{ height: '100vh', maxWidth: '560px' }}>
       <Grid
         container
-        justifyContent='center'
-        alignItems='center'
+        justifyContent="center"
+        alignItems="center"
         sx={{ width: '100%', height: 'auto' }}
       >
-        <Grid
-          item
-          sx={{ maxWidth: '45rem', width: '100%' }}
-        >
+        <Grid item sx={{ maxWidth: '45rem', width: '100%' }}>
           <Typography
-            variant='h4'
-            component='h1'
+            variant="h4"
+            component="h1"
             sx={{
               textAlign: 'center',
               width: '100%',
@@ -97,60 +91,56 @@ const LoginPage: FC = () => {
               <Grid
                 item
                 container
-                justifyContent='space-between'
+                justifyContent="space-between"
                 rowSpacing={5}
                 sx={{
                   maxWidth: { sm: '45rem' },
                   marginInline: 'auto',
                 }}
               >
-                <Grid
-                  item
-                  xs={12}
-                  sm={12}
-                >
+                <Grid item xs={12} sm={12}>
                   <Box
-                    display='flex'
-                    flexDirection='column'
-                    component='form'
+                    display="flex"
+                    flexDirection="column"
+                    component="form"
                     noValidate
-                    autoComplete='off'
+                    autoComplete="off"
                     sx={{ paddingRight: { sm: '3rem' } }}
                     onSubmit={methods.handleSubmit(onSubmitHandler)}
                   >
                     <Typography
-                      variant='h6'
-                      component='h1'
+                      variant="h6"
+                      component="h1"
                       sx={{ textAlign: 'center', mb: '1.5rem' }}
                     >
                       LOG INTO YOUR ACCOUNT
                     </Typography>
 
                     <FormInput
-                      label='Enter your email'
-                      type='email'
-                      name='email'
+                      label="Enter your email"
+                      type="email"
+                      name="email"
                       required
                     />
                     <FormInput
-                      type='password'
-                      label='Password'
-                      name='password'
+                      type="password"
+                      label="Password"
+                      name="password"
                       required
                     />
 
                     <FormControlLabel
                       control={
                         <Checkbox
-                          size='small'
-                          aria-label='remember me'
+                          size="small"
+                          aria-label="remember me"
                           required
-                        {...methods.register('persistUser')}
+                          {...methods.register('persistUser')}
                         />
                       }
                       label={
                         <Typography
-                          variant='body2'
+                          variant="body2"
                           sx={{
                             fontSize: '0.8rem',
                             fontWeight: 400,
@@ -164,8 +154,8 @@ const LoginPage: FC = () => {
 
                     <LoadingButton
                       loading={false}
-                      type='submit'
-                      variant='contained'
+                      type="submit"
+                      variant="contained"
                       sx={{
                         py: '0.8rem',
                         mt: 2,
@@ -178,15 +168,15 @@ const LoginPage: FC = () => {
                   </Box>
                 </Grid>
               </Grid>
-              <Grid container justifyContent='center'>
+              <Grid container justifyContent="center">
                 <Stack sx={{ mt: '3rem', textAlign: 'center' }}>
                   <Typography sx={{ fontSize: '0.9rem', mb: '1rem' }}>
                     Need an account?{' '}
-                    <LinkItem to='/signup'>Sign up here</LinkItem>
+                    <LinkItem to="/signup">Sign up here</LinkItem>
                   </Typography>
                   <Typography sx={{ fontSize: '0.9rem' }}>
                     Forgot your{' '}
-                    <LinkItem to='/forgot-password'>password?</LinkItem>
+                    <LinkItem to="/forgot-password">password?</LinkItem>
                   </Typography>
                 </Stack>
               </Grid>
