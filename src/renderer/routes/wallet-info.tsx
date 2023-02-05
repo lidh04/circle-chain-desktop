@@ -288,11 +288,16 @@ function AddressDialog(props: AddressDialogProps) {
 
 export default function WalletInfo() {
   const [page, setPage] = React.useState(0);
+  const [searchedRows, setSearchedRows] = React.useState<Data[] | null>(null);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [address, setAddress] = React.useState("");
   const [open, setOpen] = React.useState(false);
   const [openKeywords, setOpenKeywords] = React.useState(false);
   const navigate = useNavigate();
+
+  React.useEffect(() => {
+    setSearchedRows(rows);
+  }, []);
 
   const handleDialogClose = (value?: string) => {
     setOpen(false);
@@ -324,6 +329,12 @@ export default function WalletInfo() {
 
   const handleSearch = () => {
     console.log("use click search button, search by address:", address);
+    if (address) {
+      const findRows = rows.filter((row) => row.address === address);
+      setSearchedRows(findRows);
+    } else {
+      setSearchedRows(rows);
+    }
   };
 
   const showKeywords = (address: string) => {
@@ -406,7 +417,7 @@ export default function WalletInfo() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {rows
+            {searchedRows && searchedRows
               .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
               .map((row) => {
                 return (

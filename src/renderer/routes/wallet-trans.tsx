@@ -121,6 +121,7 @@ export default function WalletInfo() {
   const [page, setPage] = React.useState(0);
   const [filter, setFilter] = React.useState("from");
   const [input, setInput] = React.useState("");
+  const [searchedData, setSearchedData] = React.useState<Data[] | null>(null);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [queryParameters] = useSearchParams();
 
@@ -132,6 +133,7 @@ export default function WalletInfo() {
       }
       setInput(addr);
     }
+    setSearchedData(rows);
   }, [queryParameters, setInput]);
 
   const handleChangePage = (event: unknown, newPage: number) => {
@@ -150,12 +152,34 @@ export default function WalletInfo() {
   };
 
   const handleInputChange = (event: React.SyntheticEvent, value: string, reason: string) => {
-    console.log("input value:", value, "reason:", reason);
+    console.log("input value:", value, "reason:", reason, "filter:", filter);
     setInput(value);
   };
 
   const handleSearch = () => {
     console.log("use click search button, search by input:", input, "filter:", filter);
+    if (filter === 'from' || filter === 'to') {
+      if (!input) {
+        setSearchedData(rows);
+      } else {
+        const findRows = rows.filter((row) => (filter === 'from' ? row.from === input : row.to == input));
+        setSearchedData(findRows);
+      }
+    } else if (filter === 'type') {
+      if (!input) {
+        setSearchedData(rows);
+      } else {
+        const findRows = rows.filter((row) => row.trans.indexOf(input) !== -1);
+        setSearchedData(findRows);
+      }
+    } else if (filter === 'uuid') {
+      if (!input) {
+        setSearchedData(rows);
+      } else {
+        const findRows = rows.filter((row) => row.trans.indexOf(input) !== -1);
+        setSearchedData(findRows);
+      }
+    }
   };
 
   return (
@@ -256,7 +280,7 @@ export default function WalletInfo() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {rows
+            {searchedData && searchedData
               .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
               .map((row) => {
                 return (
