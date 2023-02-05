@@ -149,6 +149,7 @@ export default function WalletInfo() {
     const value = event.target.value;
     console.log("selected target vaule:", value);
     setFilter(value);
+    setInput("");
   };
 
   const handleInputChange = (event: React.SyntheticEvent, value: string, reason: string) => {
@@ -227,8 +228,9 @@ export default function WalletInfo() {
              disablePortal
              id="address-box-demo"
              options={addresses}
-             value={input ? input : addresses[0]}
+             value={input}
              sx={{ width: "100%" }}
+             freeSolo={true}
              isOptionEqualToValue={(option: AutocompleteOption, value: AutocompleteOption) => option === value}
              onInputChange={handleInputChange}
              renderInput={(params) => <TextField {...params} label="Enter address" />}
@@ -239,7 +241,9 @@ export default function WalletInfo() {
              disablePortal
              id="uuid-box-demo"
              options={uuids}
+             value={input}
              sx={{ width: "100%" }}
+             freeSolo={true}
              isOptionEqualToValue={(option: AutocompleteOption, value: AutocompleteOption) => option === value}
              onInputChange={handleInputChange}
              renderInput={(params) => <TextField {...params} label="Enter uuid" />}
