@@ -258,15 +258,15 @@ function AddressDialog(props: AddressDialogProps) {
             sx={{ width: '100%', height: 'auto' }}
           >
             <Typography gutterBottom>
-              '「申即静」'
+              「申即静」
               <br />
-              '竞味聚识咸，'
+              竞味聚识咸，
               <br />
-              '嚷气鞭兼即。'
+              嚷气鞭兼即。
               <br />
-              '匙稀遗翼饱，'
+              匙稀遗翼饱，
               <br />
-              '美肢遮台斗。'
+              美肢遮台斗。
             </Typography>
 
             <Typography gutterBottom>Address QrCode:</Typography>

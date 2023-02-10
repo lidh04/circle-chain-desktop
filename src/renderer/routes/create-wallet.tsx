@@ -3,9 +3,10 @@ import { LoadingButton } from '@mui/lab';
 import React, { MouseEvent, useEffect } from 'react';
 
 type Point2D = {
-  x: number,
-  y: number,
-}
+  x: number;
+  y: number;
+};
+
 type GetRandom = (point: Point2D) => number;
 
 const getRandom: GetRandom = (p) => {
@@ -13,7 +14,7 @@ const getRandom: GetRandom = (p) => {
     return 0;
   }
 
-  return new Date().getTime() % 100000 + parseInt(p.x + "" + p.y);
+  return (new Date().getTime() % 100000) + parseInt(p.x + '' + p.y);
 };
 
 export default function CreateWallet() {
