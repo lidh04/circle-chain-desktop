@@ -6,6 +6,7 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
+import { SelectChangeEvent } from '@mui/material/Select';
 import Autocomplete from '@mui/material/Autocomplete';
 import { styled } from '@mui/material/styles';
 import Paper from '@mui/material/Paper';
@@ -203,7 +204,7 @@ export default function WalletInfo() {
     setPage(0);
   };
 
-  const handleSelectChange = (event: SelectChangeEvent<string>, child: React.ReactNode) => {
+  const handleSelectChange = (event: SelectChangeEvent) => {
     const {
       target: { value },
     } = event;

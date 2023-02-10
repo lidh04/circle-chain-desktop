@@ -7,7 +7,7 @@ type Point2D = {
   y: number;
 };
 
-type GetRandom = (point: Point2D) => number;
+type GetRandom = (point: Point2D | null) => number;
 
 const getRandom: GetRandom = (p) => {
   if (!p) {
@@ -22,7 +22,7 @@ export default function CreateWallet() {
   const [step, setStep] = React.useState(0);
   const [point, setPoint] = React.useState<Point2D | null>(null);
 
-  const onSubmitHandler = (e: MouseEvent) => {
+  const onSubmitHandler: React.FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault();
     console.log('click the next button.');
     setShowNext(step + 1 < 3);
