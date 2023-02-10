@@ -2,15 +2,36 @@ import { Box, Stack, Typography } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 import React, { MouseEvent, useEffect } from 'react';
 
+type Point2D = {
+  x: number,
+  y: number,
+}
+type GetRandom = (point: Point2D) => number;
+
+const getRandom: GetRandom = (p) => {
+  if (!p) {
+    return 0;
+  }
+
+  return new Date().getTime() % 100000 + parseInt(p.x + "" + p.y);
+};
+
 export default function CreateWallet() {
   const [showNext, setShowNext] = React.useState(false);
   const [step, setStep] = React.useState(0);
+  const [point, setPoint] = React.useState<Point2D | null>(null);
 
   const onSubmitHandler = (e: MouseEvent) => {
     e.preventDefault();
     console.log('click the next button.');
     setShowNext(step + 1 < 3);
     setStep(step + 1);
+  };
+
+  const boxMouseOverHandler = (event: React.MouseEvent<HTMLDivElement>) => {
+    const [x, y] = [event.clientX, event.clientY];
+    setPoint({ x, y });
+    // console.log("move box:", [x, y]);
   };
 
   useEffect(() => {
@@ -28,6 +49,7 @@ export default function CreateWallet() {
       mt={2}
       spacing={2}
       sx={{ width: '100%', height: 'auto' }}
+      onMouseOver={boxMouseOverHandler}
     >
       <Typography
         variant="h6"
@@ -47,16 +69,28 @@ export default function CreateWallet() {
         onSubmit={onSubmitHandler}
       >
         {step <= 1 && (
-          <Typography
-            sx={{
-              fontSize: '1rem',
-              mb: '1rem',
-              height: '200px',
-              textAlign: 'center',
-            }}
-          >
-            {'Please move your mouse to generate private key...'}
-          </Typography>
+          <>
+            <Typography
+              sx={{
+                fontSize: '1rem',
+                mb: '1rem',
+                height: '100px',
+                textAlign: 'center',
+              }}
+            >
+              {'Please move your mouse to generate private key...'}
+            </Typography>
+            <Typography
+              sx={{
+                fontSize: '1rem',
+                mb: '1rem',
+                height: '100px',
+                textAlign: 'center',
+              }}
+            >
+              Random number: {getRandom(point)}
+            </Typography>
+          </>
         )}
 
         {step === 2 && (
@@ -130,7 +164,7 @@ export default function CreateWallet() {
           </React.Fragment>
         )}
 
-        {showNext && (
+        {showNext && point && (
           <LoadingButton
             loading={false}
             type="submit"
