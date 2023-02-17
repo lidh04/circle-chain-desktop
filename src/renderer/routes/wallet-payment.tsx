@@ -1,6 +1,5 @@
-import * as React from 'react';
-import Paper from '@mui/material/Paper';
 import {
+  Box,
   Button,
   Grid,
   MenuItem,
@@ -9,24 +8,45 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
+import { LoadingButton } from '@mui/lab';
+import { useSearchParams } from 'react-router-dom';
 import Autocomplete from '@mui/material/Autocomplete';
 import FormControl from '@mui/material/FormControl';
-import { useSearchParams } from 'react-router-dom';
-import { LoadingButton } from '@mui/lab';
 import InputLabel from '@mui/material/InputLabel';
-import SearchIcon from '@mui/icons-material/Search';
+import Paper from '@mui/material/Paper';
 import PaymentIcon from '@mui/icons-material/Payment';
+import * as React from 'react';
+import SearchIcon from '@mui/icons-material/Search';
 
-type AutocompleteOption = string;
-const addresses: AutocompleteOption[] = [
+import {
+  AutocompleteOption,
+  checkValidAddress,
+  makeAssetLabel,
+  makeWalletLabel
+} from './wallet-types';
+
+const addressList = [
+  '1MVQfJrU3mK3M62hygJz9pmgBxVoGzPaKj',
+  '12UdA785W3Y6M3SR8HxxExe7PRcwvVg88S',
+  '1L8eRrBuWnBxcQ6DKCDkkPM7ozxDcmpho1',
+];
+const addresses: AutocompleteOption = addressList.map((address, index) => ({
+  label: makeWalletLabel(address, index),
+  value: address,
+}));
+const identityList = [
   '1MVQfJrU3mK3M62hygJz9pmgBxVoGzPaKj',
   '12UdA785W3Y6M3SR8HxxExe7PRcwvVg88S',
   '1L8eRrBuWnBxcQ6DKCDkkPM7ozxDcmpho1',
   '16rcESr6pm3x3PByQH6JEbJBzZkf5W5NQk',
   '1745rpVqjXSntEniXdFhvuRHNESoYpyynp',
   '1Jhf7pUtmqK2ZqR9du7xa6uL1Qxdc14atG',
-  '1rmzxfP5J1QjYXMa9zmSC7dCBLTDciBda',
-  '12vU588JA4zGMA7gKDRuu3HGLrr3BxhkBt',
+];
+const identities: AutocompleteOption[] = identityList.map((identity) => ({
+  label: makeAssetLabel(identity, 'IDT'),
+  value: identity,
+}));
+const ownershipList = [
   '12cSSRmfLMH8s5MrxeEdtgbKWnk28Si6cr',
   '1APGzvGwcDKWDobEEDiHtEehVz4G4jWeoR',
   '1HDv7a7PqbYugZjaVJtMxvsnvpk7GS554s',
@@ -35,23 +55,10 @@ const addresses: AutocompleteOption[] = [
   '14hF1BynFVnBEFKxyo51FHmJksVwfxg4sg',
   '1NMhhRzQtyhocMa31kB5hhtXy2fRPy2rn',
 ];
-const identities: AutocompleteOption[] = [
-  '1MVQfJrU3mK3M62hygJz9pmgBxVoGzPaKj',
-  '12UdA785W3Y6M3SR8HxxExe7PRcwvVg88S',
-  '1L8eRrBuWnBxcQ6DKCDkkPM7ozxDcmpho1',
-  '16rcESr6pm3x3PByQH6JEbJBzZkf5W5NQk',
-  '1745rpVqjXSntEniXdFhvuRHNESoYpyynp',
-  '1Jhf7pUtmqK2ZqR9du7xa6uL1Qxdc14atG',
-];
-const ownerships: AutocompleteOption[] = [
-  '12cSSRmfLMH8s5MrxeEdtgbKWnk28Si6cr',
-  '1APGzvGwcDKWDobEEDiHtEehVz4G4jWeoR',
-  '1HDv7a7PqbYugZjaVJtMxvsnvpk7GS554s',
-  '1EnfGqqXhUgo2fU63JMxJf7jgM1cSQULKg',
-  '1N7Y3QdRjm8KVEi2e2ejPjriAskHcxLFJu',
-  '14hF1BynFVnBEFKxyo51FHmJksVwfxg4sg',
-  '1NMhhRzQtyhocMa31kB5hhtXy2fRPy2rn',
-];
+const ownerships: AutocompleteOption[] = ownershipList.map((ownership) => ({
+  label: makeAssetLabel(ownership, "OWN"),
+  value: ownership,
+}));
 
 const assetTypes = ['CRY', 'OWN', 'IDT'];
 
@@ -59,18 +66,21 @@ export default function WalletPayment() {
   const [payType, setPayType] = React.useState('from');
   const [payType2, setPayType2] = React.useState('to');
   const [otherEmail, setOtherEmail] = React.useState('');
-  const [address, setAddress] = React.useState('');
+  const [address, setAddress] = React.useState<AutocompleteOption>({ label: "", value: "" });
   const [assetType, setAssetType] = React.useState(0);
+  const [currencyValue, setCurrencyValue] = React.useState(0);
   const [asset, setAsset] = React.useState('');
   const [queryParameters] = useSearchParams();
 
   React.useEffect(() => {
     const addr = queryParameters.get('address');
-    if (addr) {
-      if (!addresses.includes(addr)) {
-        addresses.push(addr);
+    if (checkValidAddress(addr)) {
+      if (!addressList.includes(addr)) {
+        addressList.push(addr);
+        addresses.push({ label: makeWalletLabel(addr, addressList.length-1), value: addr });
       }
-      setAddress(addr);
+      const address: AutocompleteOption = addresses.find((item) => item.value === addr) || { label: "", value: "" };
+      setAddress(address);
     }
   }, [queryParameters, setAddress]);
 
@@ -93,7 +103,21 @@ export default function WalletPayment() {
     reason: string
   ) => {
     console.log('input value:', value, 'reason:', reason);
-    setAddress(value);
+    if (!value) {
+      setAddress({ label: "", value: "" });
+      return;
+    }
+    if (checkValidAddress(value)) {
+      if (!addressList.includes(value)) {
+        addressList.push(value);
+        const newAddress = { label: makeWalletLabel(value, addressList.length-1), value }
+        addresses.push(newAddress);
+        setAddress(newAddress);
+      }
+    } else {
+      const address = addresses.find((item) => item.value === value) || { label: "", value: "" };
+      setAddress(address);
+    }
   };
 
   const handleEmailChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -118,11 +142,11 @@ export default function WalletPayment() {
     console.log('asset type:', value);
   };
 
-  const handleAssetChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleValueChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const {
       target: { value },
     } = event;
-    setAsset(value);
+    setCurrencyValue(parseInt(value));
     console.log('asset:', value);
   };
 
@@ -134,6 +158,11 @@ export default function WalletPayment() {
     console.log('input value:', value, 'reason:', reason);
     setAsset(value);
   };
+
+  const handlePayNow = () => {
+    console.log("user clicks the pay now");
+  };
+
   return (
     <Paper sx={{ width: '100%', overflow: 'hidden' }}>
       <Typography
@@ -149,7 +178,7 @@ export default function WalletPayment() {
         sx={{ mb: '1rem', mt: '1rem', padding: '0.3rem 1rem' }}
       >
         <Grid item xs={3}>
-          <FormControl sx={{ m: 0, width: '100%' }}>
+          <FormControl sx={{ m: 0, width: '100%' }} disabled>
             <InputLabel id="demo-simple-select-error-label1">
               {payType}
             </InputLabel>
@@ -162,11 +191,11 @@ export default function WalletPayment() {
               sx={{ width: '100%' }}
             >
               <MenuItem value="from">Pay From</MenuItem>
-              <MenuItem value="to">Receive To</MenuItem>
+              <MenuItem value="to">Pay To</MenuItem>
             </Select>
           </FormControl>
         </Grid>
-        <Grid item xs={9}>
+        <Grid item xs={7}>
           <Autocomplete
             disablePortal
             id="combo-box-demo"
@@ -175,8 +204,14 @@ export default function WalletPayment() {
             isOptionEqualToValue={(
               option: AutocompleteOption,
               value: AutocompleteOption
-            ) => option === value}
+            ) => option.value === value.value}
             onInputChange={handleAddressChange}
+            getOptionLabel={(option: AutocompleteOption) => option.value}
+            renderOption={(props, option) => (
+              <Box component="li" {...props}>
+                {option.label}
+              </Box>
+            )}
             value={address}
             freeSolo
             renderInput={(params) => (
@@ -204,14 +239,14 @@ export default function WalletPayment() {
               sx={{ width: '100%' }}
             >
               <MenuItem value="from">Pay From</MenuItem>
-              <MenuItem value="to">Receive To</MenuItem>
+              <MenuItem value="to">Pay To</MenuItem>
             </Select>
           </FormControl>
         </Grid>
         <Grid item xs={7}>
           <TextField
             id="address-textfield"
-            label="Input other Address"
+            label="Input other's email"
             variant="outlined"
             sx={{ width: '100%' }}
             value={otherEmail}
@@ -219,15 +254,6 @@ export default function WalletPayment() {
           />
         </Grid>
         <Grid item xs={2}>
-          <Button
-            variant="contained"
-            startIcon={<SearchIcon />}
-            color="primary"
-            onClick={handleSearch}
-            sx={{ width: '100%', height: '100%', maxWidth: '180px' }}
-          >
-            Search
-          </Button>
         </Grid>
       </Grid>
 
@@ -257,10 +283,10 @@ export default function WalletPayment() {
           {assetType === 0 && (
             <TextField
               id="asset-field"
-              label="Enter  currency"
+              label="Enter vaue"
               variant="outlined"
               sx={{ width: '100%' }}
-              onChange={handleAssetChange}
+              onChange={handleValueChange}
             />
           )}
           {assetType === 1 && (
@@ -272,8 +298,14 @@ export default function WalletPayment() {
               isOptionEqualToValue={(
                 option: AutocompleteOption,
                 value: AutocompleteOption
-              ) => option === value}
+              ) => option.value === value.value}
               onInputChange={handleInputAssetChange}
+              getOptionLabel={(option: AutocompleteOption) => option.value}
+              renderOption={(props, option) => (
+                <Box component="li" {...props}>
+                  {option.label}
+                </Box>
+              )}
               renderInput={(params) => (
                 <TextField {...params} label="Enter your ownership asset" />
               )}
@@ -288,8 +320,14 @@ export default function WalletPayment() {
               isOptionEqualToValue={(
                 option: AutocompleteOption,
                 value: AutocompleteOption
-              ) => option === value}
+              ) => option.value === value.value}
               onInputChange={handleInputAssetChange}
+              getOptionLabel={(option: AutocompleteOption) => option.value}
+              renderOption={(props, option) => (
+                <Box component="li" {...props}>
+                  {option.label}
+                </Box>
+              )}
               renderInput={(params) => (
                 <TextField {...params} label="Enter your identity asset" />
               )}
@@ -297,17 +335,6 @@ export default function WalletPayment() {
           )}
         </Grid>
         <Grid item xs={2}>
-          {assetType !== 0 && (
-            <Button
-              variant="contained"
-              startIcon={<SearchIcon />}
-              color="primary"
-              onClick={handleSearch}
-              sx={{ width: '100%', height: '100%', maxWidth: '180px' }}
-            >
-              Search
-            </Button>
-          )}
         </Grid>
       </Grid>
       <Grid
@@ -329,6 +356,7 @@ export default function WalletPayment() {
               type="submit"
               variant="contained"
               startIcon={<PaymentIcon />}
+              onClick={handlePayNow}
               sx={{
                 py: '0.4rem',
                 mt: 1,

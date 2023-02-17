@@ -1,4 +1,5 @@
 import {
+  Box,
   Button,
   Grid,
   MenuItem,
@@ -7,8 +8,11 @@ import {
   Typography,
 } from '@mui/material';
 import { SelectChangeEvent } from '@mui/material/Select';
-import Autocomplete from '@mui/material/Autocomplete';
 import { styled } from '@mui/material/styles';
+import { useSearchParams } from 'react-router-dom';
+import Autocomplete from '@mui/material/Autocomplete';
+import FormControl from '@mui/material/FormControl';
+import InputLabel from '@mui/material/InputLabel';
 import Paper from '@mui/material/Paper';
 import * as React from 'react';
 import SearchIcon from '@mui/icons-material/Search';
@@ -19,9 +23,12 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
-import InputLabel from '@mui/material/InputLabel';
-import FormControl from '@mui/material/FormControl';
-import { useSearchParams } from 'react-router-dom';
+
+import {
+  AutocompleteOption,
+  WalletLabelHandler,
+  checkValidAddress
+} from './wallet-types';
 
 const Note = styled('div')(({ theme }) => ({
   ...theme.typography.body1,
@@ -57,32 +64,28 @@ const columns: readonly Column[] = [
   },
 ];
 
-type AutocompleteOption = string;
-const types = ['CRY', 'IDT', 'OWN'];
-const addresses: AutocompleteOption[] = [
+const types: AutocompleteOption = [
+  { label: 'CRY', value: 'CRY' },
+  { label: 'IDT', value: 'IDT' },
+  { label: 'OWN', value: 'OWN' },
+];
+const makeWalletLabel: WalletLabelHandler = (address, index) => {
+  const ending = address.substring(address.length - 5);
+  return `wallet ${index+1}(...${ending})`;
+}
+const addressList = [
   '1MVQfJrU3mK3M62hygJz9pmgBxVoGzPaKj',
   '12UdA785W3Y6M3SR8HxxExe7PRcwvVg88S',
   '1L8eRrBuWnBxcQ6DKCDkkPM7ozxDcmpho1',
-  '16rcESr6pm3x3PByQH6JEbJBzZkf5W5NQk',
-  '1745rpVqjXSntEniXdFhvuRHNESoYpyynp',
-  '1Jhf7pUtmqK2ZqR9du7xa6uL1Qxdc14atG',
-  '1rmzxfP5J1QjYXMa9zmSC7dCBLTDciBda',
-  '12vU588JA4zGMA7gKDRuu3HGLrr3BxhkBt',
-  '12cSSRmfLMH8s5MrxeEdtgbKWnk28Si6cr',
-  '1APGzvGwcDKWDobEEDiHtEehVz4G4jWeoR',
-  '1HDv7a7PqbYugZjaVJtMxvsnvpk7GS554s',
-  '1EnfGqqXhUgo2fU63JMxJf7jgM1cSQULKg',
-  '1N7Y3QdRjm8KVEi2e2ejPjriAskHcxLFJu',
-  '14hF1BynFVnBEFKxyo51FHmJksVwfxg4sg',
-  '1NMhhRzQtyhocMa31kB5hhtXy2fRPy2rn',
 ];
+const addresses: AutocompleteOption[] = addressList.map((addr, index) => ({
+  label: makeWalletLabel(addr, index),
+  value: addr,
+}));
 const uuids: AutocompleteOption[] = [
-  '0de5a851ef1cda49de81689cb1',
-  '0de5a851ef1cda49de81689cb2',
-  '0de5a851ef1cda49de81689cb3',
-  '0de5a851ef1cda49de81689cb4',
-  '0de5a851ef1cda49de81689cb5',
-  '0de5a851ef1cda49de81689cb6',
+  { label: '0de5a851ef1cda49de81689cb1', value: '0de5a851ef1cda49de81689cb1' },
+  { label: '0de5a851ef1cda49de81689cb2', value: '0de5a851ef1cda49de81689cb2' },
+  { label: '0de5a851ef1cda49de81689cb3', value: '0de5a851ef1cda49de81689cb3' },
 ];
 
 interface Data {
@@ -177,20 +180,23 @@ const rows = [
 export default function WalletInfo() {
   const [page, setPage] = React.useState(0);
   const [filter, setFilter] = React.useState('from');
-  const [input, setInput] = React.useState('');
+  const [input, setInput] = React.useState<AutocompleteOption>({ label: "", value: "" });
   const [searchedData, setSearchedData] = React.useState<Data[] | null>(null);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [queryParameters] = useSearchParams();
 
   React.useEffect(() => {
     const addr = queryParameters.get('address');
-    if (addr) {
-      if (!addresses.includes(addr)) {
-        addresses.push(addr);
+    if (checkValidAddress(addr)) {
+      if (!addressList.includes(addr)) {
+        addressList.push(addr);
+        setInput({ label: makeWalletLabel(addr, addressList.length-1), value: addr });
       }
-      setInput(addr);
+      const findRows = rows.filter((row) => filter === 'from' ? row.from === addr : row.to === addr);
+      setSearchedData(findRows);
+    } else {
+      setSearchedData(rows);
     }
-    setSearchedData(rows);
   }, [queryParameters, setInput]);
 
   const handleChangePage = (event: unknown, newPage: number) => {
@@ -210,7 +216,7 @@ export default function WalletInfo() {
     } = event;
     console.log('selected target vaule:', value);
     setFilter(value);
-    setInput('');
+    setInput({ label: "", value: "" });
   };
 
   const handleInputChange = (
@@ -219,7 +225,27 @@ export default function WalletInfo() {
     reason: string
   ) => {
     console.log('input value:', value, 'reason:', reason, 'filter:', filter);
-    setInput(value);
+    if (!value) {
+      setInput({ lable: "", value: "" });
+      return;
+    }
+
+    if (filter === 'from' || filter === 'to') {
+      if (!checkValidAddress(value)) {
+        return;
+      }
+      if (addressList.includes(value)) {
+        const index = addressList.indexOf(value);
+        setInput({ label: makeWalletLabel(value, index), value });
+      } else {
+        addressList.push(value);
+        setInput({ label: makeWalletLabel(value, addressList.length-1), value });
+      }
+    } else if (filter === 'type') {
+      setInput({ label: value, value });
+    } else if (filter === 'uuid') {
+      setInput({ label: value, value });
+    }
   };
 
   const handleSearch = () => {
@@ -230,26 +256,26 @@ export default function WalletInfo() {
       filter
     );
     if (filter === 'from' || filter === 'to') {
-      if (!input) {
+      if (!input.value) {
         setSearchedData(rows);
       } else {
         const findRows = rows.filter((row) =>
-          filter === 'from' ? row.from === input : row.to === input
+          filter === 'from' ? row.from === input.value : row.to === input.value
         );
         setSearchedData(findRows);
       }
     } else if (filter === 'type') {
-      if (!input) {
+      if (!input.value) {
         setSearchedData(rows);
       } else {
-        const findRows = rows.filter((row) => row.trans.indexOf(input) !== -1);
+        const findRows = rows.filter((row) => row.trans.indexOf(input.value) !== -1);
         setSearchedData(findRows);
       }
     } else if (filter === 'uuid') {
-      if (!input) {
+      if (!input.value) {
         setSearchedData(rows);
       } else {
-        const findRows = rows.filter((row) => row.trans.indexOf(input) !== -1);
+        const findRows = rows.filter((row) => row.trans.indexOf(input.value) !== -1);
         setSearchedData(findRows);
       }
     }
@@ -297,7 +323,7 @@ export default function WalletInfo() {
               isOptionEqualToValue={(
                 option: AutocompleteOption,
                 value: AutocompleteOption
-              ) => option === value}
+              ) => option.value === value.value}
               onInputChange={handleInputChange}
               renderInput={(params) => (
                 <TextField {...params} label="Enter type" />
@@ -315,10 +341,16 @@ export default function WalletInfo() {
               isOptionEqualToValue={(
                 option: AutocompleteOption,
                 value: AutocompleteOption
-              ) => option === value}
+              ) => option.value === value.value}
               onInputChange={handleInputChange}
+              getOptionLabel={(option: AutocompleteOption) => option.value}
+              renderOption={(props, option) => (
+                <Box component="li" {...props}>
+                  {option.label}
+                </Box>
+              )}
               renderInput={(params) => (
-                <TextField {...params} label="Enter address" />
+                <TextField {...params} label="Enter wallet address" />
               )}
             />
           )}
@@ -333,7 +365,7 @@ export default function WalletInfo() {
               isOptionEqualToValue={(
                 option: AutocompleteOption,
                 value: AutocompleteOption
-              ) => option === value}
+              ) => option.value === value.value}
               onInputChange={handleInputChange}
               renderInput={(params) => (
                 <TextField {...params} label="Enter uuid" />

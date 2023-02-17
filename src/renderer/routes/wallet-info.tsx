@@ -12,15 +12,15 @@ import { blue } from '@mui/material/colors';
 import { styled } from '@mui/material/styles';
 import { useNavigate } from 'react-router-dom';
 import Autocomplete from '@mui/material/Autocomplete';
-import InputLabel from '@mui/material/InputLabel';
-import FormControl from '@mui/material/FormControl';
 import Avatar from '@mui/material/Avatar';
 import CloseIcon from '@mui/icons-material/Close';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
+import FormControl from '@mui/material/FormControl';
 import IconButton from '@mui/material/IconButton';
+import InputLabel from '@mui/material/InputLabel';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemAvatar from '@mui/material/ListItemAvatar';
@@ -37,6 +37,11 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
+
+import {
+  AutocompleteOption,
+  makeWalletLabel
+} from './wallet-types';
 
 interface Column {
   id:
@@ -120,26 +125,11 @@ const rows = [
   createData('1MVQfJrU3mK3M62hygJz9pmgBxVoGzPaKj', 100, 0, 0),
   createData('12UdA785W3Y6M3SR8HxxExe7PRcwvVg88S', 100, 1, 2),
   createData('1L8eRrBuWnBxcQ6DKCDkkPM7ozxDcmpho1', 200, 1, 3),
-  createData('16rcESr6pm3x3PByQH6JEbJBzZkf5W5NQk', 321, 3, 98),
-  createData('1745rpVqjXSntEniXdFhvuRHNESoYpyynp', 322, 37, 99),
-  createData('1Jhf7pUtmqK2ZqR9du7xa6uL1Qxdc14atG', 343, 254, 76),
-  createData('1rmzxfP5J1QjYXMa9zmSC7dCBLTDciBda', 300, 83, 35),
-  createData('12vU588JA4zGMA7gKDRuu3HGLrr3BxhkBt', 2000, 48, 70),
-  createData('12cSSRmfLMH8s5MrxeEdtgbKWnk28Si6cr', 43000, 126, 197),
-  createData('1APGzvGwcDKWDobEEDiHtEehVz4G4jWeoR', 4000, 126, 37),
-  createData('1HDv7a7PqbYugZjaVJtMxvsnvpk7GS554s', 5000, 67, 64),
-  createData('1EnfGqqXhUgo2fU63JMxJf7jgM1cSQULKg', 6000, 67, 242),
-  createData('1N7Y3QdRjm8KVEi2e2ejPjriAskHcxLFJu', 8000, 146, 170),
-  createData('14hF1BynFVnBEFKxyo51FHmJksVwfxg4sg', 5000, 200, 923),
-  createData('1NMhhRzQtyhocMa31kB5hhtXy2fRPy2rn', 3900, 210, 851),
 ];
 
-interface AutocompleteOption {
-  label: string;
-}
-
-const addresses: AutocompleteOption[] = rows.map((row) => ({
-  label: row.address,
+const addresses: AutocompleteOption[] = rows.map((row, index) => ({
+  value: row.address,
+  label: makeWalletLabel(row.address, index),
 }));
 
 function OperationsDialog(props: OperationsDialogProps) {
@@ -392,7 +382,7 @@ export default function WalletInfo() {
               onChange={handleSelectChange}
               sx={{ width: '100%' }}
             >
-              <MenuItem value="address">Search by Address</MenuItem>
+              <MenuItem value="address">Search by wallet</MenuItem>
             </Select>
           </FormControl>
         </Grid>
@@ -405,10 +395,16 @@ export default function WalletInfo() {
             isOptionEqualToValue={(
               option: AutocompleteOption,
               value: AutocompleteOption
-            ) => option.label === value.label}
+            ) => option.value === value.value}
+            getOptionLabel={(option: AutocompleteOption) => option.value}
+            renderOption={(props, option) => (
+              <Box component="li" {...props}>
+                {option.label}
+              </Box>
+            )}
             onInputChange={handleAddressChange}
             renderInput={(params) => (
-              <TextField {...params} label="Enter your address" />
+              <TextField {...params} label="Enter your wallet address" />
             )}
           />
         </Grid>
@@ -441,43 +437,43 @@ export default function WalletInfo() {
           </TableHead>
           <TableBody>
             {searchedRows &&
-              searchedRows
-                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                .map((row) => {
-                  return (
-                    <TableRow
-                      hover
-                      role="checkbox"
-                      tabIndex={-1}
-                      key={row.address}
-                    >
-                      {columns.map((column) => {
-                        const value = row[column.id];
-                        return (
-                          <TableCell key={column.id} align={column.align}>
-                            {column.id === 'keywords' ? (
-                              <Button
-                                variant="text"
-                                onClick={() => showKeywords(value as string)}
-                              >
-                                Show
-                              </Button>
-                            ) : column.id === 'operation' ? (
-                              <Button
-                                variant="text"
-                                onClick={() => openTrans(value as string)}
-                              >
-                                Open
-                              </Button>
-                            ) : (
-                              value
-                            )}
-                          </TableCell>
-                        );
-                      })}
-                    </TableRow>
-                  );
-                })}
+             searchedRows
+               .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+               .map((row) => {
+                 return (
+                   <TableRow
+                     hover
+                     role="checkbox"
+                     tabIndex={-1}
+                     key={row.address}
+                   >
+                     {columns.map((column) => {
+                       const value = row[column.id];
+                       return (
+                         <TableCell key={column.id} align={column.align}>
+                           {column.id === 'keywords' ? (
+                             <Button
+                               variant="text"
+                               onClick={() => showKeywords(value as string)}
+                             >
+                               Show
+                             </Button>
+                           ) : column.id === 'operation' ? (
+                             <Button
+                               variant="text"
+                               onClick={() => openTrans(value as string)}
+                             >
+                               Open
+                             </Button>
+                           ) : (
+                             value
+                           )}
+                         </TableCell>
+                       );
+                     })}
+                   </TableRow>
+                 );
+            })}
           </TableBody>
         </Table>
       </TableContainer>
