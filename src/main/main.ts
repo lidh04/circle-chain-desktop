@@ -8,12 +8,19 @@
  * When running `npm run build` or `npm run build:main`, this file is compiled to
  * `./src/main.js` using webpack. This gives us some performance wins.
  */
-import path from 'path';
-import { app, BrowserWindow, shell, ipcMain } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
-import MenuBuilder from './menu';
+
+import { app, BrowserWindow, shell, ipcMain } from 'electron';
+import path from 'path';
+
+import {
+  GetWalletPackage,
+  IpcChannel
+} from '../common/wallet-types';
+import { mockWalletPackage } from '../common/wallet-mock-data';
 import { resolveHtmlPath } from './util';
+import MenuBuilder from './menu';
 
 class AppUpdater {
   constructor() {
@@ -25,10 +32,15 @@ class AppUpdater {
 
 let mainWindow: BrowserWindow | null = null;
 
-ipcMain.on('ipc-circle-chain', async (event, arg) => {
+ipcMain.on(IpcChannel, async (event, arg) => {
   const msgTemplate = (pingPong: string) => `IPC test: ${pingPong}`;
   console.log(msgTemplate(arg));
   event.reply('ipc-circle-chain', msgTemplate('pong'));
+});
+
+ipcMain.handle(GetWalletPackage, async (event, email) => {
+  console.log("get wallet package by email:", email);
+  return mockWalletPackage;
 });
 
 if (process.env.NODE_ENV === 'production') {

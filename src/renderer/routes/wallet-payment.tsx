@@ -23,7 +23,7 @@ import {
   checkValidAddress,
   makeAssetLabel,
   makeWalletLabel
-} from './wallet-types';
+} from '../../common/wallet-types';
 
 const addressList = [
   '1MVQfJrU3mK3M62hygJz9pmgBxVoGzPaKj',

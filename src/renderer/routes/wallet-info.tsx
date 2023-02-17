@@ -40,8 +40,10 @@ import TableRow from '@mui/material/TableRow';
 
 import {
   AutocompleteOption,
+  PublicWallet,
+  WalletPackage,
   makeWalletLabel
-} from './wallet-types';
+} from '../../common/wallet-types';
 
 interface Column {
   id:
@@ -294,7 +296,13 @@ export default function WalletInfo() {
   const navigate = useNavigate();
 
   React.useEffect(() => {
-    setSearchedRows(rows);
+    window.electron.ipcRenderer.getWalletPackage('').then((result: WalletPackage) => {
+      console.log("walletPackage:", result);
+      const searchedRows = result.wallets.map(
+        (wallet: PublicWallet) => createData(wallet.address, wallet.balance,
+                                             wallet.identities.length, wallet.ownerships.length));
+      setSearchedRows(searchedRows);
+    })
   }, []);
 
   const handleDialogClose = (value?: string) => {
@@ -331,7 +339,7 @@ export default function WalletInfo() {
     setAddress(value);
   };
 
-  const handleSearch = () => {
+  const handleSearch = async () => {
     console.log('use click search button, search by address:', address);
     if (address) {
       const findRows = rows.filter((row) => row.address === address);

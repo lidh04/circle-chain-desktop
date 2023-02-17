@@ -28,7 +28,7 @@ import {
   AutocompleteOption,
   WalletLabelHandler,
   checkValidAddress
-} from './wallet-types';
+} from '../../common/wallet-types';
 
 const Note = styled('div')(({ theme }) => ({
   ...theme.typography.body1,

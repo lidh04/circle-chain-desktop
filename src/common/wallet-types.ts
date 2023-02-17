@@ -1,4 +1,9 @@
 
+export type Channels = 'ipc-circle-chain';
+export const IpcChannel = 'ipc-circle-chain';
+export type GetWalletPackageChannel = 'get-wallet-package';
+export const GetWalletPackage = 'get-wallet-package';
+
 export interface AutocompleteOption {
   value: string;
   label: string;

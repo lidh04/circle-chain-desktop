@@ -77,7 +77,7 @@ const wallets: PublicWallet[] = [
   },
 ];
 
-export const walletPackage: WalletPackage = {
+export const mockWalletPackage: WalletPackage = {
   account: {
     type: 'email',
     value: 'lidh04@qq.com',

@@ -1,11 +1,18 @@
 import { contextBridge, ipcRenderer, IpcRendererEvent } from 'electron';
 
-export type Channels = 'ipc-circle-chain';
+import {
+  Channels,
+  GetWalletPackage,
+} from '../common/wallet-types';
+
 
 const electronHandler = {
   ipcRenderer: {
     sendMessage(channel: Channels, args: unknown[]) {
       ipcRenderer.send(channel, args);
+    },
+    getWalletPackage(email?: string) {
+      return ipcRenderer.invoke(GetWalletPackage, email);
     },
     on(channel: Channels, func: (...args: unknown[]) => void) {
       const subscription = (_event: IpcRendererEvent, ...args: unknown[]) =>
