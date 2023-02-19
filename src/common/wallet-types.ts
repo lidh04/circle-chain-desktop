@@ -4,6 +4,8 @@ export const IpcChannel = 'ipc-circle-chain';
 export type GetWalletPackageChannel = 'get-wallet-package';
 export const GetWalletPackage = 'get-wallet-package';
 
+export const SendToChannel = 'send-to';
+
 export interface AutocompleteOption {
   value: string;
   label: string;
@@ -66,6 +68,10 @@ export interface WalletPackage {
   wallets: PublicWallet[];
 }
 
+export function addressListOf(walletPackage: WalletPackage) {
+  return walletPackage.wallets.map((w) => w.address);
+}
+
 export function allBalanceOf(walletPackage: WalletPackage) {
   return walletPackage.wallets.map((w) => w.balance)
     .reduce((prev, total) => total + prev, 0);
@@ -79,4 +85,22 @@ export function identityCount(walletPackage: WalletPackage) {
 export function ownershipCount(walletPackage: WalletPackage) {
   return walletPackage.wallets.map((w) => w.ownerships.length)
     .reduce((prev, total) => total + prev, 0);
+}
+
+
+export function validateEmail(inputText: string) {
+  const mailformat = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+  if (inputText.match(mailformat)) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+export function checkValidAsset(asset: string) {
+  if (asset.length >= 26) {
+    return true;
+  }
+
+  return false;
 }

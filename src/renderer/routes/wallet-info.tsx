@@ -297,12 +297,12 @@ export default function WalletInfo() {
 
   React.useEffect(() => {
     window.electron.ipcRenderer.getWalletPackage('').then((result: WalletPackage) => {
-      console.log("walletPackage:", result);
+      console.log("wallet-info walletPackage:", result);
       const searchedRows = result.wallets.map(
         (wallet: PublicWallet) => createData(wallet.address, wallet.balance,
                                              wallet.identities.length, wallet.ownerships.length));
       setSearchedRows(searchedRows);
-    })
+    });
   }, []);
 
   const handleDialogClose = (value?: string) => {

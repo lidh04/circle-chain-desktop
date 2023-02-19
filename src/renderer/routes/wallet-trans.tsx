@@ -1,3 +1,7 @@
+import { PublicWallet } from '../../common/wallet-types';
+
+import { WalletPackage } from '../../common/wallet-types';
+
 import {
   Box,
   Button,
@@ -73,12 +77,12 @@ const makeWalletLabel: WalletLabelHandler = (address, index) => {
   const ending = address.substring(address.length - 5);
   return `wallet ${index+1}(...${ending})`;
 }
-const addressList = [
+let addressList = [
   '1MVQfJrU3mK3M62hygJz9pmgBxVoGzPaKj',
   '12UdA785W3Y6M3SR8HxxExe7PRcwvVg88S',
   '1L8eRrBuWnBxcQ6DKCDkkPM7ozxDcmpho1',
 ];
-const addresses: AutocompleteOption[] = addressList.map((addr, index) => ({
+let addresses: AutocompleteOption[] = addressList.map((addr, index) => ({
   label: makeWalletLabel(addr, index),
   value: addr,
 }));
@@ -99,7 +103,7 @@ function createData(from: string, to: string, trans: string): Data {
   return { from, to, trans, timestamp: '2022-10-11 22:00:00' };
 }
 
-const rows = [
+let rows = [
   createData(
     '1MVQfJrU3mK3M62hygJz9pmgBxVoGzPaKj',
     '1Lnj3A96SEix2nyY3RTm5rbqCX4tNuAXLn',
@@ -186,17 +190,26 @@ export default function WalletInfo() {
   const [queryParameters] = useSearchParams();
 
   React.useEffect(() => {
-    const addr = queryParameters.get('address');
-    if (checkValidAddress(addr)) {
-      if (!addressList.includes(addr)) {
-        addressList.push(addr);
-        setInput({ label: makeWalletLabel(addr, addressList.length-1), value: addr });
+    window.electron.ipcRenderer.getWalletPackage('').then((result: WalletPackage) => {
+      console.log("wallet-trans walletPackage:", result);
+      const addr = queryParameters.get('address');
+      addressList = result.wallets.map((w: PublicWallet) => w.address);
+      if (checkValidAddress(addr)) {
+        if (!addressList.includes(addr)) {
+          addressList.push(addr);
+          setInput({ label: makeWalletLabel(addr, addressList.length-1), value: addr });
+        }
+        const findRows = rows.filter((row) => filter === 'from' ? row.from === addr : row.to === addr);
+        setSearchedData(findRows);
+      } else {
+        setSearchedData(rows);
       }
-      const findRows = rows.filter((row) => filter === 'from' ? row.from === addr : row.to === addr);
-      setSearchedData(findRows);
-    } else {
-      setSearchedData(rows);
-    }
+
+      addresses = addressList.map((addr, index) => ({
+        label: makeWalletLabel(addr, index),
+        value: addr,
+      }));
+    });
   }, [queryParameters, setInput]);
 
   const handleChangePage = (event: unknown, newPage: number) => {

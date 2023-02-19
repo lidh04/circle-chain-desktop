@@ -1,3 +1,5 @@
+import { SendToChannel } from '../common/wallet-types';
+
 /* eslint global-require: off, no-console: off, promise/always-return: off */
 
 /**
@@ -32,15 +34,21 @@ class AppUpdater {
 
 let mainWindow: BrowserWindow | null = null;
 
-ipcMain.on(IpcChannel, async (event, arg) => {
+ipcMain.on(IpcChannel, async (event, arg: string) => {
   const msgTemplate = (pingPong: string) => `IPC test: ${pingPong}`;
   console.log(msgTemplate(arg));
   event.reply('ipc-circle-chain', msgTemplate('pong'));
 });
 
-ipcMain.handle(GetWalletPackage, async (event, email) => {
+ipcMain.handle(GetWalletPackage, async (event, email: string) => {
   console.log("get wallet package by email:", email);
   return mockWalletPackage;
+});
+
+ipcMain.handle(SendToChannel, async (event, from: string, toEmail: string, assetType: number, value: number | string) => {
+  console.log(`${SendToChannel} from: ${from}, toEmail: ${toEmail}, assetType: ${assetType}, value: ${value}`);
+  await new Promise(r => setTimeout(r, 7000));
+  return true;
 });
 
 if (process.env.NODE_ENV === 'production') {

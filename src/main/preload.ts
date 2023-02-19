@@ -3,6 +3,7 @@ import { contextBridge, ipcRenderer, IpcRendererEvent } from 'electron';
 import {
   Channels,
   GetWalletPackage,
+  SendToChannel,
 } from '../common/wallet-types';
 
 
@@ -13,6 +14,9 @@ const electronHandler = {
     },
     getWalletPackage(email?: string) {
       return ipcRenderer.invoke(GetWalletPackage, email);
+    },
+    sendTo(from: string, toEmail: string, assetType: number, value: number | string) {
+      return ipcRenderer.invoke(SendToChannel, from, toEmail, assetType, value);
     },
     on(channel: Channels, func: (...args: unknown[]) => void) {
       const subscription = (_event: IpcRendererEvent, ...args: unknown[]) =>
