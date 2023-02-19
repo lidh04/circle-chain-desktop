@@ -198,6 +198,9 @@ export default function WalletInfo() {
         if (!addressList.includes(addr)) {
           addressList.push(addr);
           setInput({ label: makeWalletLabel(addr, addressList.length-1), value: addr });
+        } else {
+          const index = addressList.indexOf(addr);
+          setInput({ label: makeWalletLabel(addr, index), value: addr });
         }
         const findRows = rows.filter((row) => filter === 'from' ? row.from === addr : row.to === addr);
         setSearchedData(findRows);
