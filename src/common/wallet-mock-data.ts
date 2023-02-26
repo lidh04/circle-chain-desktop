@@ -4,6 +4,7 @@ import {
   PublicWallet,
   WalletPackage
 } from './wallet-types';
+import { TransVO } from './block-types';
 
 const identities0: Identity[] = [
   {
@@ -84,3 +85,48 @@ export const mockWalletPackage: WalletPackage = {
   },
   wallets,
 };
+
+export const mockTransData: TransVO[] = [
+  {
+    from: "1MVQfJrU3mK3M62hygJz9pmgBxVoGzPaKj",
+    to: "1Lnj3A96SEix2nyY3RTm5rbqCX4tNuAXLn",
+    trans: "CRY: 100",
+    txType: 0,
+    timestamp: "2022-10-11 22:00:00",
+  },
+  {
+    from: "12UdA785W3Y6M3SR8HxxExe7PRcwvVg88S",
+    to: "14q7erUx3bMWjzhjrx5NeK1LUKSiWe5UMY",
+    trans: "IDT: 0de5a851ef1cda49de81689cb1",
+    txType: 2,
+    timestamp: "2022-10-11 22:00:00",
+  },
+  {
+    from: "1L8eRrBuWnBxcQ6DKCDkkPM7ozxDcmpho1",
+    to: "1FYnGyxYA5XyyjiPSGGgGJgjX8VnvQ4xw",
+    trans: "IDT: 0de5a851ef1cda49de81689cb1",
+    txType: 2,
+    timestamp: "2022-10-11 22:00:00",
+  },
+  {
+    from: "16rcESr6pm3x3PByQH6JEbJBzZkf5W5NQk",
+    to: "1AVJGYtEKaS6P39yNGCuEPPy2xXL9Tzw5T",
+    trans: "OWN: 0de5a851ef1cda49de81689cb1'",
+    txType: 1,
+    timestamp: "2022-10-11 22:00:00",
+  },
+  {
+    from: "1745rpVqjXSntEniXdFhvuRHNESoYpyynp",
+    to: "1HQeLrWD7n9rp95aTRF9iZzE9NvtVCeXTN",
+    trans: "OWN: 0de5a851ef1cda49de81689cb1",
+    txType: 1,
+    timestamp: "2022-10-11 22:00:00",
+  },
+  {
+    from: "1Jhf7pUtmqK2ZqR9du7xa6uL1Qxdc14atG",
+    to: "1NHYhHDdgoiMXcWCxtEceADyTCjGw5b4Gy",
+    trans: "OWN: 0de5a851ef1cda49de81689cb1",
+    txType: 1,
+    timestamp: "2022-10-11 22:00:00",
+  },
+];

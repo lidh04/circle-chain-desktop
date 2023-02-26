@@ -3,8 +3,12 @@ import { contextBridge, ipcRenderer, IpcRendererEvent } from 'electron';
 import {
   Channels,
   GetWalletPackage,
+  SearchTransaction,
   SendToChannel,
+  AddressType,
 } from '../common/wallet-types';
+
+import { TxType } from '../common/block-types';
 
 
 const electronHandler = {
@@ -15,7 +19,10 @@ const electronHandler = {
     getWalletPackage(email?: string) {
       return ipcRenderer.invoke(GetWalletPackage, email);
     },
-    sendTo(from: string, toEmail: string, assetType: number, value: number | string) {
+    searchTransaction(address: string, addressType: AddressType, txType?: TxType, uuid?: string) {
+      return ipcRenderer.invoke(SearchTransaction, address, addressType, txType, uuid);
+    }
+    sendTo(from: string, toEmail: string, assetType: TxType, value: number | string) {
       return ipcRenderer.invoke(SendToChannel, from, toEmail, assetType, value);
     },
     on(channel: Channels, func: (...args: unknown[]) => void) {

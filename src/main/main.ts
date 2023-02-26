@@ -1,15 +1,3 @@
-import { SendToChannel } from '../common/wallet-types';
-
-/* eslint global-require: off, no-console: off, promise/always-return: off */
-
-/**
- * This module executes inside of electron's main process. You can start
- * electron renderer process from here and communicate with the other processes
- * through IPC.
- *
- * When running `npm run build` or `npm run build:main`, this file is compiled to
- * `./src/main.js` using webpack. This gives us some performance wins.
- */
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 
@@ -17,10 +5,14 @@ import { app, BrowserWindow, shell, ipcMain } from 'electron';
 import path from 'path';
 
 import {
+  AddressType,
   GetWalletPackage,
-  IpcChannel
+  IpcChannel,
+  SearchTransaction,
+  SendToChannel
 } from '../common/wallet-types';
-import { mockWalletPackage } from '../common/wallet-mock-data';
+import { TxType } from '../common/block-types';
+import { mockTransData, mockWalletPackage } from '../common/wallet-mock-data';
 import { resolveHtmlPath } from './util';
 import MenuBuilder from './menu';
 
@@ -43,6 +35,21 @@ ipcMain.on(IpcChannel, async (event, arg: string) => {
 ipcMain.handle(GetWalletPackage, async (event, email: string) => {
   console.log("get wallet package by email:", email);
   return mockWalletPackage;
+});
+
+ipcMain.handle(SearchTransaction, async (event, address: string, addressType: AddressType, txType?: TxType, uuid?: string) => {
+  console.log("search transaction by address:", address, "addressType:", addressType, "txType:", txType, "uuid:", uuid);
+  if (!address) {
+    if (txType === 0 || txType === 1 || txType === 2) {
+      return mockTransData.filter((t) => t.txType === txType);
+    } else if (uuid) {
+      return mockTransData.filter((t) => t.trans.indexOf(uuid) !== -1);
+    }
+    return mockTransData;
+  }
+
+  const filteredTransData = mockTransData.filter((t) => addressType === 'from' ? t.from === address : t.to === address);
+  return filteredTransData;
 });
 
 ipcMain.handle(SendToChannel, async (event, from: string, toEmail: string, assetType: number, value: number | string) => {

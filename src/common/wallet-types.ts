@@ -3,8 +3,11 @@ export type Channels = 'ipc-circle-chain';
 export const IpcChannel = 'ipc-circle-chain';
 export type GetWalletPackageChannel = 'get-wallet-package';
 export const GetWalletPackage = 'get-wallet-package';
+export const SearchTransaction = 'search-transaction';
 
 export const SendToChannel = 'send-to';
+
+export type AddressType = 'from' | 'to';
 
 export interface AutocompleteOption {
   value: string;
@@ -49,9 +52,16 @@ export interface PublicWallet {
   ownerships: Ownership[];
 }
 
-export interface PrivateWallet extends PublicWallet {
-  privateKey: string;
-}
+export const PrivateWalletPackage = (function() {
+  let keyMap: Record<string, string> = {} as Record<string, string>;
+  const initLoad = () => {
+    // TODO load private data here.
+  };
+  return {
+    initLoad,
+    getEncodedPrivateKey: (pubKey: string): string => keyMap[pubKey] ? keyMap[pubKey] : "",
+  };
+}());
 
 export interface EmailAccount {
   type: 'email';
