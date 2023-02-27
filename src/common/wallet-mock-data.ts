@@ -1,6 +1,7 @@
 import {
   Identity,
   Ownership,
+  PrivatePoem,
   PublicWallet,
   WalletPackage
 } from './wallet-types';
@@ -84,6 +85,21 @@ export const mockWalletPackage: WalletPackage = {
     value: 'lidh04@qq.com',
   },
   wallets,
+};
+
+export const privatePackageMap: Record<string, PrivatePoem> = {
+  "1MVQfJrU3mK3M62hygJz9pmgBxVoGzPaKj": {
+    title: "「申即静」",
+    sentences: ["竞味聚识咸，", "嚷气鞭兼即。", "匙稀遗翼饱，", "美肢遮台斗。"],
+  },
+  "12UdA785W3Y6M3SR8HxxExe7PRcwvVg88S": {
+    title: "「动非而」",
+    sentences: ["吾味聚识咸，", "嚷气鞭兼即。", "匙稀遗翼饱，", "美肢遮台斗。"],
+  },
+  "1L8eRrBuWnBxcQ6DKCDkkPM7ozxDcmpho1": {
+    title: "「我即好」",
+    sentences: ["哦味聚识咸，", "嚷气鞭兼即。", "匙稀遗翼饱，", "美肢遮台斗。"],
+  },
 };
 
 export const mockTransData: TransVO[] = [

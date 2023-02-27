@@ -52,16 +52,11 @@ export interface PublicWallet {
   ownerships: Ownership[];
 }
 
-export const PrivateWalletPackage = (function() {
-  let keyMap: Record<string, string> = {} as Record<string, string>;
-  const initLoad = () => {
-    // TODO load private data here.
-  };
-  return {
-    initLoad,
-    getEncodedPrivateKey: (pubKey: string): string => keyMap[pubKey] ? keyMap[pubKey] : "",
-  };
-}());
+export interface PrivatePoem {
+  title: string;
+  sentences: string[]
+}
+
 
 export interface EmailAccount {
   type: 'email';
