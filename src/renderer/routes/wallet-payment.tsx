@@ -538,11 +538,10 @@ export default function WalletPayment() {
           </Stack>
         </Grid>
         <CircleDialog
-          open={dialog.open}
-          title={dialog.title}
-          body={dialog.body}
-          btnText={dialog.btnText}
-          initOpen={dialog.open}
+          open={!!dialog.open}
+          title={dialog.title || ""}
+          body={dialog.body || ""}
+          btnText={dialog.btnText || ""}
           close={() => setDialog({ ...dialog, open: false })}
         />
       </Grid>
