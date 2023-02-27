@@ -1,3 +1,5 @@
+import { makeAssetLabel } from '../../common/wallet-types';
+
 import {
   Box,
   Button,
@@ -28,9 +30,9 @@ import {
   AddressType,
   AutocompleteOption,
   PublicWallet,
-  WalletLabelHandler,
   WalletPackage,
-  checkValidAddress
+  checkValidAddress,
+  makeWalletLabel,
 } from '../../common/wallet-types';
 
 const Note = styled('div')(({ theme }) => ({
@@ -72,24 +74,6 @@ const types: AutocompleteOption = [
   { label: 'IDT', value: 'IDT' },
   { label: 'OWN', value: 'OWN' },
 ];
-const makeWalletLabel: WalletLabelHandler = (address, index) => {
-  const ending = address.substring(address.length - 5);
-  return `wallet ${index+1}(...${ending})`;
-}
-let addressList = [
-  '1MVQfJrU3mK3M62hygJz9pmgBxVoGzPaKj',
-  '12UdA785W3Y6M3SR8HxxExe7PRcwvVg88S',
-  '1L8eRrBuWnBxcQ6DKCDkkPM7ozxDcmpho1',
-];
-let addresses: AutocompleteOption[] = addressList.map((addr, index) => ({
-  label: makeWalletLabel(addr, index),
-  value: addr,
-}));
-const uuids: AutocompleteOption[] = [
-  { label: '0de5a851ef1cda49de81689cb1', value: '0de5a851ef1cda49de81689cb1' },
-  { label: '0de5a851ef1cda49de81689cb2', value: '0de5a851ef1cda49de81689cb2' },
-  { label: '0de5a851ef1cda49de81689cb3', value: '0de5a851ef1cda49de81689cb3' },
-];
 
 interface Data {
   from: string;
@@ -101,43 +85,73 @@ interface Data {
 export default function WalletTrans() {
   const [page, setPage] = React.useState(0);
   const [filter, setFilter] = React.useState('from');
-  const [input, setInput] = React.useState<AutocompleteOption>({ label: "", value: "" });
+  const [input, setInput] = React.useState<AutocompleteOption>({
+    label: '',
+    value: '',
+  });
   const [searchedData, setSearchedData] = React.useState<Data[] | null>(null);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
+  const [addressList, setAddressList] = React.useState<string[]>(
+    [] as string[]
+  );
+  const [addresses, setAddresses] = React.useState<AutocompleteOption[]>(
+    [] as AutocompleteOption[]
+  );
+  const [uuids, setUuids] = React.useState<string[]>([] as string[]);
   const [queryParameters] = useSearchParams();
-
 
   React.useEffect(() => {
     let addr = queryParameters.get('address');
     if (!checkValidAddress(addr)) {
-      addr = "";
+      addr = '';
     }
-    window.electron.ipcRenderer.searchTransaction(addr, filter as AddressType).then((result) => {
-      setSearchedData(result);
-    });
+    window.electron.ipcRenderer
+      .searchTransaction(addr, filter as AddressType)
+      .then((result) => {
+        setSearchedData(result);
+      });
   }, [queryParameters, setSearchedData, filter]);
 
   React.useEffect(() => {
-    window.electron.ipcRenderer.getWalletPackage('').then((result: WalletPackage) => {
-      console.log("wallet-trans walletPackage:", result);
-      const addr = queryParameters.get('address');
-      addressList = result.wallets.map((w: PublicWallet) => w.address);
-      if (checkValidAddress(addr)) {
-        if (!addressList.includes(addr)) {
-          addressList.push(addr);
-          setInput({ label: makeWalletLabel(addr, addressList.length-1), value: addr });
-        } else {
-          const index = addressList.indexOf(addr);
-          setInput({ label: makeWalletLabel(addr, index), value: addr });
+    window.electron.ipcRenderer
+      .getWalletPackage('')
+      .then((result: WalletPackage) => {
+        console.log('wallet-trans walletPackage:', result);
+        const addr = queryParameters.get('address');
+        const addressList = result.wallets.map((w: PublicWallet) => w.address);
+        if (checkValidAddress(addr)) {
+          if (!addressList.includes(addr)) {
+            addressList.push(addr);
+            setInput({
+              label: makeWalletLabel(addr, addressList.length - 1),
+              value: addr,
+            });
+          } else {
+            const index = addressList.indexOf(addr);
+            setInput({ label: makeWalletLabel(addr, index), value: addr });
+          }
         }
-      }
+        setAddressList(addressList);
 
-      addresses = addressList.map((addr, index) => ({
-        label: makeWalletLabel(addr, index),
-        value: addr,
-      }));
-    });
-  }, [queryParameters, setInput]);
+        const allUuids = result.wallets.flatMap((w: PublicWallet) => {
+          const idts = (w.identities || []).map((idt) => ({ asset: idt.uuid, type: "IDT" }));
+          const owns = (w.ownerships || []).map((own) => ({ asset: own.uuid, type: "OWN" }));
+          return [...idts, ...owns];
+        });
+        const uuids = allUuids.map((item: { asset: string, type: string}) => ({
+          label: makeAssetLabel(item.asset, item.type),
+          value: item.asset,
+        }));
+        setUuids(uuids);
+
+        setAddresses(
+          addressList.map((addr, index) => ({
+            label: makeWalletLabel(addr, index),
+            value: addr,
+          }))
+        );
+      });
+  }, [queryParameters, setInput, setAddressList, setAddresses]);
 
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage);
@@ -156,7 +170,7 @@ export default function WalletTrans() {
     } = event;
     console.log('selected target vaule:', value);
     setFilter(value);
-    setInput({ label: "", value: "" });
+    setInput({ label: '', value: '' });
   };
 
   const handleInputChange = (
@@ -166,7 +180,7 @@ export default function WalletTrans() {
   ) => {
     console.log('input value:', value, 'reason:', reason, 'filter:', filter);
     if (!value) {
-      setInput({ lable: "", value: "" });
+      setInput({ lable: '', value: '' });
       return;
     }
 
@@ -179,7 +193,10 @@ export default function WalletTrans() {
         setInput({ label: makeWalletLabel(value, index), value });
       } else {
         addressList.push(value);
-        setInput({ label: makeWalletLabel(value, addressList.length-1), value });
+        setInput({
+          label: makeWalletLabel(value, addressList.length - 1),
+          value,
+        });
       }
     } else if (filter === 'type') {
       setInput({ label: value, value });
@@ -196,18 +213,33 @@ export default function WalletTrans() {
       filter
     );
     if (filter === 'from' || filter === 'to') {
-      const rows = await window.electron.ipcRenderer.searchTransaction(input.value, filter as AddressType);
-      console.info(`search address: ${input.value}, type: ${filter}, transactions:`, rows);
+      const rows = await window.electron.ipcRenderer.searchTransaction(
+        input.value,
+        filter as AddressType
+      );
+      console.info(
+        `search address: ${input.value}, type: ${filter}, transactions:`,
+        rows
+      );
       setSearchedData(rows);
     } else if (filter === 'type') {
       let txType = input.value === 'CRY' ? 0 : 1;
       if (input.value === 'IDT') {
         txType = 2;
       }
-      const rows = await window.electron.ipcRenderer.searchTransaction("", 'from', txType);
+      const rows = await window.electron.ipcRenderer.searchTransaction(
+        '',
+        'from',
+        txType
+      );
       setSearchedData(rows);
     } else if (filter === 'uuid') {
-      const rows = await window.electron.ipcRenderer.searchTransaction("", 'from', undefined, input.value);
+      const rows = await window.electron.ipcRenderer.searchTransaction(
+        '',
+        'from',
+        undefined,
+        input.value
+      );
       setSearchedData(rows);
     }
   };
@@ -298,6 +330,12 @@ export default function WalletTrans() {
                 value: AutocompleteOption
               ) => option.value === value.value}
               onInputChange={handleInputChange}
+              getOptionLabel={(option: AutocompleteOption) => option.value}
+              renderOption={(props, option) => (
+                <Box component="li" {...props}>
+                  {option.label}
+                </Box>
+              )}
               renderInput={(params) => (
                 <TextField {...params} label="Enter uuid" />
               )}

@@ -33,7 +33,7 @@ const identities1: Identity[] = [
 const ownerships1: Ownership[] = [
   {
     type: 'ownership',
-    uuid: '1567de51ef1cda49de81345cb1',
+    uuid: '2567de51ef1cda49de81345cb1',
     hash: ''
   },
 ];
@@ -41,7 +41,7 @@ const ownerships1: Ownership[] = [
 const identities2: Identity[] = [
   {
     type: 'identity',
-    uuid: '1567de51ef1cda49de81345cb1',
+    uuid: '3597de51ef1ddeddfga1345cb1',
     hash: ''
   },
 ];
