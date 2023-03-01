@@ -14,6 +14,7 @@ export const PrivateWalletPackage = (function() {
     // TODO load private data here.
     keyMap = privatePackageMap;
   };
+  initLoad();
   return {
     initLoad,
     getEncodedPrivateKey: (address: string): PrivatePoem | null => keyMap[address] ? keyMap[address] : null,

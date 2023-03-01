@@ -3,6 +3,7 @@ import { contextBridge, ipcRenderer, IpcRendererEvent } from 'electron';
 import {
   Channels,
   GetWalletPackage,
+  GetEncodedPrivateKey,
   SearchTransaction,
   SendToChannel,
   AddressType,
@@ -21,7 +22,10 @@ const electronHandler = {
     },
     searchTransaction(address: string, addressType: AddressType, txType?: TxType, uuid?: string) {
       return ipcRenderer.invoke(SearchTransaction, address, addressType, txType, uuid);
-    }
+    },
+    getEncodedPrivateKey(address: string) {
+      return ipcRenderer.invoke(GetEncodedPrivateKey, address);
+    },
     sendTo(from: string, toEmail: string, assetType: TxType, value: number | string) {
       return ipcRenderer.invoke(SendToChannel, from, toEmail, assetType, value);
     },

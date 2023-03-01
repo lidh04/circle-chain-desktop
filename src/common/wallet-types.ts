@@ -3,6 +3,7 @@ export type Channels = 'ipc-circle-chain';
 export const IpcChannel = 'ipc-circle-chain';
 export type GetWalletPackageChannel = 'get-wallet-package';
 export const GetWalletPackage = 'get-wallet-package';
+export const GetEncodedPrivateKey = 'get-encoded-private-key';
 export const SearchTransaction = 'search-transaction';
 
 export const SendToChannel = 'send-to';
@@ -54,9 +55,8 @@ export interface PublicWallet {
 
 export interface PrivatePoem {
   title: string;
-  sentences: string[]
+  sentences: string[];
 }
-
 
 export interface EmailAccount {
   type: 'email';

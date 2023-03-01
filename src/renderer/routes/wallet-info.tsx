@@ -42,7 +42,8 @@ import {
   AutocompleteOption,
   PublicWallet,
   WalletPackage,
-  makeWalletLabel
+  makeWalletLabel,
+  PrivatePoem
 } from '../../common/wallet-types';
 
 interface Column {
@@ -221,7 +222,14 @@ function BootstrapDialogTitle(props: DialogTitleProps) {
 }
 
 function AddressDialog(props: AddressDialogProps) {
+  const [poem, setPoem] = React.useState<PrivatePoem | null>(null);
   const { onClose, open, address } = props;
+
+  React.useEffect(() => {
+    window.electron.ipcRenderer.getEncodedPrivateKey(address).then((r) => {
+      setPoem(r);
+    });
+  }, [address, setPoem]);
 
   const handleClose = () => {
     onClose();
@@ -249,17 +257,13 @@ function AddressDialog(props: AddressDialogProps) {
             spacing={2}
             sx={{ width: '100%', height: 'auto' }}
           >
-            <Typography gutterBottom>
-              「申即静」
-              <br />
-              竞味聚识咸，
-              <br />
-              嚷气鞭兼即。
-              <br />
-              匙稀遗翼饱，
-              <br />
-              美肢遮台斗。
-            </Typography>
+            {poem &&
+             <Typography gutterBottom>
+               {poem.title}
+               <br />
+               {poem.sentences.map(sen => <div key={sen}>{sen}<br/></div>)}
+             </Typography>
+            }
 
             <Typography gutterBottom>Address QrCode:</Typography>
             <Box

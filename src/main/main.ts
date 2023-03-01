@@ -6,11 +6,13 @@ import path from 'path';
 
 import {
   AddressType,
+  GetEncodedPrivateKey,
   GetWalletPackage,
   IpcChannel,
   SearchTransaction,
   SendToChannel
 } from '../common/wallet-types';
+import { PrivateWalletPackage } from './wallet-privacy';
 import { TxType } from '../common/block-types';
 import { mockTransData, mockWalletPackage } from '../common/wallet-mock-data';
 import { resolveHtmlPath } from './util';
@@ -35,6 +37,12 @@ ipcMain.on(IpcChannel, async (event, arg: string) => {
 ipcMain.handle(GetWalletPackage, async (event, email: string) => {
   console.log("get wallet package by email:", email);
   return mockWalletPackage;
+});
+
+ipcMain.handle(GetEncodedPrivateKey, async (event, address: string) => {
+  const privatePoem = PrivateWalletPackage.getEncodedPrivateKey(address);
+  console.log("get encoded private key by address:", address, "result:", privatePoem);
+  return privatePoem;
 });
 
 ipcMain.handle(SearchTransaction, async (event, address: string, addressType: AddressType, txType?: TxType, uuid?: string) => {
