@@ -2,6 +2,8 @@ import { Box, Stack, Typography } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 import React, { MouseEvent, useEffect } from 'react';
 
+import { PublicWallet } from '../../common/wallet-types';
+
 type Point2D = {
   x: number;
   y: number;
@@ -21,12 +23,33 @@ export default function CreateWallet() {
   const [showNext, setShowNext] = React.useState(false);
   const [step, setStep] = React.useState(0);
   const [point, setPoint] = React.useState<Point2D | null>(null);
+  const [wallet, setWallet] = React.useState<PublicWallet | null>(null);
+  const [poem, setPoem] = React.useState<Poem | null>(null);
 
   const onSubmitHandler: React.FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault();
     console.log('click the next button.');
     setShowNext(step + 1 < 3);
-    setStep(step + 1);
+    if (step === 1) {
+      window.electron.ipcRenderer.createWallet().then((r) => {
+        console.log('created new wallet:', r);
+        if (!r) {
+          throw new Error("cannot create wallet!");
+        }
+        setWallet(r);
+        const address = r.address;
+        return Promise.resolve(address);
+      }).then((address) => {
+        console.log("new wallet address:", address);
+        return window.electron.ipcRenderer.getEncodedPrivateKey(address).then((r) => r);
+      }).then((r) => {
+        console.log("new wallet private poem:", r);
+        setPoem(r);
+        setStep(step + 1);
+      }).catch((err) => console.error("error:", err.message, err));
+    } else {
+      setStep(step + 1);
+    }
   };
 
   const boxMouseOverHandler = (event: React.MouseEvent<HTMLDivElement>) => {
@@ -105,27 +128,22 @@ export default function CreateWallet() {
               }}
             >
               {
-                'Please write down the following Chinese Characters which relate to private key...'
+                'Please write down the following Chinese Poem which relate to private key...'
               }
             </Typography>
-            <Typography
-              sx={{
-                fontSize: '2rem',
-                mb: '2rem',
-                height: 'auto',
-                textAlign: 'center',
-              }}
-            >
-              {'「申即静」'}
+            {poem && <Typography
+                       sx={{
+                         fontSize: '2rem',
+                         mb: '2rem',
+                         height: 'auto',
+                         textAlign: 'center',
+                       }}
+                     >
+              {poem.title}
               <br />
-              {'竞味聚识咸，'}
-              <br />
-              {'嚷气鞭兼即。'}
-              <br />
-              {'匙稀遗翼饱，'}
-              <br />
-              {'美肢遮台斗。'}
+              {poem.sentences.map(sen => <span key={sen}>{sen}</span>)}
             </Typography>
+            }
           </>
         )}
 
@@ -159,7 +177,7 @@ export default function CreateWallet() {
                 src="https://circle-node.net/static/release/circle-node.jpg"
               />
               <Typography sx={{ fontSize: '12px' }}>
-                address: {'1MVQfJrU3mK3M62hygJz9pmgBxVoGzPaKj'}
+                address: {wallet && wallet.address ? wallet.address: ""}
               </Typography>
             </Stack>
           </React.Fragment>

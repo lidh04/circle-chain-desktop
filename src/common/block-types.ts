@@ -39,5 +39,6 @@ export interface TransVO {
   from: string;
   to: string;
   trans: string;
+  txType: TxType;
   timestamp: Date | string;
 }

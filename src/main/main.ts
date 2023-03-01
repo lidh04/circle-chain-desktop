@@ -6,6 +6,7 @@ import path from 'path';
 
 import {
   AddressType,
+  CreateWallet,
   GetEncodedPrivateKey,
   GetWalletPackage,
   IpcChannel,
@@ -14,7 +15,11 @@ import {
 } from '../common/wallet-types';
 import { PrivateWalletPackage } from './wallet-privacy';
 import { TxType } from '../common/block-types';
-import { mockTransData, mockWalletPackage } from '../common/wallet-mock-data';
+import {
+  mockNewWallet,
+  mockTransData,
+  mockWalletPackage
+} from '../common/wallet-mock-data';
 import { resolveHtmlPath } from './util';
 import MenuBuilder from './menu';
 
@@ -32,6 +37,15 @@ ipcMain.on(IpcChannel, async (event, arg: string) => {
   const msgTemplate = (pingPong: string) => `IPC test: ${pingPong}`;
   console.log(msgTemplate(arg));
   event.reply('ipc-circle-chain', msgTemplate('pong'));
+});
+
+ipcMain.handle(CreateWallet, async () => {
+  console.log("create wallet request...");
+  /*if (mockWalletPackage && mockWalletPackage.wallets && mockWalletPackage.wallets.length >= 3) {
+    return null;
+  }*/
+
+  return mockNewWallet;
 });
 
 ipcMain.handle(GetWalletPackage, async (event, email: string) => {

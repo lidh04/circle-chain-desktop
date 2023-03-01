@@ -1,14 +1,13 @@
 import { contextBridge, ipcRenderer, IpcRendererEvent } from 'electron';
-
 import {
+  AddressType,
   Channels,
-  GetWalletPackage,
+  CreateWallet,
   GetEncodedPrivateKey,
+  GetWalletPackage,
   SearchTransaction,
   SendToChannel,
-  AddressType,
 } from '../common/wallet-types';
-
 import { TxType } from '../common/block-types';
 
 
@@ -16,6 +15,9 @@ const electronHandler = {
   ipcRenderer: {
     sendMessage(channel: Channels, args: unknown[]) {
       ipcRenderer.send(channel, args);
+    },
+    createWallet() {
+      return ipcRenderer.invoke(CreateWallet, null);
     },
     getWalletPackage(email?: string) {
       return ipcRenderer.invoke(GetWalletPackage, email);

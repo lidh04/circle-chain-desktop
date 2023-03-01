@@ -87,6 +87,8 @@ export const mockWalletPackage: WalletPackage = {
   wallets,
 };
 
+export const mockNewWallet = wallets[1];
+
 export const privatePackageMap: Record<string, PrivatePoem> = {
   "1MVQfJrU3mK3M62hygJz9pmgBxVoGzPaKj": {
     title: "「申即静」",
