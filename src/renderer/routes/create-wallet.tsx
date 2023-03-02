@@ -133,17 +133,23 @@ export default function CreateWallet() {
             </Typography>
             {poem && <Typography
                        sx={{
-                         fontSize: '2rem',
-                         mb: '2rem',
+                         fontSize: '1.5rem',
+                         mb: '0',
                          height: 'auto',
                          textAlign: 'center',
                        }}
                      >
               {poem.title}
-              <br />
-              {poem.sentences.map(sen => <span key={sen}>{sen}</span>)}
             </Typography>
             }
+            {poem && poem.sentences.map(sen => <Typography key={sen}
+                                                 sx={{
+                                                   fontSize: '1rem',
+                                                   mb: '0',
+                                                   height: 'auto',
+                                                   textAlign: 'center',
+                                                 }}
+                                               >{sen}</Typography>)}
           </>
         )}
 

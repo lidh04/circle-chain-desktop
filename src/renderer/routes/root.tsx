@@ -23,6 +23,7 @@ import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import PaidIcon from '@mui/icons-material/Paid';
 import ReceiptIcon from '@mui/icons-material/Receipt';
 import AppRegistrationIcon from '@mui/icons-material/AppRegistration';
+import { PublicWallet, WalletPackage } from 'common/wallet-types';
 
 const FireNav = styled(List)<{ component?: React.ElementType }>({
   '& .MuiListItemButton-root': {
@@ -38,42 +39,62 @@ const FireNav = styled(List)<{ component?: React.ElementType }>({
   },
 });
 
+type WalletSidebar = {
+  icon: any;
+  label: string;
+  handleClick: () => void;
+};
+
 export default function Root() {
   const [open, setOpen] = React.useState(true);
   const [accountOpen, setAccountOpen] = React.useState(false);
   const [login, setLogin] = React.useState(false);
+  const [walletPackage, setWalletPackage] = React.useState<WalletPackage | null>(null);
+  const [walletData, setWalletData] = React.useState<WalletSidebar[] | null>(null);
   const navigate = useNavigate();
 
-  const walletData = [
-    {
-      icon: <AddCircleIcon />,
-      label: 'Create',
-      handleClick: () => {
-        navigate('/create-wallet');
-      },
-    },
-    {
-      icon: <AccountBalanceWalletIcon />,
-      label: 'Balance',
-      handleClick: () => {
-        navigate('/wallet-info');
-      },
-    },
-    {
-      icon: <PaidIcon />,
-      label: 'Payment',
-      handleClick: () => {
-        navigate('/wallet-payment');
-      },
-    },
-    {
-      icon: <ReceiptIcon />,
-      label: 'Transaction',
-      handleClick: () => {
-        navigate('/wallet-trans');
-      },
-    },
-  ];
+  React.useEffect(() => {
+    window.electron.ipcRenderer.getWalletPackage('').then((result: WalletPackage) => {
+      console.log("wallet-info walletPackage:", result);
+      setWalletPackage(result);
+      const wallets: PublicWallet[] = result.wallets;
+      const walletDataArray: WalletSidebar[] = [
+            {
+                icon: <AddCircleIcon />,
+                label: 'Create',
+                handleClick: () => {
+                    navigate('/create-wallet');
+                },
+            },
+            {
+                icon: <AccountBalanceWalletIcon />,
+                label: 'Balance',
+                handleClick: () => {
+                    navigate('/wallet-info');
+                },
+            },
+            {
+                icon: <PaidIcon />,
+                label: 'Payment',
+                handleClick: () => {
+                    navigate('/wallet-payment');
+                },
+            },
+            {
+                icon: <ReceiptIcon />,
+                label: 'Transaction',
+                handleClick: () => {
+                    navigate('/wallet-trans');
+                },
+            },
+        ];
+      if (wallets && wallets.length >= 3) {
+        walletDataArray.splice(0, 1);
+      }
+      setWalletData(walletDataArray);
+    });
+  }, []);
+
   const accountData = [
     {
       icon: <LoginIcon />,
@@ -256,7 +277,7 @@ export default function Root() {
                       }}
                     />
                   </ListItemButton>
-                  {open &&
+                  {open && walletData &&
                     walletData.map((item) => (
                       <ListItemButton
                         key={item.label}

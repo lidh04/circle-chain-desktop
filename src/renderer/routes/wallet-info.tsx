@@ -236,58 +236,68 @@ function AddressDialog(props: AddressDialogProps) {
   };
 
   return (
-    <>
-      <BootstrapDialog
-        onClose={handleClose}
-        aria-labelledby="customized-dialog-title"
-        open={open}
-      >
-        <BootstrapDialogTitle
-          id="customized-dialog-title"
-          onClose={handleClose}
-        >
-          Address Keywords
-        </BootstrapDialogTitle>
-        <DialogContent dividers>
-          <Stack
-            direction="column"
-            justifyContent="center"
-            alignItems="center"
-            mt={2}
-            spacing={2}
-            sx={{ width: '100%', height: 'auto' }}
-          >
-            {poem &&
-             <Typography gutterBottom>
-               {poem.title}
-               <br />
-               {poem.sentences.map(sen => <div key={sen}>{sen}<br/></div>)}
-             </Typography>
-            }
+        <>
+            <BootstrapDialog
+                onClose={handleClose}
+                aria-labelledby="customized-dialog-title"
+                open={open}
+            >
+                <BootstrapDialogTitle
+                    id="customized-dialog-title"
+                    onClose={handleClose}
+                >
+                    Address Keywords
+                </BootstrapDialogTitle>
+                <DialogContent dividers>
+                    <Stack
+                        direction="column"
+                        justifyContent="center"
+                        alignItems="center"
+                        mt={2}
+                        spacing={2}
+                        sx={{ width: '100%', height: 'auto' }}
+                    >
+                        {poem && <Typography
+                                   sx={{
+                                     fontSize: '1.5rem',
+                                     mb: '0',
+                                     mt: "0",
+                                     height: 'auto',
+                                     textAlign: 'center',
+                                   }}>{poem.title}</Typography>
+                        }
+                        {poem && poem.sentences.map(sen => <Typography key={sen}
+                            sx={{
+                                fontSize: '1rem',
+                                mb: '0',
+                                mt: "0",
+                                height: 'auto',
+                                textAlign: 'center',
+                            }}>{sen}</Typography>)}
 
-            <Typography gutterBottom>Address QrCode:</Typography>
-            <Box
-              component="img"
-              sx={{
-                height: 180,
-                width: 180,
-              }}
-              alt="The new address qrcode."
-              src="https://circle-node.net/static/release/circle-node.jpg"
-            />
-            <Typography sx={{ fontSize: '12px' }}>
-              address: {address}
-            </Typography>
-          </Stack>
-        </DialogContent>
-        <DialogActions>
-          <Button autoFocus onClick={handleClose}>
-            Close
-          </Button>
-        </DialogActions>
-      </BootstrapDialog>
-    </>
-  );
+                        <Typography gutterBottom>Address QrCode:</Typography>
+                        <Box
+                            component="img"
+                            sx={{
+                                height: 180,
+                                width: 180,
+                            }}
+                            alt="The new address qrcode."
+                            src="https://circle-node.net/static/release/circle-node.jpg"
+                        />
+                        <Typography sx={{ fontSize: '12px' }}>
+                            address: {address}
+                        </Typography>
+                    </Stack>
+                </DialogContent>
+                <DialogActions>
+                    <Button autoFocus onClick={handleClose}>
+                        Close
+                    </Button>
+                </DialogActions>
+            </BootstrapDialog>
+        </>
+    );
 }
 
 export default function WalletInfo() {
