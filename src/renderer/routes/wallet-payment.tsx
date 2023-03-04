@@ -72,7 +72,7 @@ const assetTypes = ['CRY', 'OWN', 'IDT'];
 type MyError = {
   address?: boolean;
   email?: boolean;
-  curreny?: boolean;
+  currency?: boolean;
   identity?: boolean;
   ownership?: boolean;
 };
@@ -91,7 +91,7 @@ export default function WalletPayment() {
   const [address, setAddress] = React.useState<AutocompleteOption>({ label: "", value: "" });
   const [assetType, setAssetType] = React.useState(0);
   const [currencyValue, setCurrencyValue] = React.useState(0);
-  const [asset, setAsset] = React.useState('');
+  const [asset, setAsset] = React.useState<AutocompleteOption>({ label: "", value: "" });
   const [walletPackage, setWalletPackage] = React.useState<WalletPackage | null>(null);
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
   const [error, setError] = React.useState<MyError>({} as MyError);
@@ -104,11 +104,11 @@ export default function WalletPayment() {
       return;
     }
 
-    identityList = wallet.identities.map((item: Identity) => item.uuid);
+    identityList = wallet.identities.map((item) => item.uuid);
     console.log("identityList:", identityList);
     identities = makeAssetOptionList(identityList, 'IDT');
 
-    ownershipList = wallet.ownerships.map((item: Identity) => item.uuid);
+    ownershipList = wallet.ownerships.map((item) => item.uuid);
     ownerships = makeAssetOptionList(ownershipList, 'OWN');
   }
 
@@ -118,7 +118,7 @@ export default function WalletPayment() {
       setWalletPackage(result);
       const addr = queryParameters.get('address');
       addressList = addressListOf(result);
-      if (checkValidAddress(addr)) {
+      if (addr && checkValidAddress(addr)) {
         if (addressList.includes(addr)) {
           const address: AutocompleteOption = addresses.find((item) => item.value === addr)!;
           setAddress(address);
@@ -353,7 +353,7 @@ export default function WalletPayment() {
               value: AutocompleteOption
             ) => option.value === value.value}
             onInputChange={handleAddressChange}
-            getOptionLabel={(option: AutocompleteOption) => option.value}
+            getOptionLabel={(option) => typeof (option) === "string" ? option : option.value}
             renderOption={(props, option) => (
               <Box component="li" {...props}>
                 {option.label}
@@ -460,7 +460,7 @@ export default function WalletPayment() {
                 value: AutocompleteOption
               ) => option.value === value.value}
               onInputChange={handleInputAssetChange}
-              getOptionLabel={(option: AutocompleteOption) => option.value}
+              getOptionLabel={(option) => typeof (option) === "string" ? option : option.value}
               renderOption={(props, option) => (
                 <Box component="li" {...props}>
                   {option.label}
@@ -487,7 +487,7 @@ export default function WalletPayment() {
                 value: AutocompleteOption
               ) => option.value === value.value}
               onInputChange={handleInputAssetChange}
-              getOptionLabel={(option: AutocompleteOption) => option.value}
+              getOptionLabel={(option) => typeof(option) === "string" ? option : option.value}
               renderOption={(props, option) => (
                 <Box component="li" {...props}>
                   {option.label}

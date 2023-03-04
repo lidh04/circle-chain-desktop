@@ -46,7 +46,8 @@
     "start:main": "cross-env NODE_ENV=development electronmon -r ts-node/register/transpile-only .",
     "start:preload": "cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true webpack --config ./.erb/configs/webpack.config.preload.dev.ts",
     "start:renderer": "cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true webpack serve --config ./.erb/configs/webpack.config.renderer.dev.ts",
-    "test": "jest"
+    "test": "jest --coverage",
+    "test:watch": "jest --watch"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
@@ -117,6 +118,8 @@
     "@mui/lab": "^5.0.0-alpha.117",
     "@mui/material": "^5.11.6",
     "@mui/styled-engine-sc": "^5.11.0",
+    "base58-js": "^2.0.0",
+    "crypto": "^1.0.1",
     "electron-debug": "^3.2.0",
     "electron-log": "^4.4.8",
     "electron-updater": "^5.2.3",
@@ -124,6 +127,7 @@
     "react-dom": "^18.2.0",
     "react-hook-form": "^7.42.1",
     "react-router-dom": "^6.4.0",
+    "secp256k1": "^5.0.0",
     "styled-components": "^5.3.6",
     "zod": "^3.20.2"
   },
@@ -135,11 +139,12 @@
     "@teamsupercell/typings-for-css-modules-loader": "^2.5.1",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^13.3.0",
-    "@types/jest": "^28.1.7",
+    "@types/jest": "^28.1.8",
     "@types/node": "18.7.6",
     "@types/react": "^18.0.17",
     "@types/react-dom": "^18.0.6",
     "@types/react-test-renderer": "^18.0.0",
+    "@types/secp256k1": "^4.0.3",
     "@types/terser-webpack-plugin": "^5.0.4",
     "@types/webpack-bundle-analyzer": "^4.4.2",
     "@typescript-eslint/eslint-plugin": "^5.33.1",

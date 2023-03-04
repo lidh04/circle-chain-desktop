@@ -69,7 +69,7 @@ const columns: readonly Column[] = [
   },
 ];
 
-const types: AutocompleteOption = [
+const types: AutocompleteOption[] = [
   { label: 'CRY', value: 'CRY' },
   { label: 'IDT', value: 'IDT' },
   { label: 'OWN', value: 'OWN' },
@@ -97,12 +97,12 @@ export default function WalletTrans() {
   const [addresses, setAddresses] = React.useState<AutocompleteOption[]>(
     [] as AutocompleteOption[]
   );
-  const [uuids, setUuids] = React.useState<string[]>([] as string[]);
-  const [queryParameters] = useSearchParams();
+    const [uuids, setUuids] = React.useState<AutocompleteOption[]>([] as AutocompleteOption[]);
+    const [queryParameters] = useSearchParams();
 
   React.useEffect(() => {
-    let addr = queryParameters.get('address');
-    if (!checkValidAddress(addr)) {
+    let addr = queryParameters.get('address') || "";
+    if (addr && !checkValidAddress(addr)) {
       addr = '';
     }
     window.electron.ipcRenderer
@@ -119,7 +119,7 @@ export default function WalletTrans() {
         console.log('wallet-trans walletPackage:', result);
         const addr = queryParameters.get('address');
         const addressList = result.wallets.map((w: PublicWallet) => w.address);
-        if (checkValidAddress(addr)) {
+        if (addr && checkValidAddress(addr)) {
           if (!addressList.includes(addr)) {
             addressList.push(addr);
             setInput({
@@ -180,7 +180,7 @@ export default function WalletTrans() {
   ) => {
     console.log('input value:', value, 'reason:', reason, 'filter:', filter);
     if (!value) {
-      setInput({ lable: '', value: '' });
+      setInput({ label: '', value: '' });
       return;
     }
 
@@ -306,7 +306,7 @@ export default function WalletTrans() {
                 value: AutocompleteOption
               ) => option.value === value.value}
               onInputChange={handleInputChange}
-              getOptionLabel={(option: AutocompleteOption) => option.value}
+              getOptionLabel={(option) => typeof (option) === "string" ? option : option.value}
               renderOption={(props, option) => (
                 <Box component="li" {...props}>
                   {option.label}
@@ -330,7 +330,7 @@ export default function WalletTrans() {
                 value: AutocompleteOption
               ) => option.value === value.value}
               onInputChange={handleInputChange}
-              getOptionLabel={(option: AutocompleteOption) => option.value}
+              getOptionLabel={(option) => typeof (option) === "string" ? option : option.value}
               renderOption={(props, option) => (
                 <Box component="li" {...props}>
                   {option.label}

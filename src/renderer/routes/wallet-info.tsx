@@ -418,7 +418,7 @@ export default function WalletInfo() {
               option: AutocompleteOption,
               value: AutocompleteOption
             ) => option.value === value.value}
-            getOptionLabel={(option: AutocompleteOption) => option.value}
+            getOptionLabel={(option) => typeof (option) === "string" ? option : option.value}
             renderOption={(props, option) => (
               <Box component="li" {...props}>
                 {option.label}

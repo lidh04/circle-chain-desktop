@@ -2,7 +2,7 @@ import { Box, Stack, Typography } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 import React, { MouseEvent, useEffect } from 'react';
 
-import { PublicWallet } from '../../common/wallet-types';
+import { PrivatePoem, PublicWallet } from '../../common/wallet-types';
 
 type Point2D = {
   x: number;
@@ -24,7 +24,7 @@ export default function CreateWallet() {
   const [step, setStep] = React.useState(0);
   const [point, setPoint] = React.useState<Point2D | null>(null);
   const [wallet, setWallet] = React.useState<PublicWallet | null>(null);
-  const [poem, setPoem] = React.useState<Poem | null>(null);
+  const [poem, setPoem] = React.useState<PrivatePoem | null>(null);
 
   const onSubmitHandler: React.FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault();
