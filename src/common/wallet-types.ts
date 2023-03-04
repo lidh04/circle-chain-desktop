@@ -1,3 +1,4 @@
+import { EmailAccount, PhoneAccount } from './account-types';
 
 export type Channels = 'ipc-circle-chain';
 export const IpcChannel = 'ipc-circle-chain';
@@ -57,16 +58,6 @@ export interface PublicWallet {
 export interface PrivatePoem {
   title: string;
   sentences: string[];
-}
-
-export interface EmailAccount {
-  type: 'email';
-  value: string;
-}
-
-export interface PhoneAccount {
-  type: 'phone';
-  value: string;
 }
 
 export interface WalletPackage {

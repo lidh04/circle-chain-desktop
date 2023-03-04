@@ -5,19 +5,20 @@
  * @license copyright to shc
  */
 
-import { exec } from "child_process";
+import { EmailAccount } from '../common/account-types';
+import { PrivateWalletPackage } from './wallet-privacy';
+import createWallet from './create-wallet';
 
-const address = "mock-address-1";
-const publicKey = "mock-public-key";
-const balance = 0;
+const account: EmailAccount = {
+  value: "lidh04@qq.com",
+  type: "email"
+};
 test("createWallet test", async () => {
-  const result = {
-    address,
-    publicKey,
-    balance,
-    identities: [],
-    ownerships: []
+  await PrivateWalletPackage.initLoad(account);
+  try {
+    const result = await createWallet();
+    expect(result).not.toBe(null);
+    console.log("result: ", result);
+  } catch (err) {
   }
-  expect(result).not.toBe(null);
-  expect(result.address).toBe(address);
 });

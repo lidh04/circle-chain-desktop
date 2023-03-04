@@ -7,6 +7,7 @@ import path from 'path';
 import {
   AddressType,
   CreateWallet,
+  EmailAccount,
   GetEncodedPrivateKey,
   GetWalletPackage,
   IpcChannel,
@@ -50,7 +51,19 @@ ipcMain.handle(CreateWallet, async () => {
 
 ipcMain.handle(GetWalletPackage, async (event, email: string) => {
   console.log("get wallet package by email:", email);
-  return mockWalletPackage;
+  try {
+    if (email) {
+      const account: EmailAccount = {
+        type: "email",
+        value: email
+      };
+      await PrivateWalletPackage.initLoad(account);
+    }
+    return await PrivateWalletPackage.getWalletPackage();
+  } catch (err: any) {
+    console.error("cannot get wallet package by email:", email, "error:", err.message, err);
+    throw err;
+  }
 });
 
 ipcMain.handle(GetEncodedPrivateKey, async (event, address: string) => {
