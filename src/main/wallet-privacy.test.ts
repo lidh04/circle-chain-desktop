@@ -14,7 +14,7 @@ const account: EmailAccount = {
 };
 test("initLoad test", async () => {
   const result = await PrivateWalletPackage.initLoad(account);
-  expect(result).not.toBe(null);
+  expect(result).toBe(true);
   const accountReturn = PrivateWalletPackage.getAccount();
   console.log("account:", accountReturn);
   expect(accountReturn).not.toBe(null);
@@ -24,7 +24,7 @@ test("initLoad test", async () => {
     value: "random223@gmail.com"
   };
   const newResult = await PrivateWalletPackage.initLoad(newAccount);
-  expect(newResult).not.toBe(null);
+  expect(newResult).toBe(false);
   const newAccountReturn = PrivateWalletPackage.getAccount();
   console.log("new account:", newAccountReturn);
   expect(newAccountReturn).toStrictEqual(newAccount);
@@ -35,7 +35,7 @@ test("initLoad test", async () => {
 
   // rollback
   const result2 = await PrivateWalletPackage.initLoad(account);
-  expect(result2).not.toBe(null);
+  expect(result2).toBe(true);
 });
 
 test("getWalletPackage test", async () => {

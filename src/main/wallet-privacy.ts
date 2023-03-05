@@ -125,11 +125,13 @@ export const PrivateWalletPackage = (function() {
       console.warn(`not exist path: ${path}`);
       return null;
     }
+
     const content = await readFile(accountPath, { encoding: "utf8" });
     try {
       return JSON.parse(content);
     } catch (err: any) {
       console.error("cannot parse json:", content, "error: ", err.message, err);
+      // TODO try to parse the malformat json data
       return null;
     }
   }
@@ -157,7 +159,7 @@ export const PrivateWalletPackage = (function() {
     const pathStr = getPrivateKeyPath(account!);
     try {
       if (!await exists(pathStr)) {
-        console.log(`path: ${pathStr} not exists!`);
+        console.log(`path: ${pathStr} not exists for account: ${JSON.stringify(accountInput)}`);
         return false;
       }
 
@@ -167,7 +169,6 @@ export const PrivateWalletPackage = (function() {
       const content = decrypt(securityKey, initVector, rawContent);
       const arr = JSON.parse(content) as Array<string>;
       const privKeys = arr.map(item => Buffer.from(item, "hex"));
-      privateKeys = []; // clear old private keys
       for (const privKey of privKeys) {
         const uint8array = new Uint8Array(privKey.length);
         privKey.forEach((p, i) => { uint8array[i] = p; });

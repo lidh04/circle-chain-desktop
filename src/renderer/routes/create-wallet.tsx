@@ -39,7 +39,7 @@ export default function CreateWallet() {
         setWallet(r);
         const address = r.address;
         return Promise.resolve(address);
-      }).then((address) => {
+      }).then(async (address) => {
         console.log("new wallet address:", address);
         return window.electron.ipcRenderer.getEncodedPrivateKey(address).then((r) => r);
       }).then((r) => {
