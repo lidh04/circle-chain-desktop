@@ -1,29 +1,33 @@
 import { Outlet, useNavigate } from 'react-router-dom';
-import * as React from 'react';
-import Box from '@mui/material/Box';
 import { styled, ThemeProvider, createTheme } from '@mui/material/styles';
+import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
+import AddCircleIcon from '@mui/icons-material/AddCircle';
+import AppRegistrationIcon from '@mui/icons-material/AppRegistration';
+import ArrowRight from '@mui/icons-material/ArrowRight';
+import Box from '@mui/material/Box';
 import Divider from '@mui/material/Divider';
+import Home from '@mui/icons-material/Home';
+import IconButton from '@mui/material/IconButton';
+import KeyboardArrowDown from '@mui/icons-material/KeyboardArrowDown';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
-import Paper from '@mui/material/Paper';
-import IconButton from '@mui/material/IconButton';
-import Tooltip from '@mui/material/Tooltip';
-import ArrowRight from '@mui/icons-material/ArrowRight';
-import KeyboardArrowDown from '@mui/icons-material/KeyboardArrowDown';
-import Home from '@mui/icons-material/Home';
-import Settings from '@mui/icons-material/Settings';
-import People from '@mui/icons-material/People';
-import AddCircleIcon from '@mui/icons-material/AddCircle';
 import LoginIcon from '@mui/icons-material/Login';
 import LogoutIcon from '@mui/icons-material/Logout';
-import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import PaidIcon from '@mui/icons-material/Paid';
+import Paper from '@mui/material/Paper';
+import People from '@mui/icons-material/People';
+import * as React from 'react';
 import ReceiptIcon from '@mui/icons-material/Receipt';
-import AppRegistrationIcon from '@mui/icons-material/AppRegistration';
+import Settings from '@mui/icons-material/Settings';
+import Tooltip from '@mui/material/Tooltip';
+
 import { PublicWallet, WalletPackage } from 'common/wallet-types';
+
+import { EmailAccount, PhoneAccount } from '../../common/account-types';
+import InputAccountDialog from 'renderer/components/InputAccountDialog';
 
 const FireNav = styled(List)<{ component?: React.ElementType }>({
   '& .MuiListItemButton-root': {
@@ -49,50 +53,63 @@ export default function Root() {
   const [open, setOpen] = React.useState(true);
   const [accountOpen, setAccountOpen] = React.useState(false);
   const [login, setLogin] = React.useState(false);
+  const [account, setAccount] = React.useState<EmailAccount | PhoneAccount | null>(null);
   const [walletPackage, setWalletPackage] = React.useState<WalletPackage | null>(null);
   const [walletData, setWalletData] = React.useState<WalletSidebar[] | null>(null);
   const navigate = useNavigate();
 
+  const initDataWithWalletPackage = (wp: WalletPackage) => {
+    setWalletPackage(wp);
+    const wallets: PublicWallet[] = wp.wallets;
+    const walletDataArray: WalletSidebar[] = [
+      {
+        icon: <AddCircleIcon />,
+        label: 'Create',
+        handleClick: () => {
+          navigate('/create-wallet');
+        },
+      },
+      {
+        icon: <AccountBalanceWalletIcon />,
+        label: 'Balance',
+        handleClick: () => {
+          navigate('/wallet-info');
+        },
+      },
+      {
+        icon: <PaidIcon />,
+        label: 'Payment',
+        handleClick: () => {
+          navigate('/wallet-payment');
+        },
+      },
+      {
+        icon: <ReceiptIcon />,
+        label: 'Transaction',
+        handleClick: () => {
+          navigate('/wallet-trans');
+        },
+      },
+    ];
+    if (wallets && wallets.length >= 3) {
+      walletDataArray.splice(0, 1);
+    }
+    setWalletData(walletDataArray);
+  };
   React.useEffect(() => {
-    window.electron.ipcRenderer.getWalletPackage('').then((result: WalletPackage) => {
-      console.log("wallet-info walletPackage:", result);
-      setWalletPackage(result);
-      const wallets: PublicWallet[] = result.wallets;
-      const walletDataArray: WalletSidebar[] = [
-            {
-                icon: <AddCircleIcon />,
-                label: 'Create',
-                handleClick: () => {
-                    navigate('/create-wallet');
-                },
-            },
-            {
-                icon: <AccountBalanceWalletIcon />,
-                label: 'Balance',
-                handleClick: () => {
-                    navigate('/wallet-info');
-                },
-            },
-            {
-                icon: <PaidIcon />,
-                label: 'Payment',
-                handleClick: () => {
-                    navigate('/wallet-payment');
-                },
-            },
-            {
-                icon: <ReceiptIcon />,
-                label: 'Transaction',
-                handleClick: () => {
-                    navigate('/wallet-trans');
-                },
-            },
-        ];
-      if (wallets && wallets.length >= 3) {
-        walletDataArray.splice(0, 1);
+    window.electron.ipcRenderer.getAccount().then((account) => {
+      setAccount(account);
+      if (account) {
+        return window.electron.ipcRenderer.getWalletPackage(account.value);
       }
-      setWalletData(walletDataArray);
-    });
+      return Promise.resolve(null);
+    }).then((result) => {
+      if (result) {
+        console.log("root page walletPackage:", result);
+        const wp: WalletPackage = result as WalletPackage;
+        initDataWithWalletPackage(wp)
+      }
+    }).catch((err) => console.error(err));
   }, []);
 
   const accountData = [
@@ -134,9 +151,21 @@ export default function Root() {
     navigate('/home');
   };
 
-  React.useEffect(() => {
-    setLogin(true);
-  }, []);
+  const handleEmailInput = async (email: string) => {
+    try {
+      const walletPackage: WalletPackage = await window.electron.ipcRenderer.getWalletPackage(email) as WalletPackage;
+      await window.electron.ipcRenderer.saveAccount(walletPackage.account);
+      setWalletPackage(walletPackage);
+      initDataWithWalletPackage(walletPackage);
+      setAccount(walletPackage.account);
+    } catch (err: any) {
+      console.error("cannot get wallet package by email:", email, "error:", err.message, err);
+    }
+  };
+
+  if (!account) {
+    return (<InputAccountDialog initOpen={true} callback={handleEmailInput} />);
+  }
 
   return (
     <div className="root" style={{ display: 'flex', width: '100%' }}>

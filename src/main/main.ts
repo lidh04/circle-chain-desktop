@@ -2,24 +2,30 @@ import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 
 import { app, BrowserWindow, shell, ipcMain } from 'electron';
+import { mkdir, readFile, writeFile } from "fs/promises";
 import path from 'path';
 
 import {
   AddressType,
   CreateWallet,
-  EmailAccount,
   GetEncodedPrivateKey,
   GetWalletPackage,
   IpcChannel,
   SearchTransaction,
   SendToChannel
 } from '../common/wallet-types';
+import {
+  EmailAccount,
+  GetAccount,
+  PhoneAccount,
+  SaveAccount
+} from '../common/account-types';
 import { PrivateWalletPackage } from './wallet-privacy';
 import { TxType } from '../common/block-types';
+import { getAccountInfoPath } from '../common/acount';
 import {
   mockNewWallet,
   mockTransData,
-  mockWalletPackage
 } from '../common/wallet-mock-data';
 import { resolveHtmlPath } from './util';
 import MenuBuilder from './menu';
@@ -40,7 +46,7 @@ ipcMain.on(IpcChannel, async (event, arg: string) => {
   event.reply('ipc-circle-chain', msgTemplate('pong'));
 });
 
-ipcMain.handle(CreateWallet, async () => {
+ipcMain.handle(CreateWallet, async (event) => {
   console.log("create wallet request...");
   /*if (mockWalletPackage && mockWalletPackage.wallets && mockWalletPackage.wallets.length >= 3) {
     return null;
@@ -70,6 +76,33 @@ ipcMain.handle(GetEncodedPrivateKey, async (event, address: string) => {
   const privatePoem = PrivateWalletPackage.getEncodedPrivateKey(address);
   console.log("get encoded private key by address:", address, "result:", privatePoem);
   return privatePoem;
+});
+
+ipcMain.handle(GetAccount, async (event) => {
+  const accountInfoPath = getAccountInfoPath();
+  try {
+    const content = await readFile(accountInfoPath, { encoding: "utf8" });
+    const account = JSON.parse(content);
+    console.log("get account:", account, "in account info path:", accountInfoPath);
+    return account;
+  } catch (err: any) {
+    console.warn("get file error:", err.message, err);
+    return null;
+  }
+});
+
+ipcMain.handle(SaveAccount, async (event, account: EmailAccount | PhoneAccount) => {
+  const content = JSON.stringify(account);
+  const accountInfoPath = getAccountInfoPath();
+  try {
+    const dirname = path.dirname(accountInfoPath);
+    await mkdir(dirname, { recursive: true });
+    await writeFile(accountInfoPath, content);
+    return true;
+  } catch (err: any) {
+    console.error("cannot write file in path: ", accountInfoPath, "error:", err.message, err);
+    return false;
+  }
 });
 
 ipcMain.handle(SearchTransaction, async (event, address: string, addressType: AddressType, txType?: TxType, uuid?: string) => {

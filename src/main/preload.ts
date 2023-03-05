@@ -1,4 +1,9 @@
+import { PhoneAccount, SaveAccount } from '../common/account-types';
+
+import { EmailAccount } from '../common/account-types';
+
 import { contextBridge, ipcRenderer, IpcRendererEvent } from 'electron';
+
 import {
   AddressType,
   Channels,
@@ -8,6 +13,7 @@ import {
   SearchTransaction,
   SendToChannel,
 } from '../common/wallet-types';
+import { GetAccount } from '../common/account-types';
 import { TxType } from '../common/block-types';
 
 
@@ -27,6 +33,12 @@ const electronHandler = {
     },
     getEncodedPrivateKey(address: string) {
       return ipcRenderer.invoke(GetEncodedPrivateKey, address);
+    },
+    getAccount() {
+      return ipcRenderer.invoke(GetAccount, null);
+    },
+    saveAccount(account: EmailAccount | PhoneAccount) {
+      return ipcRenderer.invoke(SaveAccount, account);
     },
     sendTo(from: string, toEmail: string, assetType: TxType, value: number | string) {
       return ipcRenderer.invoke(SendToChannel, from, toEmail, assetType, value);

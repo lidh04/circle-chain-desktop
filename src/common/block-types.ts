@@ -1,4 +1,4 @@
-type TxType = 0 | 1 | 2;
+export type TxType = 0 | 1 | 2;
 export interface Output {
   txId: string;
   outputIdx: number;

@@ -29,6 +29,7 @@ import {
   validateEmail
 } from '../../common/wallet-types';
 import CircleDialog from '../components/CircleDialog';
+import { TxType } from 'common/block-types';
 
 const makeAddressOptionList = (addressList: string[]) => addressList.map((address, index) => ({
   label: makeWalletLabel(address, index),
@@ -244,7 +245,7 @@ export default function WalletPayment() {
     clearAddressMenu();
   };
 
-  const sendWithAsset = async (from: string, toEmail: string, value: string, assetType: number) => {
+  const sendWithAsset = async (from: string, toEmail: string, value: string, assetType: TxType) => {
     const result = await window.electron.ipcRenderer.sendTo(from, toEmail, assetType, value);
     console.log("result:", result);
     if (result) {

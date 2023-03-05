@@ -8,7 +8,7 @@
 import { createHash, randomBytes } from "crypto";
 import secp256k1 from "secp256k1";
 
-import { decrypt, encrypt } from "common/crypto/crypto";
+import { decrypt, encrypt } from "../common/crypto/crypto";
 import { readFile, writeFile, access, mkdir } from "fs/promises";
 import os from 'os';
 import path from "path";
@@ -104,10 +104,10 @@ export const PrivateWalletPackage = (function() {
       if (!await exists(accountPath)) {
         const baseDir = path.dirname(accountPath);
         await mkdir(baseDir, { recursive: true });
+        console.log(`account path: ${accountPath} not exists, now create it!`);
       }
       const accountContent = JSON.stringify(account);
       await writeFile(accountPath, accountContent);
-      console.log(`account path: ${accountPath} not exists, now create it!`);
       return true;
     } catch (err: any) {
       console.error(`cannot save account: ${JSON.stringify(account)}, error: ${err.message}`, err);
@@ -130,7 +130,7 @@ export const PrivateWalletPackage = (function() {
     try {
       return JSON.parse(content);
     } catch (err: any) {
-      console.error("cannot parse json:", content, "error: ", err.message, err);
+      console.error("cannot parse json:", content, ", error: ", err.message, err);
       // TODO try to parse the malformat json data
       return null;
     }
@@ -154,7 +154,7 @@ export const PrivateWalletPackage = (function() {
       throw new Error("securityKey:" + account.securityKey +
         "initVector:" + account.initVector + "should all be non empty!");
     }
-    console.log("loaded account:", account);
+    console.log("initLoad account:", account.value);
     clearPrivateData();
     const pathStr = getPrivateKeyPath(account!);
     try {
@@ -169,6 +169,7 @@ export const PrivateWalletPackage = (function() {
       const content = decrypt(securityKey, initVector, rawContent);
       const arr = JSON.parse(content) as Array<string>;
       const privKeys = arr.map(item => Buffer.from(item, "hex"));
+      console.info("read from the private key file, there are ", privKeys.length, "items");
       for (const privKey of privKeys) {
         const uint8array = new Uint8Array(privKey.length);
         privKey.forEach((p, i) => { uint8array[i] = p; });
@@ -176,7 +177,7 @@ export const PrivateWalletPackage = (function() {
       }
       return true;
     } catch (err: any) {
-      console.error("cannot read content for path:", path, "error:", err.message, err);
+      console.error("cannot read content for path:", pathStr, "error:", err.message, err);
       return false;
     }
   }
