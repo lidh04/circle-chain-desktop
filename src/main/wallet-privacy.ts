@@ -9,7 +9,7 @@ import { createHash, randomBytes } from "crypto";
 import secp256k1 from "secp256k1";
 
 import { decrypt, encrypt } from "../common/crypto/crypto";
-import { readFile, writeFile, access, mkdir } from "fs/promises";
+import { readFile, writeFile, access, mkdir, chmod } from "fs/promises";
 import os from 'os';
 import path from "path";
 
@@ -108,6 +108,7 @@ export const PrivateWalletPackage = (function() {
       }
       const accountContent = JSON.stringify(account);
       await writeFile(accountPath, accountContent);
+      await chmod(accountPath, 0o600);
       return true;
     } catch (err: any) {
       console.error(`cannot save account: ${JSON.stringify(account)}, error: ${err.message}`, err);
@@ -239,6 +240,7 @@ export const PrivateWalletPackage = (function() {
       const initVector = Buffer.from(account.initVector, "hex");
       const encrypted = encrypt(securityKey, initVector, content);
       await writeFile(pathStr, encrypted);
+      await chmod(pathStr, 0o600);
     }
   }
 

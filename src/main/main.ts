@@ -2,7 +2,7 @@ import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 
 import { app, BrowserWindow, shell, ipcMain } from 'electron';
-import { mkdir, readFile, writeFile } from "fs/promises";
+import { mkdir, readFile, writeFile, chmod } from "fs/promises";
 import path from 'path';
 
 import {
@@ -98,6 +98,7 @@ ipcMain.handle(SaveAccount, async (event, account: EmailAccount | PhoneAccount) 
     const dirname = path.dirname(accountInfoPath);
     await mkdir(dirname, { recursive: true });
     await writeFile(accountInfoPath, content);
+    await chmod(accountInfoPath, 0o600);
     return true;
   } catch (err: any) {
     console.error("cannot write file in path: ", accountInfoPath, "error:", err.message, err);
