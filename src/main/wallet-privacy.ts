@@ -197,7 +197,9 @@ export const PrivateWalletPackage = (function() {
     const pubKeyHash = getPublicKeyHash(pubKey);
     const leaderBuffer = Buffer.from([0]);
     const hashBuffer = Buffer.from(pubKeyHash);
-    const checkSumBuffer = Buffer.from(checksum(pubKeyHash));
+
+    const payloadBuffer = Buffer.concat([leaderBuffer, hashBuffer]);
+    const checkSumBuffer = Buffer.from(checksum(payloadBuffer));
     const addressBuffer = Buffer.concat([leaderBuffer, hashBuffer, checkSumBuffer]);
     const address = binaryToBase58(addressBuffer);
     return [address, pubKey];
