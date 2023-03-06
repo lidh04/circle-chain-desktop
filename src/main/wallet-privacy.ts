@@ -184,10 +184,11 @@ export const PrivateWalletPackage = (function() {
   }
 
   function getPublicKeyHash(pubKey: Uint8Array): Uint8Array {
-    let hash = createHash('ripemd160');
-    hash = hash.update(pubKey);
+    const sha256 = createHash('sha256');
+    const hash256Binary = sha256.update(pubKey).digest();
+    const ripemd160 = createHash('ripemd160');
     // get the public key in a compressed format
-    const pubKeyHash = hash.digest();
+    const pubKeyHash = ripemd160.update(hash256Binary).digest();
     return pubKeyHash;
   }
 
