@@ -29,6 +29,7 @@ import {
 } from '../common/wallet-mock-data';
 import { resolveHtmlPath } from './util';
 import MenuBuilder from './menu';
+import createWallet from './create-wallet';
 
 class AppUpdater {
   constructor() {
@@ -48,11 +49,8 @@ ipcMain.on(IpcChannel, async (event, arg: string) => {
 
 ipcMain.handle(CreateWallet, async (event) => {
   console.log("create wallet request...");
-  /*if (mockWalletPackage && mockWalletPackage.wallets && mockWalletPackage.wallets.length >= 3) {
-    return null;
-  }*/
-
-  return mockNewWallet;
+  const wallet = await createWallet();
+  return wallet;
 });
 
 ipcMain.handle(GetWalletPackage, async (event, email: string) => {
