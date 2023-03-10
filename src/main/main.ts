@@ -24,7 +24,6 @@ import { PrivateWalletPackage } from './wallet-privacy';
 import { TxType } from '../common/block-types';
 import { getAccountInfoPath } from '../common/acount';
 import {
-  mockNewWallet,
   mockTransData,
 } from '../common/wallet-mock-data';
 import { resolveHtmlPath } from './util';
