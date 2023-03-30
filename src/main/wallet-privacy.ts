@@ -22,6 +22,7 @@ import {
   WalletPackage
 } from '../common/wallet-types';
 import { binaryToBase58 } from '../common/base58/base58';
+import { getWalletAssetsByAddress } from "./wallet-service";
 
 interface PrivateEmailAccount extends EmailAccount {
   securityKey?: string;
@@ -255,16 +256,13 @@ export const PrivateWalletPackage = (function() {
     const promises = privateKeys.map(async (pk) => {
       const [address, pubKey] = getAddressAndPubKey(pk);
       const publicKey = Buffer.from(pubKey).toString("hex");
-      // TODO get balance, identites and ownerships from remote server.
-      const balance = 0;
-      const identities = [] as Identity[];
-      const ownerships = [] as Ownership[];
+      const walletAssets = await getWalletAssetsByAddress(address);
       return {
         address,
         publicKey,
-        balance,
-        identities,
-        ownerships
+        balance: walletAssets.balance!,
+        identities: walletAssets.identities!,
+        ownerships: walletAssets.ownerships!
       };
     })
     const publicWallets: PublicWallet[] = await Promise.all(promises);

@@ -13,9 +13,11 @@ export const ACCOUNT_RELATIVE_PATH = ".circle-chain/account";
 export interface EmailAccount {
   type: 'email';
   value: string;
+  payPassword?: string;
 }
 
 export interface PhoneAccount {
   type: 'phone';
   value: string;
+  payPassword?: string;
 }

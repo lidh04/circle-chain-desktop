@@ -64,7 +64,7 @@ export default function CustomizedDialogs(props: { title: string, body: string[]
           {props.title}
         </BootstrapDialogTitle>
         <DialogContent dividers>
-          {props.body && props.body.map((p) => <Typography gutterBottom>{p}</Typography>)}
+          {props.body && props.body.map((p) => <Typography gutterBottom key={p}>{p}</Typography>)}
         </DialogContent>
         <DialogActions>
           <Button autoFocus onClick={handleClose}>

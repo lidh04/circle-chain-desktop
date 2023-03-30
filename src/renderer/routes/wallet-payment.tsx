@@ -233,7 +233,7 @@ export default function WalletPayment() {
     if (result) {
       // TODO pop up dialog
       setDialog({
-        title: "pay success",
+        title: "SUCCESS",
         body: ["Your payment is processing, please check the transaction"],
         btnText: "Close",
         open: true,

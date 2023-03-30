@@ -4,6 +4,7 @@ import log from 'electron-log';
 import { app, BrowserWindow, shell, ipcMain } from 'electron';
 import { mkdir, readFile, writeFile, chmod } from "fs/promises";
 import path from 'path';
+import Store from 'electron-store';
 
 import {
   AddressType,
@@ -23,12 +24,10 @@ import {
 import { PrivateWalletPackage } from './wallet-privacy';
 import { TxType } from '../common/block-types';
 import { getAccountInfoPath } from '../common/acount';
-import {
-  mockTransData,
-} from '../common/wallet-mock-data';
 import { resolveHtmlPath } from './util';
 import MenuBuilder from './menu';
 import createWallet from './create-wallet';
+import { searchTransaction, sendTo } from './blocks';
 
 class AppUpdater {
   constructor() {
@@ -105,28 +104,21 @@ ipcMain.handle(SaveAccount, async (event, account: EmailAccount | PhoneAccount) 
 
 ipcMain.handle(SearchTransaction, async (event, address: string, addressType: AddressType, txType?: TxType, uuid?: string) => {
   console.log("search transaction by address:", address, "addressType:", addressType, "txType:", txType, "uuid:", uuid);
-  if (!address) {
-    if (txType === 0 || txType === 1 || txType === 2) {
-      return mockTransData.filter((t) => t.txType === txType);
-    } else if (uuid) {
-      return mockTransData.filter((t) => t.trans.indexOf(uuid) !== -1);
-    }
-    return mockTransData;
-  }
-
-  const filteredTransData = mockTransData.filter((t) => addressType === 'from' ? t.from === address : t.to === address);
-  return filteredTransData;
+  return searchTransaction(address, addressType, txType, uuid);
 });
 
 ipcMain.handle(SendToChannel, async (event, from: string, toEmail: string, assetType: number, value: number | string) => {
   console.log(`${SendToChannel} from: ${from}, toEmail: ${toEmail}, assetType: ${assetType}, value: ${value}`);
-  await new Promise(r => setTimeout(r, 7000));
-  return true;
+  return await sendTo(from, toEmail, assetType, value);
 });
 
 if (process.env.NODE_ENV === 'production') {
   const sourceMapSupport = require('source-map-support');
   sourceMapSupport.install();
+  // init electron store file
+  console.log("init config for store json file:", app.getPath('userData') + "config.json");
+  const store = new Store();
+  store.set('host', 'https://circle-node.net');
 }
 
 const isDebug =
