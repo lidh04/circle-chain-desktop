@@ -228,7 +228,7 @@ export default function WalletPayment() {
   };
 
   const payWithCurrency = async (from: string, toEmail: string, value: number) => {
-    const result = await window.electron.ipcRenderer.sendTo(from, toEmail, 0, value);
+    const result = await window.electron.ipcRenderer.sendTo(from, toEmail, 0, value, "123456");
     console.log("result:", result);
     if (result) {
       // TODO pop up dialog
@@ -246,7 +246,7 @@ export default function WalletPayment() {
   };
 
   const sendWithAsset = async (from: string, toEmail: string, value: string, assetType: TxType) => {
-    const result = await window.electron.ipcRenderer.sendTo(from, toEmail, assetType, value);
+    const result = await window.electron.ipcRenderer.sendTo(from, toEmail, assetType, value, "123456");
     console.log("result:", result);
     if (result) {
       // TODO pop up dialog

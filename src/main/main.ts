@@ -107,9 +107,9 @@ ipcMain.handle(SearchTransaction, async (event, address: string, addressType: Ad
   return searchTransaction(address, addressType, txType, uuid);
 });
 
-ipcMain.handle(SendToChannel, async (event, from: string, toEmail: string, assetType: number, value: number | string) => {
-  console.log(`${SendToChannel} from: ${from}, toEmail: ${toEmail}, assetType: ${assetType}, value: ${value}`);
-  return await sendTo(from, toEmail, assetType, value);
+ipcMain.handle(SendToChannel, async (event, from: string, toEmail: string, assetType: number, value: number | string, payPassword: string) => {
+  console.log(`${SendToChannel} from: ${from}, toEmail: ${toEmail}, assetType: ${assetType}, value: ${value}, pay password: ${payPassword}`);
+  return await sendTo(from, toEmail, assetType, value, payPassword);
 });
 
 if (process.env.NODE_ENV === 'production') {

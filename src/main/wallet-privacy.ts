@@ -15,8 +15,6 @@ import path from "path";
 
 import { EmailAccount, PhoneAccount } from '../common/account-types';
 import {
-  Identity,
-  Ownership,
   PrivatePoem,
   PublicWallet,
   WalletPackage
@@ -275,6 +273,35 @@ export const PrivateWalletPackage = (function() {
     };
   }
 
+  function signData(data: Uint8Array, address: string) {
+    const privateKey = privateKeys.find(priv => {
+      const [addr, _] = getAddressAndPubKey(priv);
+      return addr === address;
+    });
+    if (!privateKey) {
+      throw new Error('not found private key for address:' + address);
+    }
+
+    const signedData = secp256k1.ecdsaSign(data, privateKey);
+    return signedData.signature;
+  }
+
+  function getPublicKey(address: string) {
+    let publicKey;
+    for (const priv of privateKeys) {
+      const [addr, pubKey] = getAddressAndPubKey(priv);
+      if (addr === address) {
+        publicKey = pubKey;
+        break;
+      }
+    }
+    if (!publicKey) {
+      throw new Error('not found public key for address:' + address);
+    }
+
+    return publicKey;
+  }
+
   return {
     initLoad,
     addPrivateKeyAndSave,
@@ -283,5 +310,7 @@ export const PrivateWalletPackage = (function() {
       return account ? { type: account.type, value: account.value } : null;
     },
     getEncodedPrivateKey: (address: string): PrivatePoem | null => keyMap[address] ? keyMap[address] : null,
+    getPublicKey,
+    signData,
   };
 }());

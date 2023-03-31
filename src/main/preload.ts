@@ -40,8 +40,8 @@ const electronHandler = {
     saveAccount(account: EmailAccount | PhoneAccount) {
       return ipcRenderer.invoke(SaveAccount, account);
     },
-    sendTo(from: string, toEmail: string, assetType: TxType, value: number | string) {
-      return ipcRenderer.invoke(SendToChannel, from, toEmail, assetType, value);
+    sendTo(from: string, toEmail: string, assetType: TxType, value: number | string, payPassword: string) {
+      return ipcRenderer.invoke(SendToChannel, from, toEmail, assetType, value, payPassword);
     },
     on(channel: Channels, func: (...args: unknown[]) => void) {
       const subscription = (_event: IpcRendererEvent, ...args: unknown[]) =>
