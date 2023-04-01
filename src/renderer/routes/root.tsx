@@ -52,7 +52,7 @@ type WalletSidebar = {
 export default function Root() {
   const [open, setOpen] = React.useState(true);
   const [accountOpen, setAccountOpen] = React.useState(false);
-  const [login, setLogin] = React.useState(false);
+  const [login, setLogin] = React.useState(true);
   const [account, setAccount] = React.useState<EmailAccount | PhoneAccount | null>(null);
   const [walletPackage, setWalletPackage] = React.useState<WalletPackage | null>(null);
   const [walletData, setWalletData] = React.useState<WalletSidebar[] | null>(null);
@@ -138,6 +138,7 @@ export default function Root() {
         navigate('/profile');
       },
     },
+    /**
     {
       icon: <LogoutIcon />,
       label: 'Logout',
@@ -146,6 +147,7 @@ export default function Root() {
         navigate('/home');
       },
     },
+    **/
   ];
   const goHome = () => {
     navigate('/home');
@@ -351,7 +353,7 @@ export default function Root() {
                         lineHeight: '20px',
                         mb: '2px',
                       }}
-                      secondary="Login and Register"
+                      secondary="Account Info"
                       secondaryTypographyProps={{
                         noWrap: true,
                         fontSize: 12,
