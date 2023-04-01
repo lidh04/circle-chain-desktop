@@ -41,10 +41,13 @@ export default function PayPasswordDialog(props: { initOpen: boolean, callback: 
   const handleInput = async () => {
     if (inited) {
       const oldPayPassword = await window.electron.ipcRenderer.getPayPassword();
+      console.log("old pay password:", oldPayPassword, "payPassword:", payPassword);
       if (oldPayPassword !== payPassword) {
         setError(true);
       } else {
         await props.callback(payPassword);
+        setPayPassword(""); // reset pay password
+        setError(false);
       }
     } else {
       if (payPassword !== payPassword2) {
@@ -53,6 +56,8 @@ export default function PayPasswordDialog(props: { initOpen: boolean, callback: 
         if (checkPayPassword(payPassword)) {
           await window.electron.ipcRenderer.setPayPassword(payPassword);
           await props.callback(payPassword);
+          setPayPassword(""); // reset pay password
+          setError(false);
         } else {
           setError(true);
         }

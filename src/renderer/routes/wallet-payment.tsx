@@ -229,8 +229,8 @@ export default function WalletPayment() {
   };
 
   const payWithCurrency = async (from: string, toEmail: string, value: number, payPassword: string) => {
-    const result = await window.electron.ipcRenderer.sendTo(from, toEmail, 0, value, payPassword);
-    console.log("result:", result);
+    const [result, msg] = await window.electron.ipcRenderer.sendTo(from, toEmail, 0, value, payPassword);
+    console.log("payWithCurrency result:", result, "msg:", msg);
     if (result) {
       setDialog({
         title: "SUCCESS",
@@ -241,7 +241,7 @@ export default function WalletPayment() {
     } else {
       setDialog({
         title: "FAILURE",
-        body: ["Your payment failed!"],
+        body: [`Your payment failed, error: ${msg}`],
         btnText: "Close",
         open: true,
       });
@@ -251,8 +251,8 @@ export default function WalletPayment() {
   };
 
   const sendWithAsset = async (from: string, toEmail: string, value: string, assetType: TxType, payPassword: string) => {
-    const result = await window.electron.ipcRenderer.sendTo(from, toEmail, assetType, value, payPassword);
-    console.log("result:", result);
+    const [result, msg] = await window.electron.ipcRenderer.sendTo(from, toEmail, assetType, value, payPassword);
+    console.log("sendWithAsset result:", result, "msg:", msg);
     if (result) {
       setDialog({
         title: "pay success",
@@ -263,7 +263,7 @@ export default function WalletPayment() {
     } else {
       setDialog({
         title: "FAILURE",
-        body: ["Your payment failed!"],
+        body: [`Your payment failed, error: ${msg}`],
         btnText: "Close",
         open: true,
       });

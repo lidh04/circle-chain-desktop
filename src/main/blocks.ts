@@ -138,8 +138,10 @@ export async function sendTo(from: string, toEmail: string, assetType: number, v
         'Content-Type': 'application/json'
       }
     });
+    let msg = '';
     if (tryResponse.status === 200) {
-      const json = tryResponse.data as { status: number, data: string };
+      const json = tryResponse.data as { status: number, data: string, message: string };
+      msg = json.message;
       console.log("get data from url:", url, "json data:", json);
       if (json.status === 200) {
         const txJson = json.data;
@@ -158,22 +160,26 @@ export async function sendTo(from: string, toEmail: string, assetType: number, v
           }
         });
         if (confirmResponse.status === 200) {
-          const confirmJson = confirmResponse.data as { status: number, data: boolean };
+          const confirmJson = confirmResponse.data as { status: number, data: boolean, message: string };
+          msg = confirmJson.message;
           console.log("get data from confirmUrl:", confirmUrl, "json data:", confirmJson);
           if (confirmJson.status === 200) {
-            return confirmJson.data;
+            return [confirmJson.data, msg];
           }
+          return [false, msg];
         } else {
           console.error("confirm url:", confirmUrl, "status:", confirmResponse.status);
+          return [false, `status: ${confirmResponse.status}`];
         }
       }
+      return [false, msg];
     } else {
       console.error("post url:", url, "data:", data, "status:", tryResponse.status);
+      return [false, `status: ${tryResponse.status}`];
     }
-    return false;
   } catch (err: any) {
     console.error("try to send to request url:", url, "error:", err.name, err.messge, err);
-    return false;
+    return [false, err.message as string];
   }
 }
 
