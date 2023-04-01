@@ -9,9 +9,11 @@ import {
   Channels,
   CreateWallet,
   GetEncodedPrivateKey,
+  GetPayPassword,
   GetWalletPackage,
   SearchTransaction,
   SendToChannel,
+  SetPayPassword,
 } from '../common/wallet-types';
 import { GetAccount } from '../common/account-types';
 import { TxType } from '../common/block-types';
@@ -39,6 +41,12 @@ const electronHandler = {
     },
     saveAccount(account: EmailAccount | PhoneAccount) {
       return ipcRenderer.invoke(SaveAccount, account);
+    },
+    getPayPassword() {
+      return ipcRenderer.invoke(GetPayPassword, null);
+    },
+    setPayPassword(payPassword: string) {
+      return ipcRenderer.invoke(SetPayPassword, payPassword);
     },
     sendTo(from: string, toEmail: string, assetType: TxType, value: number | string, payPassword: string) {
       return ipcRenderer.invoke(SendToChannel, from, toEmail, assetType, value, payPassword);

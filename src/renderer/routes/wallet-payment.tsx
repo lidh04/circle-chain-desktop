@@ -18,7 +18,6 @@ import * as React from 'react';
 
 import {
   AutocompleteOption,
-  Identity,
   PublicWallet,
   WalletPackage,
   addressListOf,
@@ -29,7 +28,8 @@ import {
   validateEmail
 } from '../../common/wallet-types';
 import CircleDialog from '../components/CircleDialog';
-import { TxType } from 'common/block-types';
+import { TxType } from '../../common/block-types';
+import PayPasswordDialog from '../components/PayPasswordDialog';
 
 const makeAddressOptionList = (addressList: string[]) => addressList.map((address, index) => ({
   label: makeWalletLabel(address, index),
@@ -97,6 +97,7 @@ export default function WalletPayment() {
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
   const [error, setError] = React.useState<MyError>({} as MyError);
   const [dialog, setDialog] = React.useState<MyDialog>({} as MyDialog);
+  const [payPasswordOpen, setPayPasswordOpen] = React.useState<boolean>(false);
   const [queryParameters] = useSearchParams();
 
   const selectWallet = (walletPackage: WalletPackage, addr: string) => {
@@ -227,40 +228,65 @@ export default function WalletPayment() {
     }
   };
 
-  const payWithCurrency = async (from: string, toEmail: string, value: number) => {
-    const result = await window.electron.ipcRenderer.sendTo(from, toEmail, 0, value, "123456");
+  const payWithCurrency = async (from: string, toEmail: string, value: number, payPassword: string) => {
+    const result = await window.electron.ipcRenderer.sendTo(from, toEmail, 0, value, payPassword);
     console.log("result:", result);
     if (result) {
-      // TODO pop up dialog
       setDialog({
         title: "SUCCESS",
         body: ["Your payment is processing, please check the transaction"],
         btnText: "Close",
         open: true,
       });
-      setIsLoading(false);
     } else {
-      // TODO pop up error dialog
+      setDialog({
+        title: "FAILURE",
+        body: ["Your payment failed!"],
+        btnText: "Close",
+        open: true,
+      });
     }
+    setIsLoading(false);
     clearAddressMenu();
   };
 
-  const sendWithAsset = async (from: string, toEmail: string, value: string, assetType: TxType) => {
-    const result = await window.electron.ipcRenderer.sendTo(from, toEmail, assetType, value, "123456");
+  const sendWithAsset = async (from: string, toEmail: string, value: string, assetType: TxType, payPassword: string) => {
+    const result = await window.electron.ipcRenderer.sendTo(from, toEmail, assetType, value, payPassword);
     console.log("result:", result);
     if (result) {
-      // TODO pop up dialog
       setDialog({
         title: "pay success",
         body: ["Your payment is processing, please check the transaction"],
         btnText: "Close",
         open: true,
       });
-      setIsLoading(false);
     } else {
-      // TODO pop up error dialog
+      setDialog({
+        title: "FAILURE",
+        body: ["Your payment failed!"],
+        btnText: "Close",
+        open: true,
+      });
     }
+    setIsLoading(false);
     clearAddressMenu();
+  };
+
+  const handlePayPasswordCallback = async (payPassword: string) => {
+    setPayPasswordOpen(false);
+    setIsLoading(true);
+    switch (assetType) {
+      case 0:
+        await payWithCurrency(address.value, otherEmail, currencyValue, payPassword);
+        break;
+      case 1:
+      case 2:
+        await sendWithAsset(address.value, otherEmail, asset.value, assetType, payPassword);
+        break;
+      default:
+        break;
+    }
+    console.log("user clicks the pay now");
   };
 
   const handlePayNow = async () => {
@@ -295,20 +321,7 @@ export default function WalletPayment() {
     }
     // clear error
     setError({});
-
-    setIsLoading(true);
-    switch (assetType) {
-      case 0:
-        await payWithCurrency(address.value, otherEmail, currencyValue);
-        break;
-      case 1:
-      case 2:
-        await sendWithAsset(address.value, otherEmail, asset.value, assetType);
-        break;
-      default:
-        break;
-    }
-    console.log("user clicks the pay now");
+    setPayPasswordOpen(true);
   };
 
   return (
@@ -546,6 +559,7 @@ export default function WalletPayment() {
           close={() => setDialog({ ...dialog, open: false })}
         />
       </Grid>
+      <PayPasswordDialog initOpen={payPasswordOpen} callback={handlePayPasswordCallback} />
     </Paper>
   );
 }

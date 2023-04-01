@@ -10,10 +10,12 @@ import {
   AddressType,
   CreateWallet,
   GetEncodedPrivateKey,
+  GetPayPassword,
   GetWalletPackage,
   IpcChannel,
   SearchTransaction,
-  SendToChannel
+  SendToChannel,
+  SetPayPassword
 } from '../common/wallet-types';
 import {
   EmailAccount,
@@ -100,6 +102,14 @@ ipcMain.handle(SaveAccount, async (event, account: EmailAccount | PhoneAccount) 
     console.error("cannot write file in path: ", accountInfoPath, "error:", err.message, err);
     return false;
   }
+});
+
+ipcMain.handle(GetPayPassword, () => {
+  return PrivateWalletPackage.getPayPassword();
+});
+
+ipcMain.handle(SetPayPassword, async (event, payPassword: string) => {
+  PrivateWalletPackage.setPayPassword(payPassword);
 });
 
 ipcMain.handle(SearchTransaction, async (event, address: string, addressType: AddressType, txType?: TxType, uuid?: string) => {

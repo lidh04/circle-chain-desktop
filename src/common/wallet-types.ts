@@ -7,6 +7,8 @@ export const GetWalletPackage = 'get-wallet-package';
 export const GetEncodedPrivateKey = 'get-encoded-private-key';
 export const SearchTransaction = 'search-transaction';
 export const CreateWallet = 'create-wallet';
+export const GetPayPassword = 'get-pay-password';
+export const SetPayPassword = 'set-pay-password';
 
 export const SendToChannel = 'send-to';
 
@@ -92,6 +94,10 @@ export function validateEmail(inputText: string) {
   } else {
     return false;
   }
+}
+
+export function checkPayPassword(payPassword: string) {
+  return payPassword.length >= 6;
 }
 
 export function checkValidAsset(asset: string) {

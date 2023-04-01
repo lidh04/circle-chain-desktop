@@ -92,7 +92,7 @@ export async function searchTransaction(address: string, addressType: AddressTyp
         return data.map(t => ({
           from: t.fromAddress,
           to: t.toAddress,
-          txType: t.txType,
+          txType: t.txType as TxType,
           trans: buildTrans(t),
           timestamp: t.timestamp
         }));

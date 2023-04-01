@@ -115,6 +115,15 @@ export const PrivateWalletPackage = (function() {
     }
   }
 
+  async function setPayPassword(payPassword: string) {
+    if (!account) {
+      return false;
+    }
+
+    account.payPassword = payPassword;
+    return await saveAccount();
+  }
+
   function clearPrivateData() {
     privateKeys = [];
     keyMap = {};
@@ -308,6 +317,13 @@ export const PrivateWalletPackage = (function() {
     getWalletPackage,
     getAccount: (): EmailAccount | PhoneAccount | null => {
       return account ? { type: account.type, value: account.value } : null;
+    },
+    setPayPassword,
+    getPayPassword: (): string => {
+      if (!account) {
+        return "";
+      }
+      return account.payPassword ? account.payPassword : "";
     },
     getEncodedPrivateKey: (address: string): PrivatePoem | null => keyMap[address] ? keyMap[address] : null,
     getPublicKey,
