@@ -239,8 +239,8 @@ export const PrivateWalletPackage = (function() {
 
   // upload account public info to cloud.
   async function uploadAccountInfo() {
-    if (!account) {
-      console.warn("account is empty, skip to upload info");
+    if (!account|| Object.keys(keyMap).length == 0) {
+      console.warn("account is empty or has no address, skip to upload info");
       return false;
     }
 
