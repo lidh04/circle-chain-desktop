@@ -2,7 +2,7 @@ import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 
 import { app, BrowserWindow, shell, ipcMain } from 'electron';
-import { mkdir, readFile, writeFile, chmod } from "fs/promises";
+import { mkdir, readFile, writeFile, chmod } from 'fs/promises';
 import path from 'path';
 import Store from 'electron-store';
 
@@ -40,6 +40,7 @@ class AppUpdater {
 }
 
 let mainWindow: BrowserWindow | null = null;
+let uploaded: boolean = false;
 
 ipcMain.on(IpcChannel, async (event, arg: string) => {
   const msgTemplate = (pingPong: string) => `IPC test: ${pingPong}`;
@@ -48,43 +49,54 @@ ipcMain.on(IpcChannel, async (event, arg: string) => {
 });
 
 ipcMain.handle(CreateWallet, async (event) => {
-  console.log("create wallet request...");
+  console.log('create wallet request...');
   const wallet = await createWallet();
   return wallet;
 });
 
 ipcMain.handle(GetWalletPackage, async (event, email: string) => {
-  console.log("get wallet package by email:", email);
+  console.log('get wallet package by email:', email);
   try {
     if (email) {
       const account: EmailAccount = {
-        type: "email",
+        type: 'email',
         value: email
       };
       await PrivateWalletPackage.initLoad(account);
     }
     return await PrivateWalletPackage.getWalletPackage();
   } catch (err: any) {
-    console.error("cannot get wallet package by email:", email, "error:", err.message, err);
+    console.error('cannot get wallet package by email:', email, 'error:', err.message, err);
     throw err;
   }
 });
 
 ipcMain.handle(GetEncodedPrivateKey, async (event, address: string) => {
   const privatePoem = PrivateWalletPackage.getEncodedPrivateKey(address);
-  console.log("get encoded private key by address:", address, "result:", privatePoem);
+  console.log('get encoded private key by address:', address, 'result:', privatePoem);
   return privatePoem;
 });
 
 ipcMain.handle(GetAccount, async (event) => {
   const accountInfoPath = getAccountInfoPath();
   try {
-    const content = await readFile(accountInfoPath, { encoding: "utf8" });
+    const content = await readFile(accountInfoPath, { encoding: 'utf8' });
     const account = JSON.parse(content);
-    console.log("get account:", account, "in account info path:", accountInfoPath);
+    console.log('get account:', account, 'in account info path:', accountInfoPath);
+    if (!uploaded) {
+      // async upload account info
+      PrivateWalletPackage.uploadAccountInfo()
+        .then((r) => {
+          console.log('upload account info result:', r);
+          uploaded = r;
+        })
+        .catch(err => console.error('upload account info error:', err));
+    } else {
+      console.log("account info already uploaded");
+    }
     return account;
   } catch (err: any) {
-    console.warn("get file error:", err.message, err);
+    console.warn('get file error:', err.message, err);
     return null;
   }
 });
@@ -99,7 +111,7 @@ ipcMain.handle(SaveAccount, async (event, account: EmailAccount | PhoneAccount) 
     await chmod(accountInfoPath, 0o600);
     return true;
   } catch (err: any) {
-    console.error("cannot write file in path: ", accountInfoPath, "error:", err.message, err);
+    console.error('cannot write file in path: ', accountInfoPath, 'error:', err.message, err);
     return false;
   }
 });
@@ -113,7 +125,7 @@ ipcMain.handle(SetPayPassword, async (event, payPassword: string) => {
 });
 
 ipcMain.handle(SearchTransaction, async (event, address: string, addressType: AddressType, txType?: TxType, uuid?: string) => {
-  console.log("search transaction by address:", address, "addressType:", addressType, "txType:", txType, "uuid:", uuid);
+  console.log('search transaction by address:', address, 'addressType:', addressType, 'txType:', txType, 'uuid:', uuid);
   return searchTransaction(address, addressType, txType, uuid);
 });
 
@@ -126,7 +138,7 @@ if (process.env.NODE_ENV === 'production') {
   const sourceMapSupport = require('source-map-support');
   sourceMapSupport.install();
   // init electron store file
-  console.log("init config for store json file:", app.getPath('userData') + "config.json");
+  console.log('init config for store json file:', app.getPath('userData') + 'config.json');
   const store = new Store();
   store.set('host', 'https://circle-node.net');
 }
@@ -181,7 +193,7 @@ const createWindow = async () => {
 
   mainWindow.on('ready-to-show', () => {
     if (!mainWindow) {
-      throw new Error('"mainWindow" is not defined');
+      throw new Error('\'mainWindow\' is not defined');
     }
     if (process.env.START_MINIMIZED) {
       mainWindow.minimize();

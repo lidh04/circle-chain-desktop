@@ -237,6 +237,18 @@ export const PrivateWalletPackage = (function() {
     return result;
   }
 
+  // upload account public info to cloud.
+  async function uploadAccountInfo() {
+    if (!account) {
+      console.warn("account is empty, skip to upload info");
+      return false;
+    }
+
+    const uid = getUid(account);
+    const addresses = Object.keys(keyMap);
+    return await uploadUidAndAddress(uid, addresses);
+  }
+
   function getUid(account: EmailAccount | PhoneAccount) {
     const valueData = Buffer.from(account.value);
     const uidUint8Array = doubleHash(valueData);
@@ -327,6 +339,7 @@ export const PrivateWalletPackage = (function() {
     getAccount: (): EmailAccount | PhoneAccount | null => {
       return account ? { type: account.type, value: account.value } : null;
     },
+    uploadAccountInfo,
     setPayPassword,
     getPayPassword: (): string => {
       if (!account) {

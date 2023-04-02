@@ -87,22 +87,23 @@ async function getAssetsOfAddress(address: string, type: number): Promise<Identi
 export async function uploadUidAndAddress(uid: string, addresses: string[]) {
   const host = store_get("host");
   const url = `${host}/wallet/public/v1/upload-uid-and-address`;
+  const data = {
+    uid,
+    addressList: addresses
+  };
   try {
-    const response = await axios.post(url, {
-      uid,
-      addressList: addresses
-    }, {
+    const response = await axios.post(url, data, {
       headers: {
         'Content-Type': 'application/json'
       }
     });
+    console.info("post url:", url, "data:", data, "status:", response.status);
     if (response.status === 200) {
       const json = response.data as { status: number };
       return json.status === 200;
     }
-    console.error("post url:", url, "status:", response.status);
   } catch (err: any) {
-    console.error('post url:', url, "error:", err.name, err.message, err);
+    console.error('post url:', url, "data:", data, "error:", err.name, err.message, err);
   }
   return false;
 }
