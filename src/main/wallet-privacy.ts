@@ -20,7 +20,7 @@ import {
   WalletPackage
 } from '../common/wallet-types';
 import { binaryToBase58 } from '../common/base58/base58';
-import { getWalletAssetsByAddress } from "./wallet-service";
+import { getWalletAssetsByAddress, uploadUidAndAddress } from "./wallet-service";
 
 interface PrivateEmailAccount extends EmailAccount {
   securityKey?: string;
@@ -232,7 +232,16 @@ export const PrivateWalletPackage = (function() {
     }
     const result = addPrivateKey(privateKey);
     await save(account);
+    const uid = getUid(account);
+    await uploadUidAndAddress(uid, [result[0]]);
     return result;
+  }
+
+  function getUid(account: EmailAccount | PhoneAccount) {
+    const valueData = Buffer.from(account.value);
+    const uidUint8Array = doubleHash(valueData);
+    const uid = Buffer.from(uidUint8Array).toString('hex');
+    return uid;
   }
 
   async function save(account: PrivateEmailAccount | PrivatePhoneAccount) {

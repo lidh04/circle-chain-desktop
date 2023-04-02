@@ -5,10 +5,10 @@
  * @license copyright to shc
  */
 
-import { randomBytes } from "crypto";
-import secp256k1 from "secp256k1";
+import { randomBytes } from 'crypto';
+import secp256k1 from 'secp256k1';
 
-import { PrivateWalletPackage } from "./wallet-privacy";
+import { PrivateWalletPackage } from './wallet-privacy';
 import { PublicWallet } from '../common/wallet-types';
 
 const PRIV_KEY_LEN = 32;
@@ -21,17 +21,17 @@ export default async function createWallet(): Promise<PublicWallet> {
     privKey.forEach((c, index) => {
       privateKeyArray[index] = c;
     });
-    //console.log("private keys: ", privKey.toString("hex"), "array:", privKey.length);
+    //console.log('private keys: ', privKey.toString('hex'), 'array:', privKey.length);
     try {
       verifyOk = secp256k1.privateKeyVerify(privateKeyArray);
-      console.log("private key verify result:", verifyOk);
+      console.log('private key verify result:', verifyOk);
     } catch (err: any) {
       verifyOk = false;
-      console.error("secp256k1 privateKeyVerify error:", err.message, err);
+      console.error('secp256k1 privateKeyVerify error:', err.message, err);
     }
   }
   const [address, pubKey] = await PrivateWalletPackage.addPrivateKeyAndSave(privateKeyArray);
-  const publicKey = Buffer.from(pubKey).toString("hex");
+  const publicKey = Buffer.from(pubKey).toString('hex');
   return {
     address,
     publicKey,
