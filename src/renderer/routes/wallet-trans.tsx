@@ -34,6 +34,7 @@ import {
   checkValidAddress,
   makeWalletLabel,
 } from '../../common/wallet-types';
+import { TxType } from 'common/block-types';
 
 const Note = styled('div')(({ theme }) => ({
   ...theme.typography.body1,
@@ -105,11 +106,13 @@ export default function WalletTrans() {
     if (addr && !checkValidAddress(addr)) {
       addr = '';
     }
-    window.electron.ipcRenderer
-      .searchTransaction(addr, filter as AddressType)
-      .then((result) => {
-        setSearchedData(result);
-      });
+    if (addr) {
+      window.electron.ipcRenderer
+        .searchTransaction(addr, filter as AddressType)
+        .then((result) => {
+          setSearchedData(result);
+        });
+    }
   }, [queryParameters, setSearchedData, filter]);
 
   React.useEffect(() => {
@@ -230,7 +233,7 @@ export default function WalletTrans() {
       const rows = await window.electron.ipcRenderer.searchTransaction(
         '',
         'from',
-        txType
+        txType as TxType
       );
       setSearchedData(rows);
     } else if (filter === 'uuid') {
