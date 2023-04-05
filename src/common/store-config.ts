@@ -9,7 +9,6 @@ import Store from 'electron-store';
 
 const storeSchema = {
   host: {
-    type: 'string',
     default: 'https://circle-node.net'
   }
 };
