@@ -104,8 +104,8 @@ export default function Root() {
       }
       return Promise.resolve(null);
     }).then((result) => {
+      console.log("root page walletPackage:", result);
       if (result) {
-        console.log("root page walletPackage:", result);
         const wp: WalletPackage = result as WalletPackage;
         initDataWithWalletPackage(wp)
       }

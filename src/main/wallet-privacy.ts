@@ -5,13 +5,12 @@
  * @license copyright to shc
  */
 
-import { createHash, randomBytes } from "crypto";
-import secp256k1 from "secp256k1";
+import { createHash, randomBytes } from 'crypto';
+import secp256k1 from 'secp256k1';
 
-import { decrypt, encrypt } from "../common/crypto/crypto";
-import { readFile, writeFile, access, mkdir, chmod } from "fs/promises";
+import { readFile, writeFile, access, mkdir, chmod } from 'fs/promises';
 import os from 'os';
-import path from "path";
+import path from 'path';
 
 import { EmailAccount, PhoneAccount } from '../common/account-types';
 import {
@@ -20,7 +19,9 @@ import {
   WalletPackage
 } from '../common/wallet-types';
 import { binaryToBase58 } from '../common/base58/base58';
-import { getWalletAssetsByAddress, uploadUidAndAddress } from "./wallet-service";
+import { decrypt, encrypt } from '../common/crypto/crypto';
+import { encode } from '../common/cnradix/cnradix';
+import { getWalletAssetsByAddress, uploadUidAndAddress } from './wallet-service';
 
 interface PrivateEmailAccount extends EmailAccount {
   securityKey?: string;
@@ -39,8 +40,36 @@ export const PrivateWalletPackage = (function() {
   const ADDRESS_CHECKSUM_LEN = 4;
 
   function makePrivatePoem(privKey: Uint8Array) {
-    const title = "";
-    const sentences = [""];
+    console.time('privateKey');
+    const buf = Buffer.from(privKey);
+    const privKeyHex = buf.toString('hex');
+    const value = BigInt(`0x${privKeyHex}`);
+    const encodedString = encode(value);
+    // console.log('private key length:', privKeyHex.length, privKeyHex,
+    // "bigint value:", value,
+    // 'encoded private key length:',encodedString.length, encodedString);
+    if (encodedString.length <= 15) {
+      throw new Error("invalid private key");
+    }
+
+    let title = '';
+    let start = 0;
+    const sentences: string[] = [] as string[];
+    if (encodedString.length > 20) {
+      start = encodedString.length - 20;
+      title = '「' + encodedString.substring(0, start) + "」";
+    } else {
+      title = '「' + encodedString.substring(0, 3) + "」";
+    }
+    sentences.push(encodedString.substring(start, 5 + start) + "，");
+    start += 5;
+    sentences.push(encodedString.substring(start, 5 + start) + "。");
+    start += 5;
+    sentences.push(encodedString.substring(start, 5 + start) + "，");
+    start += 5;
+    sentences.push(encodedString.substring(start) + "。");
+
+    console.timeEnd('privateKey');
     return {
       title,
       sentences
@@ -72,8 +101,8 @@ export const PrivateWalletPackage = (function() {
     const hash256 = createHash('sha256');
     const value = account.value;
     const data = Buffer.from(`circle-chain-desktop/private/${value}`);
-    const hash256Str = hash256.update(data).digest("hex");
-    const path = os.homedir() + "/.circle-chain/" + hash256Str;
+    const hash256Str = hash256.update(data).digest('hex');
+    const path = os.homedir() + '/.circle-chain/' + hash256Str;
     console.log(`current path: ${path}`);
     return path;
   }
@@ -81,8 +110,8 @@ export const PrivateWalletPackage = (function() {
   function getAccountPath(account: EmailAccount | PhoneAccount): string {
     const hash256 = createHash('sha256');
     const data = Buffer.from(`circle-chain-desktop/account/${account.value}`);
-    const hash256Str = hash256.update(data).digest("hex");
-    const path = os.homedir() + "/.circle-chain/" + hash256Str;
+    const hash256Str = hash256.update(data).digest('hex');
+    const path = os.homedir() + '/.circle-chain/' + hash256Str;
     console.log(`account path: ${path}`);
     return path;
   }
@@ -92,10 +121,10 @@ export const PrivateWalletPackage = (function() {
       return false;
     }
     if (!account.securityKey) {
-      account.securityKey = randomBytes(32).toString("hex");
+      account.securityKey = randomBytes(32).toString('hex');
     }
     if (!account.initVector) {
-      account.initVector = randomBytes(16).toString("hex");
+      account.initVector = randomBytes(16).toString('hex');
     }
 
     const accountPath = getAccountPath(account);
@@ -135,11 +164,11 @@ export const PrivateWalletPackage = (function() {
       return null;
     }
 
-    const content = await readFile(accountPath, { encoding: "utf8" });
+    const content = await readFile(accountPath, { encoding: 'utf8' });
     try {
       return JSON.parse(content);
     } catch (err: any) {
-      console.error("cannot parse json:", content, ", error: ", err.message, err);
+      console.error('cannot parse json:', content, ', error: ', err.message, err);
       // TODO try to parse the malformat json data
       return null;
     }
@@ -151,19 +180,19 @@ export const PrivateWalletPackage = (function() {
     if (!account || account.value !== existAccount.value) {
       account = existAccount;
       if (!account.securityKey) {
-        account.securityKey = randomBytes(32).toString("hex");
+        account.securityKey = randomBytes(32).toString('hex');
       }
       if (!account.initVector) {
-        account.initVector = randomBytes(16).toString("hex");
+        account.initVector = randomBytes(16).toString('hex');
       }
       await saveAccount();
     }
 
     if (!account.securityKey || !account.initVector) {
-      throw new Error("securityKey:" + account.securityKey +
-        "initVector:" + account.initVector + "should all be non empty!");
+      throw new Error('securityKey:' + account.securityKey +
+        'initVector:' + account.initVector + 'should all be non empty!');
     }
-    console.log("initLoad account:", account.value);
+    console.log('initLoad account:', account.value);
     clearPrivateData();
     const pathStr = getPrivateKeyPath(account!);
     try {
@@ -173,12 +202,12 @@ export const PrivateWalletPackage = (function() {
       }
 
       const rawContent = await readFile(pathStr, { encoding: 'utf8' });
-      const securityKey = Buffer.from(account.securityKey!, "hex");
-      const initVector = Buffer.from(account.initVector!, "hex");
+      const securityKey = Buffer.from(account.securityKey!, 'hex');
+      const initVector = Buffer.from(account.initVector!, 'hex');
       const content = decrypt(securityKey, initVector, rawContent);
       const arr = JSON.parse(content) as Array<string>;
-      const privKeys = arr.map(item => Buffer.from(item, "hex"));
-      console.info("read from the private key file, there are ", privKeys.length, "items");
+      const privKeys = arr.map(item => Buffer.from(item, 'hex'));
+      console.info('read from the private key file, there are ', privKeys.length, 'items');
       for (const privKey of privKeys) {
         const uint8array = new Uint8Array(privKey.length);
         privKey.forEach((p, i) => { uint8array[i] = p; });
@@ -186,7 +215,7 @@ export const PrivateWalletPackage = (function() {
       }
       return true;
     } catch (err: any) {
-      console.error("cannot read content for path:", pathStr, "error:", err.message, err);
+      console.error('cannot read content for path:', pathStr, 'error:', err.message, err);
       return false;
     }
   }
@@ -216,7 +245,7 @@ export const PrivateWalletPackage = (function() {
 
   function addPrivateKey(privateKey: Uint8Array): [string, Uint8Array] {
     if (privateKeys.length >= 3) {
-      throw new Error("you cannot create wallet more than 3!");
+      throw new Error('you cannot create wallet more than 3!');
     }
 
     privateKeys.push(privateKey);
@@ -228,7 +257,7 @@ export const PrivateWalletPackage = (function() {
 
   async function addPrivateKeyAndSave(privateKey: Uint8Array): Promise<[string, Uint8Array]> {
     if (!account) {
-      throw new Error("account is not intialized!");
+      throw new Error('account is not intialized!');
     }
     const result = addPrivateKey(privateKey);
     await save(account);
@@ -240,7 +269,7 @@ export const PrivateWalletPackage = (function() {
   // upload account public info to cloud.
   async function uploadAccountInfo() {
     if (!account|| Object.keys(keyMap).length == 0) {
-      console.warn("account is empty or has no address, skip to upload info");
+      console.warn('account is empty or has no address, skip to upload info');
       return false;
     }
 
@@ -258,18 +287,18 @@ export const PrivateWalletPackage = (function() {
 
   async function save(account: PrivateEmailAccount | PrivatePhoneAccount) {
     if (!account.securityKey || !account.initVector) {
-      throw new Error("cannot save private info securityKey and initVector are not inited!");
+      throw new Error('cannot save private info securityKey and initVector are not inited!');
     }
     const pathStr = getPrivateKeyPath(account);
     if (!await exists(pathStr)) {
       const dirName = path.dirname(pathStr);
       await mkdir(dirName, { recursive: true });
     }
-    const arr = privateKeys.map(privKey => Buffer.from(privKey).toString("hex"));
+    const arr = privateKeys.map(privKey => Buffer.from(privKey).toString('hex'));
     if (arr.length > 0) {
       const content = JSON.stringify(arr);
-      const securityKey = Buffer.from(account.securityKey, "hex");
-      const initVector = Buffer.from(account.initVector, "hex");
+      const securityKey = Buffer.from(account.securityKey, 'hex');
+      const initVector = Buffer.from(account.initVector, 'hex');
       const encrypted = encrypt(securityKey, initVector, content);
       await writeFile(pathStr, encrypted);
       await chmod(pathStr, 0o600);
@@ -278,12 +307,12 @@ export const PrivateWalletPackage = (function() {
 
   async function getWalletPackage(): Promise<WalletPackage> {
     if (!account) {
-      throw new Error("cannot get WalletPackage because account is not intialized!");
+      throw new Error('cannot get WalletPackage because account is not intialized!');
     }
 
     const promises = privateKeys.map(async (pk) => {
       const [address, pubKey] = getAddressAndPubKey(pk);
-      const publicKey = Buffer.from(pubKey).toString("hex");
+      const publicKey = Buffer.from(pubKey).toString('hex');
       const walletAssets = await getWalletAssetsByAddress(address);
       return {
         address,
@@ -343,9 +372,9 @@ export const PrivateWalletPackage = (function() {
     setPayPassword,
     getPayPassword: (): string => {
       if (!account) {
-        return "";
+        return '';
       }
-      return account.payPassword ? account.payPassword : "";
+      return account.payPassword ? account.payPassword : '';
     },
     getEncodedPrivateKey: (address: string): PrivatePoem | null => keyMap[address] ? keyMap[address] : null,
     getPublicKey,
