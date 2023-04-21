@@ -12,6 +12,7 @@ import {
   GetEncodedPrivateKey,
   GetPayPassword,
   GetWalletPackage,
+  ImportWallet,
   IpcChannel,
   SearchTransaction,
   SendToChannel,
@@ -67,6 +68,17 @@ ipcMain.handle(GetWalletPackage, async (event, email: string) => {
     return await PrivateWalletPackage.getWalletPackage();
   } catch (err: any) {
     console.error('cannot get wallet package by email:', email, 'error:', err.message, err);
+    throw err;
+  }
+});
+
+ipcMain.handle(ImportWallet, async (event, keywords: string) => {
+  console.log("import keywords:", keywords);
+  try {
+    const newPrivateKey = PrivateWalletPackage.decodePrivatePoem(keywords);
+    return PrivateWalletPackage.addPrivateKeyAndSave(newPrivateKey);
+  } catch (err: any) {
+    console.error('cannot import wallet by keyworkds:', keywords, 'error:', err.message, err);
     throw err;
   }
 });

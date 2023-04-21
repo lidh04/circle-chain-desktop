@@ -8,6 +8,9 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
+import Alert from '@mui/material/Alert';
+import TextareaAutosize from '@mui/base/TextareaAutosize';
+import ImportExportIcon from '@mui/icons-material/ImportExport';
 import { blue } from '@mui/material/colors';
 import { styled } from '@mui/material/styles';
 import { useNavigate } from 'react-router-dom';
@@ -45,6 +48,7 @@ import {
   makeWalletLabel,
   PrivatePoem
 } from '../../common/wallet-types';
+import CircleDialog from '../components/CircleDialog';
 
 interface Column {
   id:
@@ -305,8 +309,12 @@ export default function WalletInfo() {
   const [searchedRows, setSearchedRows] = React.useState<Data[] | null>(null);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [address, setAddress] = React.useState('');
+  const [newKeywords, setNewKeyworkds] = React.useState('');
+  const [importError, setImportError] = React.useState(false);
+  const [errorMessage, setErrorMessage] = React.useState('');
   const [open, setOpen] = React.useState(false);
   const [openKeywords, setOpenKeywords] = React.useState(false);
+  const [openImportSuccess, setOpenImportSuccess] = React.useState(false);
   const navigate = useNavigate();
 
   React.useEffect(() => {
@@ -339,6 +347,14 @@ export default function WalletInfo() {
     setPage(0);
   };
 
+  const handleChangeKeyWords = (
+    event: React.ChangeEvent<HTMLTextAreaElement>
+  ) => {
+    const { value } = event.target;
+    console.log("keywords:", value);
+    setNewKeyworkds(value);
+  };
+
   const handleSelectChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = event.target.value;
     console.log('selected target vaule:', value);
@@ -360,6 +376,25 @@ export default function WalletInfo() {
       setSearchedRows(findRows);
     } else {
       setSearchedRows(rows);
+    }
+  };
+
+  const handleImport = async () => {
+    if (!newKeywords) {
+      console.error("please input new keywords");
+      return;
+    }
+    try {
+      const [address, _] = await window.electron.ipcRenderer.importWallet(newKeywords);
+      setImportError(false);
+      setErrorMessage('');
+      setNewKeyworkds('');
+      setOpenImportSuccess(true);
+      console.log("import address:", address, "success!");
+    } catch (err: any) {
+      console.error('cannot import wallet by keywords:', newKeywords, "error:", err.message, err);
+      setImportError(true);
+      setErrorMessage(err.message);
     }
   };
 
@@ -507,6 +542,54 @@ export default function WalletInfo() {
         page={page}
         onPageChange={handleChangePage}
         onRowsPerPageChange={handleChangeRowsPerPage}
+      />
+      <Grid
+        container
+        spacing={2}
+        sx={{ mb: '1rem', mt: '1rem', padding: '0.3rem 1rem' }}
+      >
+        <Grid item xs={2}>
+          <Typography variant="subtitle1" component="h6">
+            Address keywords:
+          </Typography>
+        </Grid>
+        <Grid item xs={8}>
+          <TextareaAutosize
+            aria-label="keywords"
+            minRows={3}
+            value={newKeywords}
+            placeholder="Please paste address keyworkds here."
+            onChange={handleChangeKeyWords}
+            style={{ width: '100%', height: 50 }}
+          />
+        </Grid>
+        <Grid item xs={2}>
+          <Button
+            variant="contained"
+            startIcon={<ImportExportIcon />}
+            color="primary"
+            onClick={handleImport}
+            sx={{ width: '100%', maxWidth: '180px', height: 50 }}
+          >
+            Import
+          </Button>
+        </Grid>
+      </Grid>
+      {importError &&
+        <Grid
+          container
+          spacing={2}
+          sx={{ padding: '0.3rem 1rem', margin: '1rem auto', width: '100%' }}
+        >
+          <Alert severity="error">import wallet error: {errorMessage}</Alert>
+        </Grid>
+      }
+      <CircleDialog
+        open={openImportSuccess}
+        title={'Import Success!'}
+        body={['Congras!', 'Import the new wallet success!']}
+        btnText={'Close'}
+        close={() => setOpenImportSuccess(false)}
       />
       <OperationsDialog open={open} onClose={handleDialogClose} />
       <AddressDialog

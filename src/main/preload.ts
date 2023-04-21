@@ -11,6 +11,7 @@ import {
   GetEncodedPrivateKey,
   GetPayPassword,
   GetWalletPackage,
+  ImportWallet,
   SearchTransaction,
   SendToChannel,
   SetPayPassword,
@@ -29,6 +30,9 @@ const electronHandler = {
     },
     getWalletPackage(email?: string) {
       return ipcRenderer.invoke(GetWalletPackage, email);
+    },
+    importWallet(keywords: string) {
+      return ipcRenderer.invoke(ImportWallet, keywords);
     },
     searchTransaction(address: string, addressType: AddressType, txType?: TxType, uuid?: string) {
       return ipcRenderer.invoke(SearchTransaction, address, addressType, txType, uuid);

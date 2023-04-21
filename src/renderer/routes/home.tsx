@@ -126,13 +126,16 @@ export default function Home() {
           spent transactions
         </p>
 
+        {/*
         <h4>How to register or login?</h4>
         <p>
           Please click the following buttons: If you are new user, please click
           'Signup' to register, if you are old user, please click "Signin" to
           login.
         </p>
-        {!login && (
+        */}
+        {/**
+        !login && (
           <div className="hello">
             <Box
               sx={{
@@ -159,7 +162,8 @@ export default function Home() {
               </Button>
             </Box>
           </div>
-        )}
+        )
+        */}
       </div>
     </div>
   );

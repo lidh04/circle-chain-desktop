@@ -11,6 +11,7 @@ import secp256k1 from 'secp256k1';
 import { readFile, writeFile, access, mkdir, chmod } from 'fs/promises';
 import os from 'os';
 import path from 'path';
+import { toBigIntBE, toBufferBE } from 'bigint-buffer';
 
 import { EmailAccount, PhoneAccount } from '../common/account-types';
 import {
@@ -20,7 +21,7 @@ import {
 } from '../common/wallet-types';
 import { binaryToBase58 } from '../common/base58/base58';
 import { decrypt, encrypt } from '../common/crypto/crypto';
-import { encode } from '../common/cnradix/cnradix';
+import { decode, encode } from '../common/cnradix/cnradix';
 import { getWalletAssetsByAddress, uploadUidAndAddress } from './wallet-service';
 
 interface PrivateEmailAccount extends EmailAccount {
@@ -39,11 +40,17 @@ export const PrivateWalletPackage = (function() {
   let account: PrivateEmailAccount | PrivatePhoneAccount | null = null;
   const ADDRESS_CHECKSUM_LEN = 4;
 
+  function decodePrivatePoem(poem: string): Uint8Array {
+    const poemContent = poem.replaceAll(/[「」，。\s\t\n]/g, "");
+    const value = decode(poemContent);
+    console.log("keywords raw:", poem, "trimed content:", poemContent, "value:", value);
+    const buf = toBufferBE(value, 32);
+    return buf;
+  }
   function makePrivatePoem(privKey: Uint8Array) {
     console.time('privateKey');
     const buf = Buffer.from(privKey);
-    const privKeyHex = buf.toString('hex');
-    const value = BigInt(`0x${privKeyHex}`);
+    const value = toBigIntBE(buf)
     const encodedString = encode(value);
     // console.log('private key length:', privKeyHex.length, privKeyHex,
     // "bigint value:", value,
@@ -244,13 +251,18 @@ export const PrivateWalletPackage = (function() {
   }
 
   function addPrivateKey(privateKey: Uint8Array): [string, Uint8Array] {
+    const [address, pubKey] = getAddressAndPubKey(privateKey);
+    if (keyMap[address]) {
+      console.log("already exist private key, address: ", address);
+      return [address, pubKey];
+    }
+
     if (privateKeys.length >= 3) {
       throw new Error('you cannot create wallet more than 3!');
     }
 
     privateKeys.push(privateKey);
     const privatePoem = makePrivatePoem(privateKey);
-    const [address, pubKey] = getAddressAndPubKey(privateKey);
     keyMap[address] = privatePoem;
     return [address, pubKey];
   }
@@ -364,6 +376,7 @@ export const PrivateWalletPackage = (function() {
   return {
     initLoad,
     addPrivateKeyAndSave,
+    decodePrivatePoem,
     getWalletPackage,
     getAccount: (): EmailAccount | PhoneAccount | null => {
       return account ? { type: account.type, value: account.value } : null;
