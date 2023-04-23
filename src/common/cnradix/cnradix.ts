@@ -34,6 +34,7 @@ function codeToBaseCN(code: number): string {
   return GB2312_CHARSET.charAt(code);
 }
 
+// little-endian decode
 export function decode(encodeString: string): bigint {
   let total = BigInt(0);
   const radix = BigInt(GB2312_CHARSET.length);
@@ -51,6 +52,7 @@ export function decode(encodeString: string): bigint {
   return total;
 }
 
+// little-endian encode
 export function encode(value: bigint): string {
   const strs = [] as string[];
   const radix = BigInt(GB2312_CHARSET.length);

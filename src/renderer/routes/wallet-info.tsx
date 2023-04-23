@@ -587,7 +587,7 @@ export default function WalletInfo() {
       <CircleDialog
         open={openImportSuccess}
         title={'Import Success!'}
-        body={['Congras!', 'Import the new wallet success!']}
+        body={['Congrats!', 'Import the new wallet success!']}
         btnText={'Close'}
         close={() => setOpenImportSuccess(false)}
       />

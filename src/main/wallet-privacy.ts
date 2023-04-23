@@ -40,8 +40,17 @@ export const PrivateWalletPackage = (function() {
   let account: PrivateEmailAccount | PrivatePhoneAccount | null = null;
   const ADDRESS_CHECKSUM_LEN = 4;
 
-  function decodePrivatePoem(poem: string): Uint8Array {
-    const poemContent = poem.replaceAll(/[「」，。\s\t\n]/g, "");
+  function decodePrivatePoem(poem: PrivatePoem): Uint8Array {
+    const nonCharRegExp = /[「」，。\s\t\n]/g;
+    let poemContent;
+    const title = poem.title.replaceAll(nonCharRegExp, "");
+    const first = poem.sentences[0].replaceAll(nonCharRegExp, "");
+    if (first.startsWith(title)) {
+      poemContent = poem.sentences.join('');
+    } else {
+      poemContent = poem.title + poem.sentences.join('');
+    }
+    poemContent = poemContent.replaceAll(nonCharRegExp, "");
     const value = decode(poemContent);
     console.log("keywords raw:", poem, "trimed content:", poemContent, "value:", value);
     const buf = toBufferBE(value, 32);
@@ -263,6 +272,15 @@ export const PrivateWalletPackage = (function() {
 
     privateKeys.push(privateKey);
     const privatePoem = makePrivatePoem(privateKey);
+    const key = decodePrivatePoem(privatePoem);
+
+    //// debug codes here
+    // const oldValue = toBigIntBE(Buffer.from(privateKey));
+    // const newValue = toBigIntBE(Buffer.from(key));
+    // console.log("old:", oldValue, "new:", newValue, "equal:", oldValue === newValue);
+    // console.log("private keys:", toBigIntBE(Buffer.from(privateKey)), "private Poem:", privatePoem);
+    ////// end debug code
+
     keyMap[address] = privatePoem;
     return [address, pubKey];
   }
@@ -377,6 +395,7 @@ export const PrivateWalletPackage = (function() {
     initLoad,
     addPrivateKeyAndSave,
     decodePrivatePoem,
+    getAddressAndPubKey,
     getWalletPackage,
     getAccount: (): EmailAccount | PhoneAccount | null => {
       return account ? { type: account.type, value: account.value } : null;
