@@ -40,17 +40,15 @@ export const PrivateWalletPackage = (function() {
   let account: PrivateEmailAccount | PrivatePhoneAccount | null = null;
   const ADDRESS_CHECKSUM_LEN = 4;
 
-  function decodePrivatePoem(poem: PrivatePoem): Uint8Array {
+  function decodePrivatePoem(poem: string | PrivatePoem): Uint8Array {
     const nonCharRegExp = /[「」，。\s\t\n]/g;
     let poemContent;
-    const title = poem.title.replaceAll(nonCharRegExp, "");
-    const first = poem.sentences[0].replaceAll(nonCharRegExp, "");
-    if (first.startsWith(title)) {
-      poemContent = poem.sentences.join('');
+    if (typeof poem === 'string') {
+      poemContent = poem.replaceAll(nonCharRegExp, "");
     } else {
       poemContent = poem.title + poem.sentences.join('');
+      poemContent = poemContent.replaceAll(nonCharRegExp, "");
     }
-    poemContent = poemContent.replaceAll(nonCharRegExp, "");
     const value = decode(poemContent);
     console.log("keywords raw:", poem, "trimed content:", poemContent, "value:", value);
     const buf = toBufferBE(value, 32);
@@ -74,8 +72,6 @@ export const PrivateWalletPackage = (function() {
     if (encodedString.length > 20) {
       start = encodedString.length - 20;
       title = '「' + encodedString.substring(0, start) + "」";
-    } else {
-      title = '「' + encodedString.substring(0, 3) + "」";
     }
     sentences.push(encodedString.substring(start, 5 + start) + "，");
     start += 5;
