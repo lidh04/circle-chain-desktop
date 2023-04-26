@@ -40,6 +40,7 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
+import QRCode from 'qrcode';
 
 import {
   AutocompleteOption,
@@ -128,17 +129,6 @@ function createData(
   };
 }
 
-const rows = [
-  createData('1MVQfJrU3mK3M62hygJz9pmgBxVoGzPaKj', 100, 0, 0),
-  createData('12UdA785W3Y6M3SR8HxxExe7PRcwvVg88S', 100, 1, 2),
-  createData('1L8eRrBuWnBxcQ6DKCDkkPM7ozxDcmpho1', 200, 1, 3),
-];
-
-const addresses: AutocompleteOption[] = rows.map((row, index) => ({
-  value: row.address,
-  label: makeWalletLabel(row.address, index),
-}));
-
 function OperationsDialog(props: OperationsDialogProps) {
   const { onClose, open } = props;
 
@@ -225,88 +215,102 @@ function BootstrapDialogTitle(props: DialogTitleProps) {
   );
 }
 
+async function generateQRcode(address: string) : Promise<string> {
+  if (!address) {
+    return "";
+  }
+
+  const svg = await QRCode.toString(address, { type: 'svg' });
+  // console.log("svg:", svg);
+  return svg;
+};
+
 function AddressDialog(props: AddressDialogProps) {
   const [poem, setPoem] = React.useState<PrivatePoem | null>(null);
+  const [svg, setSvg] = React.useState<string>("");
   const { onClose, open, address } = props;
 
   React.useEffect(() => {
     window.electron.ipcRenderer.getEncodedPrivateKey(address).then((r) => {
       setPoem(r);
     });
+    generateQRcode(address).then((svg) => setSvg(svg));
   }, [address, setPoem]);
 
   const handleClose = () => {
     onClose();
   };
 
-  return (
-        <>
-            <BootstrapDialog
-                onClose={handleClose}
-                aria-labelledby="customized-dialog-title"
-                open={open}
-            >
-                <BootstrapDialogTitle
-                    id="customized-dialog-title"
-                    onClose={handleClose}
-                >
-                    Address Keywords
-                </BootstrapDialogTitle>
-                <DialogContent dividers>
-                    <Stack
-                        direction="column"
-                        justifyContent="center"
-                        alignItems="center"
-                        mt={2}
-                        spacing={2}
-                        sx={{ width: '100%', height: 'auto' }}
-                    >
-                        {poem && <Typography
-                                   sx={{
-                                     fontSize: '1.5rem',
-                                     mb: '0',
-                                     mt: "0",
-                                     height: 'auto',
-                                     textAlign: 'center',
-                                   }}>{poem.title}</Typography>
-                        }
-                        {poem && poem.sentences.map(sen => <Typography key={sen}
-                            sx={{
-                                fontSize: '1rem',
-                                mb: '0',
-                                mt: "0",
-                                height: 'auto',
-                                textAlign: 'center',
-                            }}>{sen}</Typography>)}
 
-                        <Typography gutterBottom>Address QrCode:</Typography>
-                        <Box
-                            component="img"
-                            sx={{
-                                height: 180,
-                                width: 180,
-                            }}
-                            alt="The new address qrcode."
-                            src="https://circle-node.net/static/release/circle-node.jpg"
-                        />
-                        <Typography sx={{ fontSize: '12px' }}>
-                            address: {address}
-                        </Typography>
-                    </Stack>
-                </DialogContent>
-                <DialogActions>
-                    <Button autoFocus onClick={handleClose}>
-                        Close
-                    </Button>
-                </DialogActions>
-            </BootstrapDialog>
-        </>
-    );
+  return (
+    <>
+      <BootstrapDialog
+        onClose={handleClose}
+        aria-labelledby="customized-dialog-title"
+        open={open}
+      >
+        <BootstrapDialogTitle
+          id="customized-dialog-title"
+          onClose={handleClose}
+        >
+          Address Keywords
+        </BootstrapDialogTitle>
+        <DialogContent dividers>
+          <Stack
+            direction="column"
+            justifyContent="center"
+            alignItems="center"
+            mt={2}
+            spacing={2}
+            sx={{ width: '100%', height: 'auto' }}
+          >
+            {poem && <Typography
+              sx={{
+                fontSize: '1.5rem',
+                mb: '0',
+                mt: "0",
+                height: 'auto',
+                textAlign: 'center',
+              }}>{poem.title}</Typography>
+            }
+            {poem && poem.sentences.map(sen => <Typography key={sen}
+              sx={{
+                fontSize: '1rem',
+                mb: '0',
+                mt: "0",
+                height: 'auto',
+                textAlign: 'center',
+              }}>{sen}</Typography>)}
+
+            <Typography gutterBottom>Address QrCode:</Typography>
+            <Box
+              component="div"
+              sx={{
+                height: 180,
+                width: 180,
+              }}
+            >
+              <div className="Container" dangerouslySetInnerHTML={{ __html: svg }}></div>
+            </Box>
+            <Typography sx={{ fontSize: '12px' }}>
+              address: {address}
+            </Typography>
+          </Stack>
+        </DialogContent>
+        <DialogActions>
+          <Button autoFocus onClick={handleClose}>
+            Close
+          </Button>
+        </DialogActions>
+      </BootstrapDialog>
+    </>
+  );
 }
 
 export default function WalletInfo() {
   const [page, setPage] = React.useState(0);
   const [searchedRows, setSearchedRows] = React.useState<Data[] | null>(null);
+  const [rows, setRows] = React.useState<Data[] | null>(null);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [address, setAddress] = React.useState('');
   const [newKeywords, setNewKeyworkds] = React.useState('');
@@ -315,6 +319,7 @@ export default function WalletInfo() {
   const [open, setOpen] = React.useState(false);
   const [openKeywords, setOpenKeywords] = React.useState(false);
   const [openImportSuccess, setOpenImportSuccess] = React.useState(false);
+  const [addresses, setAddresses] = React.useState([] as AutocompleteOption[]);
   const navigate = useNavigate();
 
   React.useEffect(() => {
@@ -324,6 +329,11 @@ export default function WalletInfo() {
         (wallet: PublicWallet) => createData(wallet.address, wallet.balance,
                                              wallet.identities.length, wallet.ownerships.length));
       setSearchedRows(searchedRows);
+      setRows(searchedRows);
+      setAddresses(searchedRows.map((row, index) => ({
+        value: row.address,
+        label: makeWalletLabel(row.address, index),
+      })));
     });
   }, []);
 
@@ -372,7 +382,7 @@ export default function WalletInfo() {
   const handleSearch = async () => {
     console.log('use click search button, search by address:', address);
     if (address) {
-      const findRows = rows.filter((row) => row.address === address);
+      const findRows = (rows || []).filter((row) => row.address === address);
       setSearchedRows(findRows);
     } else {
       setSearchedRows(rows);
@@ -537,7 +547,7 @@ export default function WalletInfo() {
       <TablePagination
         rowsPerPageOptions={[10, 25, 100]}
         component="div"
-        count={rows.length}
+        count={(rows || []).length}
         rowsPerPage={rowsPerPage}
         page={page}
         onPageChange={handleChangePage}
