@@ -7,7 +7,7 @@ module.exports = {
     // Since React 17 and typescript 4.1 you can safely disable the rule
     'react/react-in-jsx-scope': 'off',
     "avoidEscape": 1,
-    "allowTemplateLiterals": true,
+    "allowTemplateLiterals": 1,
     "no-console": 0,
   },
   parserOptions: {
