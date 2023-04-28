@@ -89,7 +89,7 @@ export function ownershipCount(walletPackage: WalletPackage) {
 
 
 export function validateEmail(inputText: string) {
-  const mailformat = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+  const mailformat = /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)+$/;
   if (inputText.match(mailformat)) {
     return true;
   } else {
