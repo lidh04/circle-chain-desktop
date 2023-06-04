@@ -26,7 +26,7 @@ async function generateQRcode(address: string) : Promise<string> {
   }
 
   const svg = await QRCode.toString(address, { type: 'svg' });
-  console.log("svg:", svg);
+  // console.log("svg:", svg);
   return svg;
 };
 
@@ -59,7 +59,7 @@ export default function CreateWallet() {
       if (step === 2) {
         const svg = await generateQRcode(wallet.address);
         setSvg(svg);
-        setTimeout(() => setStep(3), 3000);
+        setTimeout(() => setStep(3), 1000);
       } else {
         setStep(step + 1);
       }
@@ -187,7 +187,15 @@ export default function CreateWallet() {
               spacing={2}
               sx={{ width: '100%', height: 'auto' }}
             >
-              <div className="Container" dangerouslySetInnerHTML={{ __html: svg }}></div>
+              <Box
+                component="div"
+                sx={{
+                  height: 180,
+                  width: 180,
+                }}
+              >
+                <div className="Container" dangerouslySetInnerHTML={{ __html: svg }}></div>
+              </Box>
               <Typography sx={{ fontSize: '12px' }}>
                 address: {wallet && wallet.address ? wallet.address: ""}
               </Typography>
