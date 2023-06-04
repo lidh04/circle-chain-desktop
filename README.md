@@ -8,6 +8,8 @@
 
 ## Install
 
+Using the node version: 16.15.0, please install node with this version.
+
 Clone the repo and install dependencies:
 
 ```bash
@@ -40,20 +42,19 @@ Please referer to [intro](https://github.com/lidh04/circle-chain-desktop/tree/ma
 
 ## Sponsors
 
-* None
-
+- None
 
 ## Donations
 
-* None
+- None
 
 ## Backers
 
-*   None
+- None
 
 ## Sponsors
 
-*   None
+- None
 
 ## Maintainers
 

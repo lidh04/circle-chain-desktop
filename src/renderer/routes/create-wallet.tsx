@@ -1,6 +1,7 @@
 import { Box, Stack, Typography } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 import React, { MouseEvent, useEffect } from 'react';
+import QRCode from 'qrcode';
 
 import { PrivatePoem, PublicWallet } from '../../common/wallet-types';
 
@@ -19,36 +20,49 @@ const getRandom: GetRandom = (p) => {
   return (new Date().getTime() % 100000) + parseInt(p.x + '' + p.y);
 };
 
+async function generateQRcode(address: string) : Promise<string> {
+  if (!address) {
+    return "";
+  }
+
+  const svg = await QRCode.toString(address, { type: 'svg' });
+  console.log("svg:", svg);
+  return svg;
+};
+
 export default function CreateWallet() {
   const [showNext, setShowNext] = React.useState(false);
   const [step, setStep] = React.useState(0);
+  const [svg, setSvg] = React.useState('');
   const [point, setPoint] = React.useState<Point2D | null>(null);
   const [wallet, setWallet] = React.useState<PublicWallet | null>(null);
   const [poem, setPoem] = React.useState<PrivatePoem | null>(null);
 
-  const onSubmitHandler: React.FormEventHandler<HTMLFormElement> = (e) => {
+  const onSubmitHandler: React.FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
     console.log('click the next button.');
     setShowNext(step + 1 < 3);
     if (step === 1) {
-      window.electron.ipcRenderer.createWallet().then((r) => {
-        console.log('created new wallet:', r);
-        if (!r) {
-          throw new Error("cannot create wallet!");
-        }
-        setWallet(r);
-        const address = r.address;
-        return Promise.resolve(address);
-      }).then(async (address) => {
-        console.log("new wallet address:", address);
-        return window.electron.ipcRenderer.getEncodedPrivateKey(address).then((r) => r);
-      }).then((r) => {
-        console.log("new wallet private poem:", r);
-        setPoem(r);
-        setStep(step + 1);
-      }).catch((err) => console.error("error:", err.message, err));
-    } else {
+      const r = await window.electron.ipcRenderer.createWallet();
+      console.log('created new wallet:', r);
+      setWallet(r);
+      if (!r) {
+        throw new Error("cannot create wallet!");
+      }
+      const address = r.address;
+      console.log("new wallet address:", address);
+      const poem = await window.electron.ipcRenderer.getEncodedPrivateKey(address);
+      setPoem(poem);
+      console.log("new wallet private poem:", r);
       setStep(step + 1);
+    } else {
+      if (step === 2) {
+        const svg = await generateQRcode(wallet.address);
+        setSvg(svg);
+        setTimeout(() => setStep(3), 3000);
+      } else {
+        setStep(step + 1);
+      }
     }
   };
 
@@ -173,15 +187,7 @@ export default function CreateWallet() {
               spacing={2}
               sx={{ width: '100%', height: 'auto' }}
             >
-              <Box
-                component="img"
-                sx={{
-                  height: 180,
-                  width: 180,
-                }}
-                alt="The new address qrcode."
-                src="https://circle-node.net/static/release/circle-node.jpg"
-              />
+              <div className="Container" dangerouslySetInnerHTML={{ __html: svg }}></div>
               <Typography sx={{ fontSize: '12px' }}>
                 address: {wallet && wallet.address ? wallet.address: ""}
               </Typography>
