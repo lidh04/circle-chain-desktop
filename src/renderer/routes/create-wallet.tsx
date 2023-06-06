@@ -34,6 +34,7 @@ export default function CreateWallet() {
   const [showNext, setShowNext] = React.useState(false);
   const [step, setStep] = React.useState(0);
   const [svg, setSvg] = React.useState('');
+  const [error, setError] = React.useState('');
   const [point, setPoint] = React.useState<Point2D | null>(null);
   const [wallet, setWallet] = React.useState<PublicWallet | null>(null);
   const [poem, setPoem] = React.useState<PrivatePoem | null>(null);
@@ -41,6 +42,11 @@ export default function CreateWallet() {
   const onSubmitHandler: React.FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
     console.log('click the next button.');
+    const walletPackage = await window.electron.ipcRenderer.getWalletPackage();
+    if (walletPackage && walletPackage.wallets && walletPackage.wallets.length >= 3) {
+      setError('you already created 3 wallets, cannot create any wallet now!');
+      return;
+    }
     setShowNext(step + 1 < 3);
     if (step === 1) {
       const r = await window.electron.ipcRenderer.createWallet();
@@ -106,7 +112,7 @@ export default function CreateWallet() {
         sx={{ paddingRight: { sm: '3rem' }, height: '300px' }}
         onSubmit={onSubmitHandler}
       >
-        {step <= 1 && (
+        {step <= 1 && !error && (
           <>
             <Typography
               sx={{
@@ -130,6 +136,19 @@ export default function CreateWallet() {
             </Typography>
           </>
         )}
+        {step <= 1 && error &&
+          <Typography
+            sx={{
+              fontSize: '1.5rem',
+              color: 'red',
+              mb: '1rem',
+              height: '100px',
+              textAlign: 'center',
+          }}
+          >
+            {error}
+          </Typography>
+        }
 
         {step === 2 && (
           <>
