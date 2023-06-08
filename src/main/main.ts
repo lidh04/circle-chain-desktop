@@ -32,6 +32,7 @@ import MenuBuilder from './menu';
 import createWallet from './create-wallet';
 import { searchTransaction, sendTo } from './blocks';
 
+const APP_NAME = 'circle-chain-desktop';
 class AppUpdater {
   constructor() {
     log.transports.file.level = 'info';
@@ -146,13 +147,18 @@ ipcMain.handle(SendToChannel, async (event, from: string, toEmail: string, asset
   return await sendTo(from, toEmail, assetType, value, payPassword);
 });
 
+app.setName(APP_NAME);
 if (process.env.NODE_ENV === 'production') {
   const sourceMapSupport = require('source-map-support');
   sourceMapSupport.install();
   // init electron store file
-  console.log('init config for store json file:', app.getPath('userData') + 'config.json');
+  console.log('init host circle-node.net for store json file:', app.getPath('userData') + '/config.json');
   const store = new Store();
   store.set('host', 'https://circle-node.net');
+} else {
+  const store = new Store();
+  store.set('host', 'http://localhost:8888');
+  console.log('init host localhost for store json file:', app.getPath('userData') + '/config.json');
 }
 
 const isDebug =
