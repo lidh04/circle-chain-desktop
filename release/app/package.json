@@ -1,12 +1,12 @@
 {
-  "name": "electron-react-boilerplate",
+  "name": "circle-chain-desktop",
   "version": "4.6.0",
-  "description": "A foundation for scalable desktop apps",
+  "description": "A app for scalable circle chain desktop apps",
   "license": "MIT",
   "author": {
     "name": "Electron React Boilerplate Maintainers",
-    "email": "electronreactboilerplate@gmail.com",
-    "url": "https://github.com/electron-react-boilerplate"
+    "email": "lidh04@gmail.com",
+    "url": "https://github.com/lidh04/circle-chain-desktop"
   },
   "main": "./dist/main/main.js",
   "scripts": {
