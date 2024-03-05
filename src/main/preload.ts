@@ -1,8 +1,10 @@
-import { PhoneAccount, SaveAccount } from '../common/account-types';
-
-import { EmailAccount } from '../common/account-types';
-
 import { contextBridge, ipcRenderer, IpcRendererEvent } from 'electron';
+import {
+  PhoneAccount,
+  SaveAccount,
+  EmailAccount,
+  GetAccount,
+} from '../common/account-types';
 
 import {
   AddressType,
@@ -16,9 +18,7 @@ import {
   SendToChannel,
   SetPayPassword,
 } from '../common/wallet-types';
-import { GetAccount } from '../common/account-types';
 import { TxType } from '../common/block-types';
-
 
 const electronHandler = {
   ipcRenderer: {
@@ -34,8 +34,19 @@ const electronHandler = {
     importWallet(keywords: string) {
       return ipcRenderer.invoke(ImportWallet, keywords);
     },
-    searchTransaction(address: string, addressType: AddressType, txType?: TxType, uuid?: string) {
-      return ipcRenderer.invoke(SearchTransaction, address, addressType, txType, uuid);
+    searchTransaction(
+      address: string,
+      addressType: AddressType,
+      txType?: TxType,
+      uuid?: string
+    ) {
+      return ipcRenderer.invoke(
+        SearchTransaction,
+        address,
+        addressType,
+        txType,
+        uuid
+      );
     },
     getEncodedPrivateKey(address: string) {
       return ipcRenderer.invoke(GetEncodedPrivateKey, address);
@@ -52,8 +63,21 @@ const electronHandler = {
     setPayPassword(payPassword: string) {
       return ipcRenderer.invoke(SetPayPassword, payPassword);
     },
-    sendTo(from: string, toEmail: string, assetType: TxType, value: number | string, payPassword: string) {
-      return ipcRenderer.invoke(SendToChannel, from, toEmail, assetType, value, payPassword);
+    sendTo(
+      from: string,
+      toEmail: string,
+      assetType: TxType,
+      value: number | string,
+      payPassword: string
+    ) {
+      return ipcRenderer.invoke(
+        SendToChannel,
+        from,
+        toEmail,
+        assetType,
+        value,
+        payPassword
+      );
     },
     on(channel: Channels, func: (...args: unknown[]) => void) {
       const subscription = (_event: IpcRendererEvent, ...args: unknown[]) =>
