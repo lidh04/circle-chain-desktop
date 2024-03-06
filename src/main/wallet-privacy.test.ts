@@ -61,7 +61,7 @@ describe('test suites for wallet privacy', () => {
     });
   });
 
-  it.skip('makePoemAndDecodePoemTest', async () => {
+  test('makePoemAndDecodePoemTest', async () => {
     const result = await PrivateWalletPackage.initLoad(account);
     expect(result).toBe(true);
     const walletPackage = await PrivateWalletPackage.getWalletPackage();
