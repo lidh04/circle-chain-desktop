@@ -16,13 +16,13 @@ import {
   IpcChannel,
   SearchTransaction,
   SendToChannel,
-  SetPayPassword
+  SetPayPassword,
 } from '../common/wallet-types';
 import {
   EmailAccount,
   GetAccount,
   PhoneAccount,
-  SaveAccount
+  SaveAccount,
 } from '../common/account-types';
 import { PrivateWalletPackage } from './wallet-privacy';
 import { TxType } from '../common/block-types';
@@ -42,7 +42,7 @@ class AppUpdater {
 }
 
 let mainWindow: BrowserWindow | null = null;
-let uploaded: boolean = false;
+let uploaded = false;
 
 ipcMain.on(IpcChannel, async (event, arg: string) => {
   const msgTemplate = (pingPong: string) => `IPC test: ${pingPong}`;
@@ -62,31 +62,48 @@ ipcMain.handle(GetWalletPackage, async (event, email: string) => {
     if (email) {
       const account: EmailAccount = {
         type: 'email',
-        value: email
+        value: email,
       };
       await PrivateWalletPackage.initLoad(account);
     }
     return await PrivateWalletPackage.getWalletPackage();
   } catch (err: any) {
-    console.error('cannot get wallet package by email:', email, 'error:', err.message, err);
+    console.error(
+      'cannot get wallet package by email:',
+      email,
+      'error:',
+      err.message,
+      err
+    );
     throw err;
   }
 });
 
 ipcMain.handle(ImportWallet, async (event, keywords: string) => {
-  console.log("import keywords:", keywords);
+  console.log('import keywords:', keywords);
   try {
     const newPrivateKey = PrivateWalletPackage.decodePrivatePoem(keywords);
-    return PrivateWalletPackage.addPrivateKeyAndSave(newPrivateKey);
+    return await PrivateWalletPackage.addPrivateKeyAndSave(newPrivateKey);
   } catch (err: any) {
-    console.error('cannot import wallet by keyworkds:', keywords, 'error:', err.message, err);
+    console.error(
+      'cannot import wallet by keyworkds:',
+      keywords,
+      'error:',
+      err.message,
+      err
+    );
     throw err;
   }
 });
 
 ipcMain.handle(GetEncodedPrivateKey, async (event, address: string) => {
   const privatePoem = PrivateWalletPackage.getEncodedPrivateKey(address);
-  console.log('get encoded private key by address:', address, 'result:', privatePoem);
+  console.log(
+    'get encoded private key by address:',
+    address,
+    'result:',
+    privatePoem
+  );
   return privatePoem;
 });
 
@@ -95,17 +112,23 @@ ipcMain.handle(GetAccount, async (event) => {
   try {
     const content = await readFile(accountInfoPath, { encoding: 'utf8' });
     const account = JSON.parse(content);
-    console.log('get account:', account, 'in account info path:', accountInfoPath);
+    console.log(
+      'get account:',
+      account,
+      'in account info path:',
+      accountInfoPath
+    );
     if (!uploaded) {
       // async upload account info
       PrivateWalletPackage.uploadAccountInfo()
         .then((r) => {
           console.log('upload account info result:', r);
           uploaded = r;
+          return uploaded;
         })
-        .catch(err => console.error('upload account info error:', err));
+        .catch((err) => console.error('upload account info error:', err));
     } else {
-      console.log("account info already uploaded");
+      console.log('account info already uploaded');
     }
     return account;
   } catch (err: any) {
@@ -114,20 +137,29 @@ ipcMain.handle(GetAccount, async (event) => {
   }
 });
 
-ipcMain.handle(SaveAccount, async (event, account: EmailAccount | PhoneAccount) => {
-  const content = JSON.stringify(account);
-  const accountInfoPath = getAccountInfoPath();
-  try {
-    const dirname = path.dirname(accountInfoPath);
-    await mkdir(dirname, { recursive: true });
-    await writeFile(accountInfoPath, content);
-    await chmod(accountInfoPath, 0o600);
-    return true;
-  } catch (err: any) {
-    console.error('cannot write file in path: ', accountInfoPath, 'error:', err.message, err);
-    return false;
+ipcMain.handle(
+  SaveAccount,
+  async (event, account: EmailAccount | PhoneAccount) => {
+    const content = JSON.stringify(account);
+    const accountInfoPath = getAccountInfoPath();
+    try {
+      const dirname = path.dirname(accountInfoPath);
+      await mkdir(dirname, { recursive: true });
+      await writeFile(accountInfoPath, content);
+      await chmod(accountInfoPath, 0o600);
+      return true;
+    } catch (err: any) {
+      console.error(
+        'cannot write file in path: ',
+        accountInfoPath,
+        'error:',
+        err.message,
+        err
+      );
+      return false;
+    }
   }
-});
+);
 
 ipcMain.handle(GetPayPassword, () => {
   return PrivateWalletPackage.getPayPassword();
@@ -137,38 +169,77 @@ ipcMain.handle(SetPayPassword, async (event, payPassword: string) => {
   PrivateWalletPackage.setPayPassword(payPassword);
 });
 
-ipcMain.handle(SearchTransaction, async (event, address: string, addressType: AddressType, txType?: TxType, uuid?: string) => {
-  console.log('search transaction by address:', address, 'addressType:', addressType, 'txType:', txType, 'uuid:', uuid);
-  return searchTransaction(address, addressType, txType, uuid);
-});
+ipcMain.handle(
+  SearchTransaction,
+  async (
+    event,
+    address: string,
+    addressType: AddressType,
+    txType?: TxType,
+    uuid?: string
+  ) => {
+    console.log(
+      'search transaction by address:',
+      address,
+      'addressType:',
+      addressType,
+      'txType:',
+      txType,
+      'uuid:',
+      uuid
+    );
+    return searchTransaction(address, addressType, txType, uuid);
+  }
+);
 
-ipcMain.handle(SendToChannel, async (event, from: string, toEmail: string, assetType: number, value: number | string, payPassword: string) => {
-  console.log(`${SendToChannel} from: ${from}, toEmail: ${toEmail}, assetType: ${assetType}, value: ${value}, pay password: ${payPassword}`);
-  return await sendTo(from, toEmail, assetType, value, payPassword);
-});
+ipcMain.handle(
+  SendToChannel,
+  async (
+    event,
+    from: string,
+    toEmail: string,
+    assetType: number,
+    value: number | string,
+    payPassword: string
+  ) => {
+    console.log(
+      `${SendToChannel} from: ${from}, toEmail: ${toEmail}, assetType: ${assetType}, value: ${value}, pay password: ${payPassword}`
+    );
+    return sendTo(from, toEmail, assetType, value, payPassword);
+  }
+);
 
 app.setName(APP_NAME);
 if (process.env.NODE_ENV === 'production') {
+  // eslint-disable-next-line global-require
   const sourceMapSupport = require('source-map-support');
   sourceMapSupport.install();
   // init electron store file
-  console.log('init host circle-node.net for store json file:', app.getPath('userData') + '/config.json');
+  console.log(
+    'init host circle-node.net for store json file:',
+    `${app.getPath('userData')}/config.json`
+  );
   const store = new Store();
   store.set('host', 'https://circle-node.net');
 } else {
   const store = new Store();
   store.set('host', 'http://localhost:8888');
-  console.log('init host localhost for store json file:', app.getPath('userData') + '/config.json');
+  console.log(
+    'init host localhost for store json file:',
+    `${app.getPath('userData')}/config.json`
+  );
 }
 
 const isDebug =
   process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true';
 
 if (isDebug) {
+  // eslint-disable-next-line global-require
   require('electron-debug')();
 }
 
 const installExtensions = async () => {
+  // eslint-disable-next-line global-require
   const installer = require('electron-devtools-installer');
   const forceDownload = !!process.env.UPGRADE_EXTENSIONS;
   const extensions = ['REACT_DEVELOPER_TOOLS'];
@@ -205,13 +276,13 @@ const createWindow = async () => {
         : path.join(__dirname, '../../.erb/dll/preload.js'),
     },
   });
-  //mainWindow.setResizable(false);
+  // mainWindow.setResizable(false);
   mainWindow.maximize();
   mainWindow.loadURL(resolveHtmlPath('index.html'));
 
   mainWindow.on('ready-to-show', () => {
     if (!mainWindow) {
-      throw new Error('\'mainWindow\' is not defined');
+      throw new Error("'mainWindow' is not defined");
     }
     if (process.env.START_MINIMIZED) {
       mainWindow.minimize();
@@ -252,6 +323,7 @@ app.on('window-all-closed', () => {
 
 app
   .whenReady()
+  // eslint-disable-next-line promise/always-return
   .then(() => {
     createWindow();
     app.on('activate', () => {
