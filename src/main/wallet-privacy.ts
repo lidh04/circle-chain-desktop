@@ -17,12 +17,13 @@ import { EmailAccount, PhoneAccount } from '../common/account-types';
 import {
   PrivatePoem,
   PublicWallet,
-  WalletPackage
+  WalletPackage,
 } from '../common/wallet-types';
 import { binaryToBase58 } from '../common/base58/base58';
 import { decrypt, encrypt } from '../common/crypto/crypto';
 import { decode, encode } from '../common/cnradix/cnradix';
 import {
+  AddressSignVO,
   getWalletAssetsByAddress,
   uploadUidAndAddress,
 } from './wallet-service';
@@ -66,7 +67,7 @@ function decodePrivatePoem(poem: string | PrivatePoem): Uint8Array {
 function makePrivatePoem(privKey: Uint8Array) {
   console.time('privateKey');
   const buf = Buffer.from(privKey);
-  const value = toBigIntBE(buf)
+  const value = toBigIntBE(buf);
   const encodedString = encode(value);
   // console.log('private key length:', privKeyHex.length, privKeyHex,
   // 'bigint value:', value,
@@ -93,7 +94,7 @@ function makePrivatePoem(privKey: Uint8Array) {
   console.timeEnd('privateKey');
   return {
     title,
-    sentences
+    sentences,
   };
 }
 
@@ -122,7 +123,7 @@ async function exists(path: string) {
 // eslint-disable-next-line @typescript-eslint/no-shadow
 function getPrivateKeyPath(account: EmailAccount | PhoneAccount) {
   const hash256 = createHash('sha256');
-  const {value} = account;
+  const { value } = account;
   const data = Buffer.from(`circle-chain-desktop/private/${value}`);
   const hash256Str = hash256.update(data).digest('hex');
   const privatePath = `${os.homedir()}/.circle-chain/${hash256Str}`;
@@ -316,12 +317,12 @@ function addPrivateKey(privateKey: Uint8Array): [string, Uint8Array] {
   const privatePoem = makePrivatePoem(privateKey);
   const key = decodePrivatePoem(privatePoem);
 
-  //// debug codes here
+  /// / debug codes here
   // const oldValue = toBigIntBE(Buffer.from(privateKey));
   // const newValue = toBigIntBE(Buffer.from(key));
   // console.log('old:', oldValue, 'new:', newValue, 'equal:', oldValue === newValue);
   // console.log('private keys:', toBigIntBE(Buffer.from(privateKey)), 'private Poem:', privatePoem);
-  ////// end debug code
+  /// /// end debug code
 
   keyMap[address] = privatePoem;
   return [address, pubKey];
@@ -336,23 +337,48 @@ async function addPrivateKeyAndSave(
   const result = addPrivateKey(privateKey);
   // eslint-disable-next-line @typescript-eslint/no-use-before-define
   await save(account);
+
   // eslint-disable-next-line @typescript-eslint/no-use-before-define
   const uid = getUid(account);
-  await uploadUidAndAddress(uid, [result[0]]);
+  const addressSigns = [] as AddressSignVO[];
+  const [address, pubKey] = getAddressAndPubKey(privateKey);
+  const publicKey = Buffer.from(pubKey).toString('hex');
+  const signedData = secp256k1.ecdsaSign(Buffer.from(address), privateKey);
+  const { signature } = signedData;
+  const signatureHexString = Buffer.from(signature).toString('hex');
+  addressSigns.push({
+    publicKey,
+    address,
+    signData: signatureHexString,
+  });
+  await uploadUidAndAddress(uid, addressSigns);
   return result;
 }
 
 // upload account public info to cloud.
 async function uploadAccountInfo() {
-  if (!account || Object.keys(keyMap).length == 0) {
+  if (!account || Object.keys(keyMap).length === 0) {
     console.warn('account is empty or has no address, skip to upload info');
     return false;
   }
 
+  const addressSigns = [] as AddressSignVO[];
   // eslint-disable-next-line @typescript-eslint/no-use-before-define
   const uid = getUid(account);
-  const addresses = Object.keys(keyMap);
-  return uploadUidAndAddress(uid, addresses);
+  // eslint-disable-next-line no-restricted-syntax
+  for (const privateKey of privateKeys) {
+    const [address, pubKey] = getAddressAndPubKey(privateKey);
+    const publicKey = Buffer.from(pubKey).toString('hex');
+    const signedData = secp256k1.ecdsaSign(Buffer.from(address), privateKey);
+    const { signature } = signedData;
+    const signatureHexString = Buffer.from(signature).toString('hex');
+    addressSigns.push({
+      publicKey,
+      address,
+      signData: signatureHexString,
+    });
+  }
+  return uploadUidAndAddress(uid, addressSigns);
 }
 
 // eslint-disable-next-line @typescript-eslint/no-shadow
@@ -414,9 +440,9 @@ async function getWalletPackage(): Promise<WalletPackage> {
   return {
     account: {
       type: account.type,
-      value: account.value
+      value: account.value,
     },
-    wallets: publicWallets
+    wallets: publicWallets,
   };
 }
 
