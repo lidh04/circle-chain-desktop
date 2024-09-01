@@ -114,6 +114,16 @@ export async function uploadUidAndAddress(
     console.info('post url:', url, 'data:', data, 'status:', response.status);
     if (response.status === 200) {
       const json = response.data as { status: number };
+      console.info(
+        'post url:',
+        url,
+        'data:',
+        data,
+        'status:',
+        response.status,
+        'return data:',
+        response.data
+      );
       return json.status === 200;
     }
   } catch (err: any) {

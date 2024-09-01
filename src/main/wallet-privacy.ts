@@ -7,6 +7,7 @@
 
 import { createHash, randomBytes } from 'crypto';
 import secp256k1 from 'secp256k1';
+import r from 'jsrsasign';
 
 import { readFile, writeFile, access, mkdir, chmod } from 'fs/promises';
 import os from 'os';
@@ -275,6 +276,15 @@ async function initLoad(accountInput: EmailAccount | PhoneAccount) {
   }
 }
 
+function signDataWithPrivateKey(data: Uint8Array, privateKey: Uint8Array) {
+  const sig = new r.Signature({ alg: 'SHA256withECDSA' });
+  const prevHex = Buffer.from(privateKey).toString('hex');
+  sig.init({ d: prevHex, curve: 'secp256k1' });
+  const dataHex = Buffer.from(data).toString('hex');
+  sig.updateHex(dataHex);
+  return sig.sign() as string;
+}
+
 function getPublicKeyHash(pubKey: Uint8Array): Uint8Array {
   const sha256 = createHash('sha256');
   const hash256Binary = sha256.update(pubKey).digest();
@@ -343,13 +353,12 @@ async function addPrivateKeyAndSave(
   const addressSigns = [] as AddressSignVO[];
   const [address, pubKey] = getAddressAndPubKey(privateKey);
   const publicKey = Buffer.from(pubKey).toString('hex');
-  const signedData = secp256k1.ecdsaSign(Buffer.from(address), privateKey);
-  const { signature } = signedData;
-  const signatureHexString = Buffer.from(signature).toString('hex');
+  const data = Buffer.from(address);
+  const signDataHex = signDataWithPrivateKey(data, privateKey);
   addressSigns.push({
     publicKey,
     address,
-    signData: signatureHexString,
+    signData: signDataHex,
   });
   await uploadUidAndAddress(uid, addressSigns);
   return result;
@@ -369,13 +378,12 @@ async function uploadAccountInfo() {
   for (const privateKey of privateKeys) {
     const [address, pubKey] = getAddressAndPubKey(privateKey);
     const publicKey = Buffer.from(pubKey).toString('hex');
-    const signedData = secp256k1.ecdsaSign(Buffer.from(address), privateKey);
-    const { signature } = signedData;
-    const signatureHexString = Buffer.from(signature).toString('hex');
+    const data = Buffer.from(address);
+    const signDataHex: string = signDataWithPrivateKey(data, privateKey);
     addressSigns.push({
       publicKey,
       address,
-      signData: signatureHexString,
+      signData: signDataHex,
     });
   }
   return uploadUidAndAddress(uid, addressSigns);
@@ -454,9 +462,19 @@ function signData(data: Uint8Array, address: string) {
   if (!privateKey) {
     throw new Error(`not found private key for address:${address}`);
   }
+  return signDataWithPrivateKey(data, privateKey);
+}
 
-  const signedData = secp256k1.ecdsaSign(data, privateKey);
-  return signedData.signature;
+function signString(str: string, address: string) {
+  const privateKey = privateKeys.find((priv) => {
+    const [addr, _] = getAddressAndPubKey(priv);
+    return addr === address;
+  });
+  if (!privateKey) {
+    throw new Error(`not found private key for address:${address}`);
+  }
+  const data = Buffer.from(str);
+  return signDataWithPrivateKey(data, privateKey);
 }
 
 function getPublicKey(address: string) {
@@ -498,4 +516,5 @@ export const PrivateWalletPackage = {
     keyMap[address] ? keyMap[address] : null,
   getPublicKey,
   signData,
+  signString,
 };
