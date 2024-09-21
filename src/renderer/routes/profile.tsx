@@ -57,9 +57,9 @@ export default function Profile() {
 
   const getAccountName = () => {
     if (!account || !account.value) {
-      return "";
+      return '';
     }
-    const index = account.value.indexOf("@");
+    const index = account.value.indexOf('@');
     if (index !== -1) {
       return account.value.substring(0, index);
     }

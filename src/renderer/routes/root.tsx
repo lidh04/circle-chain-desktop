@@ -60,7 +60,7 @@ export default function Root() {
 
   const initDataWithWalletPackage = (wp: WalletPackage) => {
     setWalletPackage(wp);
-    const wallets: PublicWallet[] = wp.wallets;
+    const { wallets } = wp;
     const walletDataArray: WalletSidebar[] = [
       {
         icon: <AddCircleIcon />,
