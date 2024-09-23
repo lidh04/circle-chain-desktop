@@ -26,8 +26,8 @@ import Tooltip from '@mui/material/Tooltip';
 
 import { PublicWallet, WalletPackage } from 'common/wallet-types';
 
-import { EmailAccount, PhoneAccount } from '../../common/account-types';
 import InputAccountDialog from 'renderer/components/InputAccountDialog';
+import { EmailAccount, PhoneAccount } from '../../common/account-types';
 
 const FireNav = styled(List)<{ component?: React.ElementType }>({
   '& .MuiListItemButton-root': {
@@ -52,10 +52,15 @@ type WalletSidebar = {
 export default function Root() {
   const [open, setOpen] = React.useState(true);
   const [accountOpen, setAccountOpen] = React.useState(false);
-  const [login, setLogin] = React.useState(true);
-  const [account, setAccount] = React.useState<EmailAccount | PhoneAccount | null>(null);
-  const [walletPackage, setWalletPackage] = React.useState<WalletPackage | null>(null);
-  const [walletData, setWalletData] = React.useState<WalletSidebar[] | null>(null);
+  const [login, setLogin] = React.useState(false);
+  const [account, setAccount] = React.useState<
+    EmailAccount | PhoneAccount | null
+  >(null);
+  const [walletPackage, setWalletPackage] =
+    React.useState<WalletPackage | null>(null);
+  const [walletData, setWalletData] = React.useState<WalletSidebar[] | null>(
+    null
+  );
   const navigate = useNavigate();
 
   const initDataWithWalletPackage = (wp: WalletPackage) => {
@@ -97,20 +102,28 @@ export default function Root() {
     setWalletData(walletDataArray);
   };
   React.useEffect(() => {
-    window.electron.ipcRenderer.getAccount().then((account) => {
-      setAccount(account);
-      if (account) {
-        return window.electron.ipcRenderer.getWalletPackage(account.value);
-      }
-      return Promise.resolve(null);
-    }).then((result) => {
-      console.log("root page walletPackage:", result);
-      if (result) {
-        const wp: WalletPackage = result as WalletPackage;
-        initDataWithWalletPackage(wp)
-      }
-    }).catch((err) => console.error(err));
-  }, []);
+    // eslint-disable-next-line @typescript-eslint/no-shadow
+    window.electron.ipcRenderer
+      .getAccount()
+      // eslint-disable-next-line @typescript-eslint/no-shadow
+      .then((account) => {
+        setAccount(account);
+        if (account) {
+          return window.electron.ipcRenderer.getWalletPackage(account.value);
+        }
+        return false;
+      })
+      .then((result) => {
+        console.log('root page walletPackage:', result);
+        if (result) {
+          const wp: WalletPackage = result as WalletPackage;
+          initDataWithWalletPackage(wp);
+          return true;
+        }
+        return false;
+      })
+      .catch((err) => console.error(err));
+  }, [setAccount]);
 
   const accountData = [
     {
@@ -138,7 +151,6 @@ export default function Root() {
         navigate('/profile');
       },
     },
-    /**
     {
       icon: <LogoutIcon />,
       label: 'Logout',
@@ -147,7 +159,6 @@ export default function Root() {
         navigate('/home');
       },
     },
-    **/
   ];
   const goHome = () => {
     navigate('/home');
@@ -155,18 +166,28 @@ export default function Root() {
 
   const handleEmailInput = async (email: string) => {
     try {
-      const walletPackage: WalletPackage = await window.electron.ipcRenderer.getWalletPackage(email) as WalletPackage;
+      // eslint-disable-next-line @typescript-eslint/no-shadow
+      const walletPackage: WalletPackage =
+        (await window.electron.ipcRenderer.getWalletPackage(
+          email
+        )) as WalletPackage;
       await window.electron.ipcRenderer.saveAccount(walletPackage.account);
       setWalletPackage(walletPackage);
       initDataWithWalletPackage(walletPackage);
       setAccount(walletPackage.account);
     } catch (err: any) {
-      console.error("cannot get wallet package by email:", email, "error:", err.message, err);
+      console.error(
+        'cannot get wallet package by email:',
+        email,
+        'error:',
+        err.message,
+        err
+      );
     }
   };
 
   if (!account) {
-    return (<InputAccountDialog initOpen={true} callback={handleEmailInput} />);
+    return <InputAccountDialog initOpen callback={handleEmailInput} />;
   }
 
   return (
@@ -308,7 +329,8 @@ export default function Root() {
                       }}
                     />
                   </ListItemButton>
-                  {open && walletData &&
+                  {open &&
+                    walletData &&
                     walletData.map((item) => (
                       <ListItemButton
                         key={item.label}

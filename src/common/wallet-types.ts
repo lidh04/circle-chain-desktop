@@ -11,6 +11,9 @@ export const CreateWallet = 'create-wallet';
 export const GetPayPassword = 'get-pay-password';
 export const SetPayPassword = 'set-pay-password';
 
+export const LOGIN_PASSWORD = 'login-password';
+export const LOGIN_VERIFYCODE = 'login-verifycode';
+
 export const SendToChannel = 'send-to';
 
 export type AddressType = 'from' | 'to';
@@ -24,18 +27,18 @@ export type WalletLabelHandler = (address: string, index: number) => string;
 
 export const makeWalletLabel: WalletLabelHandler = (address, index) => {
   const ending = address.substring(address.length - 5);
-  return `wallet ${index+1}(...${ending})`;
-}
+  return `wallet ${index + 1}(...${ending})`;
+};
 
-export type AssetLabelHander = (asset: string, type: string) => string;
-export const makeAssetLabel: AssetLabelHander = (asset, type) => {
+export type AssetLabelHandler = (asset: string, type: string) => string;
+export const makeAssetLabel: AssetLabelHandler = (asset, type) => {
   const heading = asset.substring(0, 8);
   return `${type}/${heading}...`;
-}
+};
 
 export const checkValidAddress = (address: string): boolean => {
   return !!address && address.length === 34;
-}
+};
 
 export interface Asset {
   uuid: string;
@@ -73,28 +76,30 @@ export function addressListOf(walletPackage: WalletPackage) {
 }
 
 export function allBalanceOf(walletPackage: WalletPackage) {
-  return walletPackage.wallets.map((w) => w.balance)
+  return walletPackage.wallets
+    .map((w) => w.balance)
     .reduce((prev, total) => total + prev, 0);
 }
 
 export function identityCount(walletPackage: WalletPackage) {
-  return walletPackage.wallets.map((w) => w.identities.length)
+  return walletPackage.wallets
+    .map((w) => w.identities.length)
     .reduce((prev, total) => total + prev, 0);
 }
 
 export function ownershipCount(walletPackage: WalletPackage) {
-  return walletPackage.wallets.map((w) => w.ownerships.length)
+  return walletPackage.wallets
+    .map((w) => w.ownerships.length)
     .reduce((prev, total) => total + prev, 0);
 }
 
-
 export function validateEmail(inputText: string) {
-  const mailformat = /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)+$/;
-  if (inputText.match(mailformat)) {
+  const mailFormat =
+    /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)+$/;
+  if (inputText.match(mailFormat)) {
     return true;
-  } else {
-    return false;
   }
+  return false;
 }
 
 export function checkPayPassword(payPassword: string) {

@@ -277,6 +277,8 @@ async function initLoad(accountInput: EmailAccount | PhoneAccount) {
 }
 
 function signDataWithPrivateKey(data: Uint8Array, privateKey: Uint8Array) {
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   const sig = new r.Signature({ alg: 'SHA256withECDSA' });
   const prevHex = Buffer.from(privateKey).toString('hex');
   sig.init({ d: prevHex, curve: 'secp256k1' });

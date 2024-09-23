@@ -11,7 +11,7 @@ import LoadingButton from '@mui/lab/LoadingButton';
 import { FC } from 'react';
 import { useForm, SubmitHandler, FormProvider } from 'react-hook-form';
 import { Link } from 'react-router-dom';
-import { literal, object, string, TypeOf } from 'zod';
+import { boolean, object, string, TypeOf } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import styled from '@emotion/styled';
 import FormInput from '../components/FormInput';
@@ -33,7 +33,7 @@ const loginSchema = object({
     .min(1, 'Password is required')
     .min(8, 'Password must be more than 8 characters')
     .max(32, 'Password must be less than 32 characters'),
-  persistUser: literal(true).optional(),
+  persistUser: boolean().optional(),
 });
 
 // 👇 Infer the Schema to get the TS Type
@@ -44,6 +44,7 @@ const LoginPage: FC = () => {
   const defaultValues: ILogin = {
     email: '',
     password: '',
+    persistUser: false,
   };
 
   // 👇 The object returned from useForm Hook
@@ -54,7 +55,7 @@ const LoginPage: FC = () => {
 
   // 👇 Submit Handler
   const onSubmitHandler: SubmitHandler<ILogin> = (values: ILogin) => {
-    console.log(values);
+    console.log('user input:', values, 'isBrowser:', typeof window);
   };
 
   // 👇 JSX to be rendered

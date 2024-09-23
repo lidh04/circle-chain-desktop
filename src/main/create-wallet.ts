@@ -11,17 +11,17 @@ import secp256k1 from 'secp256k1';
 import { PrivateWalletPackage } from './wallet-privacy';
 import { PublicWallet } from '../common/wallet-types';
 
-const PRIV_KEY_LEN = 32;
+const PRIVATE_KEY_LEN = 32;
 export default async function createWallet(): Promise<PublicWallet> {
-  const privateKeyArray = new Uint8Array(PRIV_KEY_LEN);
+  const privateKeyArray = new Uint8Array(PRIVATE_KEY_LEN);
   let verifyOk = false;
   // generate privKey
   while (!verifyOk) {
-    const privKey = randomBytes(PRIV_KEY_LEN);
+    const privKey = randomBytes(PRIVATE_KEY_LEN);
     privKey.forEach((c, index) => {
       privateKeyArray[index] = c;
     });
-    //console.log('private keys: ', privKey.toString('hex'), 'array:', privKey.length);
+    // console.log('private keys: ', privKey.toString('hex'), 'array:', privKey.length);
     try {
       verifyOk = secp256k1.privateKeyVerify(privateKeyArray);
       console.log('private key verify result:', verifyOk);
