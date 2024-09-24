@@ -1,20 +1,13 @@
-import {
-  Container,
-  Grid,
-  Box,
-  Typography,
-  Stack,
-  FormControlLabel,
-  Checkbox,
-} from '@mui/material';
+import { Box, Checkbox, Container, FormControlLabel, Grid, Stack, Typography } from '@mui/material';
 import LoadingButton from '@mui/lab/LoadingButton';
 import { FC } from 'react';
-import { useForm, SubmitHandler, FormProvider } from 'react-hook-form';
+import { FormProvider, SubmitHandler, useForm } from 'react-hook-form';
 import { Link } from 'react-router-dom';
 import { boolean, object, string, TypeOf } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import styled from '@emotion/styled';
 import FormInput from '../components/FormInput';
+import WalletError from '../../common/wallet-error';
 
 // 👇 Styled React Route Dom Link Component
 export const LinkItem = styled(Link)`
@@ -56,6 +49,22 @@ const LoginPage: FC = () => {
   // 👇 Submit Handler
   const onSubmitHandler: SubmitHandler<ILogin> = (values: ILogin) => {
     console.log('user input:', values, 'isBrowser:', typeof window);
+    window.electron.ipcRenderer
+      .loginWitPassword({
+        type: 'email',
+        value: values.email,
+        password: values.password,
+      })
+      .then((result) => {
+        console.log('login result:', result);
+        return true;
+      })
+      .catch((error) => {
+        if (error instanceof WalletError) {
+          const { code, message } = error;
+          console.log('code:', code, 'message:', message);
+        }
+      });
   };
 
   // 👇 JSX to be rendered

@@ -1,20 +1,4 @@
-import { EmailAccount, PhoneAccount } from './account-types';
-
-export type Channels = 'ipc-circle-chain';
-export const IpcChannel = 'ipc-circle-chain';
-export type GetWalletPackageChannel = 'get-wallet-package';
-export const GetWalletPackage = 'get-wallet-package';
-export const ImportWallet = 'import-wallet';
-export const GetEncodedPrivateKey = 'get-encoded-private-key';
-export const SearchTransaction = 'search-transaction';
-export const CreateWallet = 'create-wallet';
-export const GetPayPassword = 'get-pay-password';
-export const SetPayPassword = 'set-pay-password';
-
-export const LOGIN_PASSWORD = 'login-password';
-export const LOGIN_VERIFYCODE = 'login-verifycode';
-
-export const SendToChannel = 'send-to';
+import { Account } from './account-types';
 
 export type AddressType = 'from' | 'to';
 
@@ -67,7 +51,7 @@ export interface PrivatePoem {
 }
 
 export interface WalletPackage {
-  account: EmailAccount | PhoneAccount;
+  account: Account;
   wallets: PublicWallet[];
 }
 

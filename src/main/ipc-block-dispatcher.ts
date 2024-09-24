@@ -1,7 +1,8 @@
 import { ipcMain } from 'electron';
-import { AddressType, SearchTransaction } from '../common/wallet-types';
+import { SearchTransaction } from '../common/wallet-constants';
 import { TxType } from '../common/block-types';
 import { searchTransaction } from './blocks';
+import { AddressType } from '../common/wallet-types';
 
 export default function setUpBlockDispatcher() {
   ipcMain.handle(

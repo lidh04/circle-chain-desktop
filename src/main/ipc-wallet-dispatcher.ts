@@ -5,7 +5,7 @@ import {
   GetWalletPackage,
   ImportWallet,
   SendToChannel
-} from '../common/wallet-types';
+} from '../common/wallet-constants';
 import createWallet from './create-wallet';
 import { EmailAccount } from '../common/account-types';
 import { PrivateWalletPackage } from './wallet-privacy';

@@ -1,5 +1,5 @@
 import { ipcMain } from 'electron';
-import { IpcChannel } from '../common/wallet-types';
+import { IpcChannel } from '../common/wallet-constants';
 import setUpWalletDispatcher from './ipc-wallet-dispatcher';
 import setUpAccountDispatcher from './ipc-account-dispatcher';
 import setUpBlockDispatcher from './ipc-block-dispatcher';

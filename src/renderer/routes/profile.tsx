@@ -2,7 +2,7 @@ import Avatar from '@mui/material/Avatar';
 import * as React from 'react';
 import Stack from '@mui/material/Stack';
 
-import { EmailAccount, PhoneAccount } from '../../common/account-types';
+import { Account } from '../../common/account-types';
 
 function stringToColor(string: string) {
   let hash = 0;
@@ -44,15 +44,18 @@ function stringAvatar(name: string) {
 }
 
 export default function Profile() {
-  const [account, setAccount] = React.useState<EmailAccount | PhoneAccount | null>(null);
+  const [account, setAccount] = React.useState<Account | null>(null);
 
   React.useEffect(() => {
-    window.electron.ipcRenderer.getAccount().then((account) => {
-      console.info("account:", account);
-      setAccount(account);
-    }).catch (err => {
-      console.error("error:", err);
-    });
+    window.electron.ipcRenderer
+      .getAccount()
+      .then((account) => {
+        console.info('account:', account);
+        setAccount(account);
+      })
+      .catch((err) => {
+        console.error('error:', err);
+      });
   }, []);
 
   const getAccountName = () => {
@@ -63,7 +66,7 @@ export default function Profile() {
     if (index !== -1) {
       return account.value.substring(0, index);
     }
-    return "";
+    return '';
   };
   return (
     <Stack
@@ -74,9 +77,9 @@ export default function Profile() {
       spacing={2}
       sx={{ width: '100%', height: 'auto' }}
     >
-      <Avatar {...stringAvatar(account ? account.value : "")} />
+      <Avatar {...stringAvatar(account ? account.value : '')} />
       <h1>{getAccountName()}</h1>
-      <p className="title">{account ? account.value : ""}</p>
+      <p className="title">{account ? account.value : ''}</p>
     </Stack>
   );
 }

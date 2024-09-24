@@ -1,5 +1,5 @@
 import { Outlet, useNavigate } from 'react-router-dom';
-import { styled, ThemeProvider, createTheme } from '@mui/material/styles';
+import { createTheme, styled, ThemeProvider } from '@mui/material/styles';
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import AppRegistrationIcon from '@mui/icons-material/AppRegistration';
@@ -24,10 +24,10 @@ import ReceiptIcon from '@mui/icons-material/Receipt';
 import Settings from '@mui/icons-material/Settings';
 import Tooltip from '@mui/material/Tooltip';
 
-import { PublicWallet, WalletPackage } from 'common/wallet-types';
+import { WalletPackage } from 'common/wallet-types';
 
 import InputAccountDialog from 'renderer/components/InputAccountDialog';
-import { EmailAccount, PhoneAccount } from '../../common/account-types';
+import { Account } from '../../common/account-types';
 
 const FireNav = styled(List)<{ component?: React.ElementType }>({
   '& .MuiListItemButton-root': {
@@ -53,9 +53,7 @@ export default function Root() {
   const [open, setOpen] = React.useState(true);
   const [accountOpen, setAccountOpen] = React.useState(false);
   const [login, setLogin] = React.useState(false);
-  const [account, setAccount] = React.useState<
-    EmailAccount | PhoneAccount | null
-  >(null);
+  const [account, setAccount] = React.useState<Account | null>(null);
   const [walletPackage, setWalletPackage] =
     React.useState<WalletPackage | null>(null);
   const [walletData, setWalletData] = React.useState<WalletSidebar[] | null>(

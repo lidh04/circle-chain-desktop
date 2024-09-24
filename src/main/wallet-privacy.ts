@@ -9,25 +9,17 @@ import { createHash, randomBytes } from 'crypto';
 import secp256k1 from 'secp256k1';
 import r from 'jsrsasign';
 
-import { readFile, writeFile, access, mkdir, chmod } from 'fs/promises';
+import { access, chmod, mkdir, readFile, writeFile } from 'fs/promises';
 import os from 'os';
 import path from 'path';
 import { toBigIntBE, toBufferBE } from 'bigint-buffer';
 
-import { EmailAccount, PhoneAccount } from '../common/account-types';
-import {
-  PrivatePoem,
-  PublicWallet,
-  WalletPackage,
-} from '../common/wallet-types';
+import { Account, EmailAccount, PhoneAccount } from '../common/account-types';
+import { PrivatePoem, PublicWallet, WalletPackage } from '../common/wallet-types';
 import { binaryToBase58 } from '../common/base58/base58';
 import { decrypt, encrypt } from '../common/crypto/crypto';
 import { decode, encode } from '../common/cnradix/cnradix';
-import {
-  AddressSignVO,
-  getWalletAssetsByAddress,
-  uploadUidAndAddress,
-} from './wallet-service';
+import { AddressSignVO, getWalletAssetsByAddress, uploadUidAndAddress } from './wallet-service';
 
 interface PrivateEmailAccount extends EmailAccount {
   securityKey?: string;
@@ -122,7 +114,7 @@ async function exists(path: string) {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-shadow
-function getPrivateKeyPath(account: EmailAccount | PhoneAccount) {
+function getPrivateKeyPath(account: Account) {
   const hash256 = createHash('sha256');
   const { value } = account;
   const data = Buffer.from(`circle-chain-desktop/private/${value}`);
@@ -133,7 +125,7 @@ function getPrivateKeyPath(account: EmailAccount | PhoneAccount) {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-shadow
-function getAccountPath(account: EmailAccount | PhoneAccount): string {
+function getAccountPath(account: Account): string {
   const hash256 = createHash('sha256');
   const data = Buffer.from(`circle-chain-desktop/account/${account.value}`);
   const hash256Str = hash256.update(data).digest('hex');
@@ -205,26 +197,30 @@ async function loadAccount(
   }
 }
 
-async function initLoad(accountInput: EmailAccount | PhoneAccount) {
+async function initLoad(accountInput: Account) {
   const accountPath = getAccountPath(accountInput);
   const existAccount = (await loadAccount(accountPath)) || accountInput;
   if (!account || account.value !== existAccount.value) {
     account = existAccount;
-    if (!account.securityKey) {
+    if (account && !account.securityKey) {
       account.securityKey = randomBytes(32).toString('hex');
     }
-    if (!account.initVector) {
+    if (account && !account.initVector) {
       account.initVector = randomBytes(16).toString('hex');
     }
     await saveAccount();
   }
+  if (!account) {
+    console.error('cannot find the account');
+    return false;
+  }
 
-  if (!account.securityKey || !account.initVector) {
+  if (account && (!account.securityKey || !account.initVector)) {
     throw new Error(
       `securityKey: ${account.securityKey}\ninitVector: ${account.initVector}should all be non empty!`
     );
   }
-  console.log('initLoad account:', account.value);
+  console.log('initLoad account:', account?.value);
   clearPrivateData();
   const pathStr = getPrivateKeyPath(account!);
   try {
@@ -392,7 +388,7 @@ async function uploadAccountInfo() {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-shadow
-function getUid(account: EmailAccount | PhoneAccount) {
+function getUid(account: Account) {
   const valueData = Buffer.from(account.value);
   const uidUint8Array = doubleHash(valueData);
   const uid = Buffer.from(uidUint8Array).toString('hex');
@@ -503,7 +499,7 @@ export const PrivateWalletPackage = {
   decodePrivatePoem,
   getAddressAndPubKey,
   getWalletPackage,
-  getAccount: (): EmailAccount | PhoneAccount | null => {
+  getAccount: (): Account | null => {
     return account ? { type: account.type, value: account.value } : null;
   },
   uploadAccountInfo,
