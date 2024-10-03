@@ -47,24 +47,23 @@ const LoginPage: FC = () => {
   });
 
   // 👇 Submit Handler
-  const onSubmitHandler: SubmitHandler<ILogin> = (values: ILogin) => {
+  const onSubmitHandler: SubmitHandler<ILogin> = async (values: ILogin) => {
     console.log('user input:', values, 'isBrowser:', typeof window);
-    window.electron.ipcRenderer
-      .loginWitPassword({
+    try {
+      const result = await window.electron.ipcRenderer.loginWitPassword({
         type: 'email',
         value: values.email,
         password: values.password,
-      })
-      .then((result) => {
-        console.log('login result:', result);
-        return true;
-      })
-      .catch((error) => {
-        if (error instanceof WalletError) {
-          const { code, message } = error;
-          console.log('code:', code, 'message:', message);
-        }
       });
+      console.log('login result:', result);
+      return result;
+    } catch (error) {
+      if (error instanceof WalletError) {
+        const { code, message } = error;
+        console.log('code:', code, 'message:', message);
+      }
+    }
+    return false;
   };
 
   // 👇 JSX to be rendered

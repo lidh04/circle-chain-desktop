@@ -17,7 +17,6 @@ import {
   SEND_REGISTER_VERIFY_CODE,
   SetPayPassword
 } from '../common/wallet-constants';
-import WalletError from '../common/wallet-error';
 
 let uploaded = false;
 export default function setUpAccountDispatcher() {
@@ -106,8 +105,15 @@ export default function setUpAccountDispatcher() {
       return true;
     }
 
-    console.error('login failure for user:', value);
-    throw new WalletError(status, message);
+    console.error(
+      'login failure for user:',
+      value,
+      'status:',
+      status,
+      'message:',
+      message
+    );
+    return false;
   });
 
   ipcMain.handle(LOGIN_VERIFY_CODE, async (event, account: Account) => {
@@ -119,15 +125,15 @@ export default function setUpAccountDispatcher() {
     }
 
     if (type === 'email') {
-      // response = await wallet.user.login({
-      //   email: value,
-      //   verifyCode,
-      // });
+      response = await wallet.user.login({
+        email: value,
+        verifyCode,
+      });
     } else {
-      // response = await wallet.user.login({
-      //   phone: value,
-      //   verifyCode,
-      // });
+      response = await wallet.user.login({
+        phone: value,
+        verifyCode,
+      });
     }
 
     const { status, message } = response || {};
@@ -136,8 +142,15 @@ export default function setUpAccountDispatcher() {
       return true;
     }
 
-    console.error('login failure for user:', value);
-    throw new WalletError(status, message);
+    console.error(
+      'login failure for user:',
+      value,
+      'status:',
+      status,
+      'message:',
+      message
+    );
+    return false;
   });
 
   ipcMain.handle(
@@ -146,13 +159,13 @@ export default function setUpAccountDispatcher() {
       const { type, value } = input;
       let response;
       if (type === 'email') {
-        // response = await wallet.user.sendVerifyCode({
-        //   email: value,
-        // });
+        response = await wallet.user.sendVerifyCode({
+          email: value,
+        });
       } else {
-        // response = await wallet.user.sendVerifyCode({
-        //   phone: value,
-        // });
+        response = await wallet.user.sendVerifyCode({
+          phone: value,
+        });
       }
       const { status, message } = response || {};
       if (status === 200) {
@@ -160,8 +173,13 @@ export default function setUpAccountDispatcher() {
         return true;
       }
 
-      console.error('send login verify code failure for user:', value);
-      throw new WalletError(status, message);
+      console.error(
+        'send login verify code failure for user:',
+        value,
+        'response:',
+        JSON.stringify(response)
+      );
+      return false;
     }
   );
 
@@ -171,13 +189,13 @@ export default function setUpAccountDispatcher() {
       const { type, value } = input;
       let response;
       if (type === 'email') {
-        // response = await wallet.user.sendVerifyCode({
-        //   email: value,
-        // });
+        response = await wallet.user.sendVerifyCode({
+          email: value,
+        });
       } else {
-        // response = await wallet.user.sendVerifyCode({
-        //   phone: value,
-        // });
+        response = await wallet.user.sendVerifyCode({
+          phone: value,
+        });
       }
       const { status, message } = response || {};
       if (status === 200) {
@@ -185,8 +203,13 @@ export default function setUpAccountDispatcher() {
         return true;
       }
 
-      console.error('send register verify code failure for user:', value);
-      throw new WalletError(status, message);
+      console.error(
+        'send register verify code failure for user:',
+        value,
+        'response:',
+        JSON.stringify(response)
+      );
+      return false;
     }
   );
 
@@ -194,19 +217,19 @@ export default function setUpAccountDispatcher() {
     const { type, value, passwordInput1, passwordInput2, verifyCode } = input;
     let response;
     if (type === 'email') {
-      // response = await wallet.user.register({
-      //   email: value,
-      //   passwordInput1,
-      //   passwordInput2,
-      //   verifyCode,
-      // });
+      response = await wallet.user.register({
+        email: value,
+        passwordInput1,
+        passwordInput2,
+        verifyCode,
+      });
     } else {
-      // response = await wallet.user.register({
-      //   phone: value,
-      //   passwordInput1,
-      //   passwordInput2,
-      //   verifyCode,
-      // });
+      response = await wallet.user.register({
+        phone: value,
+        passwordInput1,
+        passwordInput2,
+        verifyCode,
+      });
     }
     const { status, message } = response || {};
     if (status === 200) {
@@ -214,7 +237,12 @@ export default function setUpAccountDispatcher() {
       return true;
     }
 
-    console.error('send register failure for user:', value);
-    throw new WalletError(status, message);
+    console.error(
+      'send register failure for user:',
+      value,
+      'response:',
+      JSON.stringify(response)
+    );
+    return false;
   });
 }
