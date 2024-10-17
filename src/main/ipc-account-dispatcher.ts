@@ -25,12 +25,7 @@ export default function setUpAccountDispatcher() {
     try {
       const content = await readFile(accountInfoPath, { encoding: 'utf8' });
       const account = JSON.parse(content);
-      console.log(
-        'get account:',
-        account,
-        'in account info path:',
-        accountInfoPath
-      );
+      console.log('get account:', account, 'in account info path:', accountInfoPath);
       if (!uploaded) {
         // async upload account info
         PrivateWalletPackage.uploadAccountInfo()
@@ -60,13 +55,7 @@ export default function setUpAccountDispatcher() {
       await chmod(accountInfoPath, 0o600);
       return true;
     } catch (err: any) {
-      console.error(
-        'cannot write file in path: ',
-        accountInfoPath,
-        'error:',
-        err.message,
-        err
-      );
+      console.error('cannot write file in path: ', accountInfoPath, 'error:', err.message, err);
       return false;
     }
   });
@@ -105,14 +94,7 @@ export default function setUpAccountDispatcher() {
       return true;
     }
 
-    console.error(
-      'login failure for user:',
-      value,
-      'status:',
-      status,
-      'message:',
-      message
-    );
+    console.error('login failure for user:', value, 'status:', status, 'message:', message);
     return false;
   });
 
@@ -142,76 +124,53 @@ export default function setUpAccountDispatcher() {
       return true;
     }
 
-    console.error(
-      'login failure for user:',
-      value,
-      'status:',
-      status,
-      'message:',
-      message
-    );
+    console.error('login failure for user:', value, 'status:', status, 'message:', message);
     return false;
   });
 
-  ipcMain.handle(
-    SEND_LOGIN_VERIFY_CODE,
-    async (event, input: VerifyCodeInput) => {
-      const { type, value } = input;
-      let response;
-      if (type === 'email') {
-        response = await wallet.user.sendVerifyCode({
-          email: value,
-        });
-      } else {
-        response = await wallet.user.sendVerifyCode({
-          phone: value,
-        });
-      }
-      const { status, message } = response || {};
-      if (status === 200) {
-        console.log('send login verify code success for user:', value);
-        return true;
-      }
-
-      console.error(
-        'send login verify code failure for user:',
-        value,
-        'response:',
-        JSON.stringify(response)
-      );
-      return false;
+  ipcMain.handle(SEND_LOGIN_VERIFY_CODE, async (event, input: VerifyCodeInput) => {
+    const { type, value } = input;
+    let response;
+    if (type === 'email') {
+      response = await wallet.user.sendVerifyCode({
+        email: value,
+      });
+    } else {
+      response = await wallet.user.sendVerifyCode({
+        phone: value,
+      });
     }
-  );
-
-  ipcMain.handle(
-    SEND_REGISTER_VERIFY_CODE,
-    async (event, input: VerifyCodeInput) => {
-      const { type, value } = input;
-      let response;
-      if (type === 'email') {
-        response = await wallet.user.sendVerifyCode({
-          email: value,
-        });
-      } else {
-        response = await wallet.user.sendVerifyCode({
-          phone: value,
-        });
-      }
-      const { status, message } = response || {};
-      if (status === 200) {
-        console.log('send register verify code success for user:', value);
-        return true;
-      }
-
-      console.error(
-        'send register verify code failure for user:',
-        value,
-        'response:',
-        JSON.stringify(response)
-      );
-      return false;
+    const { status, message } = response || {};
+    if (status === 200) {
+      console.log('send login verify code success for user:', value);
+      return true;
     }
-  );
+
+    console.error('send login verify code failure for user:', value, 'response:', JSON.stringify(response));
+    return false;
+  });
+
+  ipcMain.handle(SEND_REGISTER_VERIFY_CODE, async (event, input: VerifyCodeInput) => {
+    const { type, value } = input;
+    let response;
+    if (type === 'email') {
+      response = await wallet.user.sendRegisterVerifyCode({
+        email: value,
+      });
+    } else {
+      response = await wallet.user.sendRegisterVerifyCode({
+        phone: value,
+      });
+    }
+    const { status, message } = response || {};
+    if (status === 200) {
+      console.log('send register verify code success for user:', value);
+      return true;
+    }
+
+    console.error('send register verify code failure for user:', value, 'response:', JSON.stringify(response));
+    return false;
+  });
 
   ipcMain.handle(REGISTER, async (event, input: RegisterInput) => {
     const { type, value, passwordInput1, passwordInput2, verifyCode } = input;
@@ -237,12 +196,7 @@ export default function setUpAccountDispatcher() {
       return true;
     }
 
-    console.error(
-      'send register failure for user:',
-      value,
-      'response:',
-      JSON.stringify(response)
-    );
+    console.error('send register failure for user:', value, 'response:', JSON.stringify(response));
     return false;
   });
 }
