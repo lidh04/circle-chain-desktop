@@ -1,5 +1,6 @@
 export type Channels = 'ipc-circle-chain';
 export const IpcChannel = 'ipc-circle-chain';
+export const RELOAD = 'reload';
 // wallet constants
 export const GetWalletPackage = 'get-wallet-package';
 export const ImportWallet = 'import-wallet';
@@ -34,139 +35,139 @@ export const Errors: Error[] = [
   },
   {
     code: 400,
-    msg: 'parameter error',
+    msg: 'Parameter error',
   },
   {
     code: 404,
-    msg: 'not found',
+    msg: 'Not found',
   },
   {
     code: 406,
-    msg: 'request invalid',
+    msg: 'Request invalid',
   },
   {
     code: 500,
-    msg: 'system error',
+    msg: 'System error',
   },
   {
     code: 10000,
-    msg: 'not enough balance',
+    msg: 'Not enough balance',
   },
   {
     code: 10001,
-    msg: 'transaction not exists',
+    msg: 'Transaction not exists',
   },
   {
     code: 10002,
-    msg: 'two spent transactions',
+    msg: 'Two spent transactions',
   },
   {
     code: 10003,
-    msg: 'data already exists',
+    msg: 'Data already exists',
   },
   {
     code: 10004,
-    msg: 'already broadcast',
+    msg: 'Already broadcast',
   },
   {
     code: 11000,
-    msg: 'invalid node',
+    msg: 'Invalid node',
   },
   {
     code: 11001,
-    msg: 'invalid address',
+    msg: 'Invalid address',
   },
   {
     code: 11002,
-    msg: 'exceed cloud wallets limit',
+    msg: 'Exceed cloud wallets limit',
   },
   {
     code: 20000,
-    msg: 'user not logged in',
+    msg: 'User not logged in',
   },
   {
     code: 20001,
-    msg: 'username or password incorrect',
+    msg: 'Username or password incorrect',
   },
   {
     code: 20002,
-    msg: 'user token expired',
+    msg: 'User token expired',
   },
   {
     code: 20003,
-    msg: 'username empty',
+    msg: 'Username empty',
   },
   {
     code: 20004,
-    msg: 'user already exists',
+    msg: 'User already exists',
   },
   {
     code: 20005,
-    msg: 'username or password incorrect',
+    msg: 'Username or password incorrect',
   },
   {
     code: 20006,
-    msg: 'verify code wrong',
+    msg: 'Verify code wrong',
   },
   {
     code: 20007,
-    msg: 'two passwords are not the same',
+    msg: 'Two passwords are not the same',
   },
   {
     code: 20008,
-    msg: 'password length must be larger or equal than 6 and less than 64!',
+    msg: 'Password length must be larger or equal than 6 and less than 64!',
   },
   {
     code: 20009,
-    msg: 'verify code not exists',
+    msg: 'Verify code not exists',
   },
   {
     code: 20010,
-    msg: 'verify code expired',
+    msg: 'Verify code expired',
   },
   {
     code: 20011,
-    msg: 'password length must be larger or equal than 6 and less than 64!',
+    msg: 'Password length must be larger or equal than 6 and less than 64!',
   },
   {
     code: 20012,
-    msg: 'password is not strong enough, it must contains digits, lower and upper case chars, special chars and the length must be no less than 8.',
+    msg: 'Password is not strong enough, it must contains digits, lower and upper case chars, special chars and the length must be no less than 8.',
   },
   {
     code: 20013,
-    msg: 'account is frozen, because of illegal actions',
+    msg: 'Account is frozen, because of illegal actions',
   },
   {
     code: 20014,
-    msg: 'user already deleted, no register any more.',
+    msg: 'User already deleted, no register any more.',
   },
   {
     code: 20015,
-    msg: 'you logged failed for more than 5 times continuously, you are frozen, please try tomorrow.',
+    msg: 'You logged failed for more than 5 times continuously, you are frozen, please try tomorrow.',
   },
   {
     code: 20016,
-    msg: 'you logged failed with the same password more times, please try tomorrow.',
+    msg: 'You logged failed with the same password more times, please try tomorrow.',
   },
   {
     code: 20017,
-    msg: 'user not exists',
+    msg: 'User not exists',
   },
   {
     code: 20018,
-    msg: 'user pay password wrong.',
+    msg: 'User pay password wrong.',
   },
   {
     code: 20019,
-    msg: 'pay password not set.',
+    msg: 'Pay password not set.',
   },
   {
     code: 20020,
-    msg: 'you reset password with verify code failed for many times, please try tomorrow.',
+    msg: 'You reset password with verify code failed for many times, please try tomorrow.',
   },
   {
     code: 30000,
-    msg: 'you click too fast.',
+    msg: 'You click too fast.',
   },
   {
     code: 40000,
@@ -174,11 +175,11 @@ export const Errors: Error[] = [
   },
   {
     code: 40001,
-    msg: 'miner machine not exists.',
+    msg: 'Miner machine not exists.',
   },
   {
     code: 40002,
-    msg: 'miner machine already sold.',
+    msg: 'Miner machine already sold.',
   },
 ];
 
