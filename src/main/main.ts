@@ -17,8 +17,6 @@ class AppUpdater {
   }
 }
 
-setUpIPCMainDispatchers();
-
 let mainWindow: BrowserWindow | null = null;
 app.setName(APP_NAME);
 if (process.env.NODE_ENV === 'production') {
@@ -26,23 +24,16 @@ if (process.env.NODE_ENV === 'production') {
   const sourceMapSupport = require('source-map-support');
   sourceMapSupport.install();
   // init electron store file
-  console.log(
-    'init host circle-node.net for store json file:',
-    `${app.getPath('userData')}/config.json`
-  );
+  console.log('init host circle-node.net for store json file:', `${app.getPath('userData')}/config.json`);
   const store = new Store();
   store.set('host', 'https://circle-node.net');
 } else {
   const store = new Store();
   store.set('host', 'http://localhost:8888');
-  console.log(
-    'init host localhost for store json file:',
-    `${app.getPath('userData')}/config.json`
-  );
+  console.log('init host localhost for store json file:', `${app.getPath('userData')}/config.json`);
 }
 
-const isDebug =
-  process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true';
+const isDebug = process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true';
 
 if (isDebug) {
   // eslint-disable-next-line global-require
@@ -82,9 +73,7 @@ const createWindow = async () => {
     height: 728,
     icon: getAssetPath('icon.png'),
     webPreferences: {
-      preload: app.isPackaged
-        ? path.join(__dirname, 'preload.js')
-        : path.join(__dirname, '../../.erb/dll/preload.js'),
+      preload: app.isPackaged ? path.join(__dirname, 'preload.js') : path.join(__dirname, '../../.erb/dll/preload.js'),
     },
   });
   // mainWindow.setResizable(false);
@@ -114,7 +103,7 @@ const createWindow = async () => {
     shell.openExternal(edata.url);
     return { action: 'deny' };
   });
-
+  setUpIPCMainDispatchers(mainWindow);
   // Remove this if your app does not use auto updates
   // eslint-disable-next-line
   new AppUpdater();

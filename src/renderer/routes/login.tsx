@@ -2,7 +2,7 @@ import { Box, Checkbox, Container, FormControlLabel, Grid, Stack, Typography } f
 import LoadingButton from '@mui/lab/LoadingButton';
 import { FC, useState } from 'react';
 import { FormProvider, SubmitHandler, useForm } from 'react-hook-form';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { boolean, object, string, TypeOf } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import styled from '@emotion/styled';
@@ -35,7 +35,6 @@ type ILogin = TypeOf<typeof loginSchema>;
 
 const LoginPage: FC = () => {
   const [loginError, setLoginError] = useState('');
-  const navigate = useNavigate();
 
   // 👇 Default Values
   const defaultValues: ILogin = {
@@ -61,7 +60,7 @@ const LoginPage: FC = () => {
       });
       console.log('login result:', result);
       if (result === 200) {
-        navigate('/home');
+        window.electron.ipcRenderer.reload();
       } else {
         const message = buildMessageFromCode(result);
         setLoginError(message);
@@ -148,6 +147,14 @@ const LoginPage: FC = () => {
                       }
                     />
 
+                    {loginError && (
+                      <Grid container justifyContent="center" rowSpacing={2}>
+                        <Typography sx={{ fontSize: '0.9rem', mt: '1rem', mb: '1rem', color: 'red' }}>
+                          {loginError}
+                        </Typography>
+                      </Grid>
+                    )}
+
                     <LoadingButton
                       loading={false}
                       type="submit"
@@ -164,11 +171,6 @@ const LoginPage: FC = () => {
                   </Box>
                 </Grid>
               </Grid>
-              {loginError && (
-                <Grid container justifyContent="center">
-                  <Typography sx={{ fontSize: '0.9rem', mb: '1rem', color: 'red' }}>{loginError}</Typography>
-                </Grid>
-              )}
 
               <Grid container justifyContent="center">
                 <Stack sx={{ mt: '3rem', textAlign: 'center' }}>

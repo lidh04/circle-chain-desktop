@@ -13,6 +13,7 @@ import {
   LOGIN_VERIFY_CODE,
   LOGOUT,
   REGISTER,
+  RELOAD,
   SaveAccount,
   SearchTransaction,
   SEND_LOGIN_VERIFY_CODE,
@@ -37,19 +38,8 @@ const electronHandler = {
     importWallet(keywords: string) {
       return ipcRenderer.invoke(ImportWallet, keywords);
     },
-    searchTransaction(
-      address: string,
-      addressType: AddressType,
-      txType?: TxType,
-      uuid?: string
-    ) {
-      return ipcRenderer.invoke(
-        SearchTransaction,
-        address,
-        addressType,
-        txType,
-        uuid
-      );
+    searchTransaction(address: string, addressType: AddressType, txType?: TxType, uuid?: string) {
+      return ipcRenderer.invoke(SearchTransaction, address, addressType, txType, uuid);
     },
     getEncodedPrivateKey(address: string) {
       return ipcRenderer.invoke(GetEncodedPrivateKey, address);
@@ -84,25 +74,14 @@ const electronHandler = {
     logout() {
       return ipcRenderer.invoke(LOGOUT);
     },
-    sendTo(
-      from: string,
-      toEmail: string,
-      assetType: TxType,
-      value: number | string,
-      payPassword: string
-    ) {
-      return ipcRenderer.invoke(
-        SendToChannel,
-        from,
-        toEmail,
-        assetType,
-        value,
-        payPassword
-      );
+    reload() {
+      return ipcRenderer.send(RELOAD, RELOAD);
+    },
+    sendTo(from: string, toEmail: string, assetType: TxType, value: number | string, payPassword: string) {
+      return ipcRenderer.invoke(SendToChannel, from, toEmail, assetType, value, payPassword);
     },
     on(channel: Channels, func: (...args: unknown[]) => void) {
-      const subscription = (_event: IpcRendererEvent, ...args: unknown[]) =>
-        func(...args);
+      const subscription = (_event: IpcRendererEvent, ...args: unknown[]) => func(...args);
       ipcRenderer.on(channel, subscription);
 
       return () => {

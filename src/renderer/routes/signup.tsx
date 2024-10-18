@@ -5,12 +5,11 @@ import React, { FC, useEffect } from 'react';
 import { FormProvider, SubmitHandler, useForm } from 'react-hook-form';
 import { object, string, TypeOf } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { buildMessageFromCode } from 'common/wallet-constants';
 import FormInput from '../components/FormInput';
 import { LinkItem } from './login';
 import WalletError from '../../common/wallet-error';
 import { WalletPackage } from '../../common/wallet-types';
-import { useNavigate } from 'react-router-dom';
-import { buildMessageFromCode } from 'common/wallet-constants';
 
 // 👇 SignUp Schema with Zod
 const signupSchema = object({
@@ -43,8 +42,6 @@ const SignupPage: FC = () => {
   const [startTimer, setStartTimer] = React.useState(false);
   const [verifyCodeError, setVerifyCodeError] = React.useState('');
   const [registerError, setRegisterError] = React.useState('');
-
-  const navigate = useNavigate();
 
   // 👇 Default Values
   const defaultValues: ISignUp = {
@@ -87,7 +84,7 @@ const SignupPage: FC = () => {
           values.email
         )) as WalletPackage;
         await window.electron.ipcRenderer.saveAccount(walletPackage.account);
-        navigate('/home');
+        window.electron.ipcRenderer.reload();
       } else {
         const message = buildMessageFromCode(result);
         setRegisterError(message);
@@ -236,6 +233,13 @@ const SignupPage: FC = () => {
                         )}
                       </Grid>
                     </Grid>
+                    {registerError && (
+                      <Grid container justifyContent="center" rowSpacing={2}>
+                        <Typography sx={{ fontSize: '0.9rem', mt: '1rem', mb: '1rem', color: 'red' }}>
+                          {registerError}
+                        </Typography>
+                      </Grid>
+                    )}
 
                     <LoadingButton
                       loading={false}
@@ -253,11 +257,6 @@ const SignupPage: FC = () => {
                   </Box>
                 </Grid>
               </Grid>
-              {registerError && (
-                <Grid container justifyContent="center">
-                  <Typography sx={{ fontSize: '0.9rem', mb: '1rem', color: 'red' }}>{registerError}</Typography>
-                </Grid>
-              )}
 
               <Grid container justifyContent="center">
                 <Stack sx={{ mt: '3rem', textAlign: 'center' }}>
