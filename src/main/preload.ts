@@ -11,6 +11,7 @@ import {
   ImportWallet,
   LOGIN_PASSWORD,
   LOGIN_VERIFY_CODE,
+  LOGOUT,
   REGISTER,
   SaveAccount,
   SearchTransaction,
@@ -79,6 +80,9 @@ const electronHandler = {
     },
     sendRegisterVerifyCode(input: VerifyCodeInput) {
       return ipcRenderer.invoke(SEND_REGISTER_VERIFY_CODE, input);
+    },
+    logout() {
+      return ipcRenderer.invoke(LOGOUT);
     },
     sendTo(
       from: string,

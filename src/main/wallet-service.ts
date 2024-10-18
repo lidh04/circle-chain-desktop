@@ -20,9 +20,7 @@ export type AddressSignVO = {
   signData: string;
 };
 
-export async function getWalletAssetsByAddress(
-  address: string
-): Promise<Partial<PublicWallet>> {
+export async function getWalletAssetsByAddress(address: string): Promise<Partial<PublicWallet>> {
   // eslint-disable-next-line @typescript-eslint/no-use-before-define
   const ownerships = (await getAssetsOfAddress(address, 1)) as Ownership[];
   // eslint-disable-next-line @typescript-eslint/no-use-before-define
@@ -57,30 +55,17 @@ async function getBalance(address: string): Promise<BalanceVO> {
         balanceVO.confirmed = json.data.confirmed as number;
         balanceVO.unconfirmed = json.data.unconfirmed as number;
       } else {
-        console.error(
-          'not get balance for url:',
-          url,
-          'status:',
-          response.status
-        );
+        console.error('not get balance for url:', url, 'status:', response.status);
       }
     }
   } catch (err: any) {
-    console.error(
-      `fetch balance from url: ${url}, error`,
-      err.name,
-      err.message,
-      err
-    );
+    console.error(`fetch balance from url: ${url}, error`, err.name, err.message, err);
   }
 
   return balanceVO;
 }
 
-async function getAssetsOfAddress(
-  address: string,
-  type: number
-): Promise<Identity[] | Ownership[]> {
+async function getAssetsOfAddress(address: string, type: number): Promise<Identity[] | Ownership[]> {
   const host = store_get('host');
   const url = `${host}/wallet/public/v1/get-assets-of-address?address=${address}&type=${type}`;
   try {
@@ -113,10 +98,7 @@ async function getAssetsOfAddress(
   return [];
 }
 
-export async function uploadUidAndAddress(
-  uid: string,
-  addresses: AddressSignVO[]
-) {
+export async function uploadUidAndAddress(uid: string, addresses: AddressSignVO[]) {
   const host = store_get('host');
   const url = `${host}/wallet/public/v1/upload-uid-and-address`;
   const data = {
@@ -132,29 +114,11 @@ export async function uploadUidAndAddress(
     console.info('post url:', url, 'data:', data, 'status:', response.status);
     if (response.status === 200) {
       const json = response.data as { status: number };
-      console.info(
-        'post url:',
-        url,
-        'data:',
-        data,
-        'status:',
-        response.status,
-        'return data:',
-        response.data
-      );
+      console.info('post url:', url, 'data:', data, 'status:', response.status, 'return data:', response.data);
       return json.status === 200;
     }
   } catch (err: any) {
-    console.error(
-      'post url:',
-      url,
-      'data:',
-      data,
-      'error:',
-      err.name,
-      err.message,
-      err
-    );
+    console.error('post url:', url, 'data:', data, 'error:', err.name, err.message, err);
   }
   return false;
 }

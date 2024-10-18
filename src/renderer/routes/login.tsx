@@ -1,13 +1,14 @@
 import { Box, Checkbox, Container, FormControlLabel, Grid, Stack, Typography } from '@mui/material';
 import LoadingButton from '@mui/lab/LoadingButton';
-import { FC } from 'react';
+import { FC, useState } from 'react';
 import { FormProvider, SubmitHandler, useForm } from 'react-hook-form';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { boolean, object, string, TypeOf } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import styled from '@emotion/styled';
 import FormInput from '../components/FormInput';
 import WalletError from '../../common/wallet-error';
+import { buildMessageFromCode } from '../../common/wallet-constants';
 
 // 👇 Styled React Route Dom Link Component
 export const LinkItem = styled(Link)`
@@ -33,6 +34,9 @@ const loginSchema = object({
 type ILogin = TypeOf<typeof loginSchema>;
 
 const LoginPage: FC = () => {
+  const [loginError, setLoginError] = useState('');
+  const navigate = useNavigate();
+
   // 👇 Default Values
   const defaultValues: ILogin = {
     email: '',
@@ -56,6 +60,13 @@ const LoginPage: FC = () => {
         password: values.password,
       });
       console.log('login result:', result);
+      if (result === 200) {
+        navigate('/home');
+      } else {
+        const message = buildMessageFromCode(result);
+        setLoginError(message);
+      }
+
       return result;
     } catch (error) {
       if (error instanceof WalletError) {
@@ -69,12 +80,7 @@ const LoginPage: FC = () => {
   // 👇 JSX to be rendered
   return (
     <Container maxWidth="sm" sx={{ height: '100vh', maxWidth: '560px' }}>
-      <Grid
-        container
-        justifyContent="center"
-        alignItems="center"
-        sx={{ width: '100%', height: 'auto' }}
-      >
+      <Grid container justifyContent="center" alignItems="center" sx={{ width: '100%', height: 'auto' }}>
         <Grid item sx={{ maxWidth: '45rem', width: '100%' }}>
           <Typography
             variant="h4"
@@ -117,35 +123,16 @@ const LoginPage: FC = () => {
                     sx={{ paddingRight: { sm: '3rem' } }}
                     onSubmit={methods.handleSubmit(onSubmitHandler)}
                   >
-                    <Typography
-                      variant="h6"
-                      component="h1"
-                      sx={{ textAlign: 'center', mb: '1.5rem' }}
-                    >
+                    <Typography variant="h6" component="h1" sx={{ textAlign: 'center', mb: '1.5rem' }}>
                       LOG INTO YOUR ACCOUNT
                     </Typography>
 
-                    <FormInput
-                      label="Enter your email"
-                      type="email"
-                      name="email"
-                      required
-                    />
-                    <FormInput
-                      type="password"
-                      label="Password"
-                      name="password"
-                      required
-                    />
+                    <FormInput label="Enter your email" type="email" name="email" required />
+                    <FormInput type="password" label="Password" name="password" required />
 
                     <FormControlLabel
                       control={
-                        <Checkbox
-                          size="small"
-                          aria-label="remember me"
-                          required
-                          {...methods.register('persistUser')}
-                        />
+                        <Checkbox size="small" aria-label="remember me" required {...methods.register('persistUser')} />
                       }
                       label={
                         <Typography
@@ -177,15 +164,19 @@ const LoginPage: FC = () => {
                   </Box>
                 </Grid>
               </Grid>
+              {loginError && (
+                <Grid container justifyContent="center">
+                  <Typography sx={{ fontSize: '0.9rem', mb: '1rem', color: 'red' }}>{loginError}</Typography>
+                </Grid>
+              )}
+
               <Grid container justifyContent="center">
                 <Stack sx={{ mt: '3rem', textAlign: 'center' }}>
                   <Typography sx={{ fontSize: '0.9rem', mb: '1rem' }}>
-                    Need an account?{' '}
-                    <LinkItem to="/signup">Sign up here</LinkItem>
+                    Need an account? <LinkItem to="/signup">Sign up here</LinkItem>
                   </Typography>
                   <Typography sx={{ fontSize: '0.9rem' }}>
-                    Forgot your{' '}
-                    <LinkItem to="/forgot-password">password?</LinkItem>
+                    Forgot your <LinkItem to="/forgot-password">password?</LinkItem>
                   </Typography>
                 </Stack>
               </Grid>

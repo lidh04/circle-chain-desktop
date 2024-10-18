@@ -11,6 +11,7 @@ import {
   GetPayPassword,
   LOGIN_PASSWORD,
   LOGIN_VERIFY_CODE,
+  LOGOUT,
   REGISTER,
   SaveAccount,
   SEND_LOGIN_VERIFY_CODE,
@@ -24,21 +25,28 @@ export default function setUpAccountDispatcher() {
     const accountInfoPath = getAccountInfoPath();
     try {
       const content = await readFile(accountInfoPath, { encoding: 'utf8' });
-      const account = JSON.parse(content);
-      console.log('get account:', account, 'in account info path:', accountInfoPath);
-      if (!uploaded) {
-        // async upload account info
-        PrivateWalletPackage.uploadAccountInfo()
-          .then((r) => {
-            console.log('upload account info result:', r);
-            uploaded = r;
-            return uploaded;
-          })
-          .catch((err) => console.error('upload account info error:', err));
-      } else {
-        console.log('account info already uploaded');
+      const account = JSON.parse(content) as Account;
+      const response = await wallet.user.userInfo();
+      const { status, data } = response;
+      if (status === 200 && data && data.userId) {
+        console.log('get account:', account, 'in account info path:', accountInfoPath);
+        if (!uploaded) {
+          // async upload account info
+          PrivateWalletPackage.uploadAccountInfo()
+            .then((r) => {
+              console.log('upload account info result:', r);
+              uploaded = r;
+              return uploaded;
+            })
+            .catch((err) => console.error('upload account info error:', err));
+        } else {
+          console.log('account info already uploaded');
+        }
+
+        return account;
       }
-      return account;
+
+      return null;
     } catch (err: any) {
       console.warn('get file error:', err.message, err);
       return null;
@@ -73,7 +81,7 @@ export default function setUpAccountDispatcher() {
     let response;
     if (!password) {
       console.error('password is empty');
-      return false;
+      return 401;
     }
 
     if (type === 'email') {
@@ -91,11 +99,11 @@ export default function setUpAccountDispatcher() {
     const { status, message } = response || {};
     if (status === 200) {
       console.log('login success for user:', value);
-      return true;
+      return status;
     }
 
     console.error('login failure for user:', value, 'status:', status, 'message:', message);
-    return false;
+    return status;
   });
 
   ipcMain.handle(LOGIN_VERIFY_CODE, async (event, account: Account) => {
@@ -103,7 +111,7 @@ export default function setUpAccountDispatcher() {
     let response;
     if (!verifyCode) {
       console.error('verifyCode is empty for login verify code api');
-      return false;
+      return 401;
     }
 
     if (type === 'email') {
@@ -121,11 +129,11 @@ export default function setUpAccountDispatcher() {
     const { status, message } = response || {};
     if (status === 200) {
       console.log('login success for user:', value);
-      return true;
+      return status;
     }
 
     console.error('login failure for user:', value, 'status:', status, 'message:', message);
-    return false;
+    return status;
   });
 
   ipcMain.handle(SEND_LOGIN_VERIFY_CODE, async (event, input: VerifyCodeInput) => {
@@ -140,14 +148,14 @@ export default function setUpAccountDispatcher() {
         phone: value,
       });
     }
-    const { status, message } = response || {};
+    const { status } = response || {};
     if (status === 200) {
       console.log('send login verify code success for user:', value);
-      return true;
+      return status;
     }
 
     console.error('send login verify code failure for user:', value, 'response:', JSON.stringify(response));
-    return false;
+    return status;
   });
 
   ipcMain.handle(SEND_REGISTER_VERIFY_CODE, async (event, input: VerifyCodeInput) => {
@@ -162,14 +170,14 @@ export default function setUpAccountDispatcher() {
         phone: value,
       });
     }
-    const { status, message } = response || {};
+    const { status } = response || {};
     if (status === 200) {
       console.log('send register verify code success for user:', value);
-      return true;
+      return status;
     }
 
     console.error('send register verify code failure for user:', value, 'response:', JSON.stringify(response));
-    return false;
+    return status;
   });
 
   ipcMain.handle(REGISTER, async (event, input: RegisterInput) => {
@@ -190,13 +198,25 @@ export default function setUpAccountDispatcher() {
         verifyCode,
       });
     }
-    const { status, message } = response || {};
+    const { status } = response || {};
     if (status === 200) {
       console.log('send register success for user:', value);
-      return true;
+      return status;
     }
 
     console.error('send register failure for user:', value, 'response:', JSON.stringify(response));
-    return false;
+    return status;
+  });
+
+  ipcMain.handle(LOGOUT, async (event) => {
+    const response = await wallet.user.logout();
+    const { status } = response;
+    if (status === 200) {
+      console.log('logout success!');
+      return status;
+    }
+
+    console.error('logout failure response:', JSON.stringify(response));
+    return status;
   });
 }

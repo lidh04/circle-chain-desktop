@@ -46,14 +46,7 @@ function decodePrivatePoem(poem: string | PrivatePoem): Uint8Array {
     poemContent = poemContent.replaceAll(nonCharRegExp, '');
   }
   const value = decode(poemContent);
-  console.log(
-    'keywords raw:',
-    poem,
-    'trimed content:',
-    poemContent,
-    'value:',
-    value
-  );
+  console.log('keywords raw:', poem, 'trimed content:', poemContent, 'value:', value);
   const buf = toBufferBE(value, 32);
   return buf;
 }
@@ -157,10 +150,7 @@ async function saveAccount() {
     await chmod(accountPath, 0o600);
     return true;
   } catch (err: any) {
-    console.error(
-      `cannot save account: ${JSON.stringify(account)}, error: ${err.message}`,
-      err
-    );
+    console.error(`cannot save account: ${JSON.stringify(account)}, error: ${err.message}`, err);
     return false;
   }
 }
@@ -179,9 +169,7 @@ function clearPrivateData() {
   keyMap = {};
 }
 
-async function loadAccount(
-  accountPath: string
-): Promise<PrivateEmailAccount | PrivatePhoneAccount | null> {
+async function loadAccount(accountPath: string): Promise<PrivateEmailAccount | PrivatePhoneAccount | null> {
   if (!(await exists(accountPath))) {
     console.warn(`not exist path: ${path}`);
     return null;
@@ -216,20 +204,14 @@ async function initLoad(accountInput: Account) {
   }
 
   if (account && (!account.securityKey || !account.initVector)) {
-    throw new Error(
-      `securityKey: ${account.securityKey}\ninitVector: ${account.initVector}should all be non empty!`
-    );
+    throw new Error(`securityKey: ${account.securityKey}\ninitVector: ${account.initVector}should all be non empty!`);
   }
   console.log('initLoad account:', account?.value);
   clearPrivateData();
   const pathStr = getPrivateKeyPath(account!);
   try {
     if (!(await exists(pathStr))) {
-      console.log(
-        `path: ${pathStr} not exists for account: ${JSON.stringify(
-          accountInput
-        )}`
-      );
+      console.log(`path: ${pathStr} not exists for account: ${JSON.stringify(accountInput)}`);
       return false;
     }
 
@@ -241,11 +223,7 @@ async function initLoad(accountInput: Account) {
     const content = decrypt(securityKey, initVector, rawContent);
     const arr = JSON.parse(content) as Array<string>;
     const privKeys = arr.map((item) => Buffer.from(item, 'hex'));
-    console.info(
-      'read from the private key file, there are ',
-      privKeys.length,
-      'items'
-    );
+    console.info('read from the private key file, there are ', privKeys.length, 'items');
     // eslint-disable-next-line no-restricted-syntax
     for (const privKey of privKeys) {
       const uint8array = new Uint8Array(privKey.length);
@@ -258,13 +236,7 @@ async function initLoad(accountInput: Account) {
     return true;
   } catch (err: unknown) {
     if (err instanceof Error) {
-      console.error(
-        'cannot read content for path:',
-        pathStr,
-        'error:',
-        err.message,
-        err
-      );
+      console.error('cannot read content for path:', pathStr, 'error:', err.message, err);
     } else {
       console.error('cannot read content for path:', pathStr, 'error:', err);
     }
@@ -301,11 +273,7 @@ function getAddressAndPubKey(privateKey: Uint8Array): [string, Uint8Array] {
 
   const payloadBuffer = Buffer.concat([leaderBuffer, hashBuffer]);
   const checkSumBuffer = Buffer.from(checksum(payloadBuffer));
-  const addressBuffer = Buffer.concat([
-    leaderBuffer,
-    hashBuffer,
-    checkSumBuffer,
-  ]);
+  const addressBuffer = Buffer.concat([leaderBuffer, hashBuffer, checkSumBuffer]);
   const address = binaryToBase58(addressBuffer);
   return [address, pubKey];
 }
@@ -336,9 +304,7 @@ function addPrivateKey(privateKey: Uint8Array): [string, Uint8Array] {
   return [address, pubKey];
 }
 
-async function addPrivateKeyAndSave(
-  privateKey: Uint8Array
-): Promise<[string, Uint8Array]> {
+async function addPrivateKeyAndSave(privateKey: Uint8Array): Promise<[string, Uint8Array]> {
   if (!account) {
     throw new Error('account is not intialized!');
   }
@@ -398,18 +364,14 @@ function getUid(account: Account) {
 // eslint-disable-next-line @typescript-eslint/no-shadow
 async function save(account: PrivateEmailAccount | PrivatePhoneAccount) {
   if (!account.securityKey || !account.initVector) {
-    throw new Error(
-      'cannot save private info securityKey and initVector are not inited!'
-    );
+    throw new Error('cannot save private info securityKey and initVector are not inited!');
   }
   const pathStr = getPrivateKeyPath(account);
   if (!(await exists(pathStr))) {
     const dirName = path.dirname(pathStr);
     await mkdir(dirName, { recursive: true });
   }
-  const arr = privateKeys.map((privKey) =>
-    Buffer.from(privKey).toString('hex')
-  );
+  const arr = privateKeys.map((privKey) => Buffer.from(privKey).toString('hex'));
   if (arr.length > 0) {
     const content = JSON.stringify(arr);
     const securityKey = Buffer.from(account.securityKey, 'hex');
@@ -422,9 +384,7 @@ async function save(account: PrivateEmailAccount | PrivatePhoneAccount) {
 
 async function getWalletPackage(): Promise<WalletPackage> {
   if (!account) {
-    throw new Error(
-      'cannot get WalletPackage because account is not intialized!'
-    );
+    throw new Error('cannot get WalletPackage because account is not intialized!');
   }
 
   const promises = privateKeys.map(async (pk) => {
@@ -510,8 +470,7 @@ export const PrivateWalletPackage = {
     }
     return account.payPassword ? account.payPassword : '';
   },
-  getEncodedPrivateKey: (address: string): PrivatePoem | null =>
-    keyMap[address] ? keyMap[address] : null,
+  getEncodedPrivateKey: (address: string): PrivatePoem | null => (keyMap[address] ? keyMap[address] : null),
   getPublicKey,
   signData,
   signString,

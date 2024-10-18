@@ -8,6 +8,9 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import FormInput from '../components/FormInput';
 import { LinkItem } from './login';
 import WalletError from '../../common/wallet-error';
+import { WalletPackage } from '../../common/wallet-types';
+import { useNavigate } from 'react-router-dom';
+import { buildMessageFromCode } from 'common/wallet-constants';
 
 // 👇 SignUp Schema with Zod
 const signupSchema = object({
@@ -38,7 +41,11 @@ const SignupPage: FC = () => {
   const [sendLabel, setSendLabel] = React.useState('Send');
   const [timeoutValue, setTimeoutValue] = React.useState(30);
   const [startTimer, setStartTimer] = React.useState(false);
+  const [verifyCodeError, setVerifyCodeError] = React.useState('');
   const [registerError, setRegisterError] = React.useState('');
+
+  const navigate = useNavigate();
+
   // 👇 Default Values
   const defaultValues: ISignUp = {
     email: '',
@@ -58,12 +65,12 @@ const SignupPage: FC = () => {
     console.log(JSON.stringify(values, null, 4));
     if (!values.verifyCode) {
       console.error('verify code should not be empty!');
-      setRegisterError('verify code empty!');
+      setVerifyCodeError('verify code empty!');
       return false;
     }
     if (values.verifyCode.length !== 6) {
       console.error('verify code should be 6 digits');
-      setRegisterError('verify code should be 6 digits');
+      setVerifyCodeError('verify code should be 6 digits');
       return false;
     }
     try {
@@ -75,6 +82,16 @@ const SignupPage: FC = () => {
         verifyCode: values.verifyCode || '',
       });
       console.log('register result:', result);
+      if (result === 200) {
+        const walletPackage: WalletPackage = (await window.electron.ipcRenderer.getWalletPackage(
+          values.email
+        )) as WalletPackage;
+        await window.electron.ipcRenderer.saveAccount(walletPackage.account);
+        navigate('/home');
+      } else {
+        const message = buildMessageFromCode(result);
+        setRegisterError(message);
+      }
       return result;
     } catch (error) {
       if (error instanceof WalletError) {
@@ -182,18 +199,18 @@ const SignupPage: FC = () => {
                     <FormInput label="Confirm your password" type="password" name="password2" required />
                     <Grid container spacing={2}>
                       <Grid item xs={8}>
-                        {registerError && (
+                        {verifyCodeError && (
                           <FormInput
                             label="Enter your verifyCode"
                             type="text"
                             name="verifyCode"
                             fullWidth
                             error
-                            helperText={registerError}
+                            helperText={verifyCodeError}
                             required
                           />
                         )}
-                        {!registerError && (
+                        {!verifyCodeError && (
                           <FormInput label="Enter your verifyCode" type="text" name="verifyCode" fullWidth required />
                         )}
                       </Grid>
@@ -236,6 +253,12 @@ const SignupPage: FC = () => {
                   </Box>
                 </Grid>
               </Grid>
+              {registerError && (
+                <Grid container justifyContent="center">
+                  <Typography sx={{ fontSize: '0.9rem', mb: '1rem', color: 'red' }}>{registerError}</Typography>
+                </Grid>
+              )}
+
               <Grid container justifyContent="center">
                 <Stack sx={{ mt: '3rem', textAlign: 'center' }}>
                   <Typography sx={{ fontSize: '0.9rem', mb: '1rem' }}>

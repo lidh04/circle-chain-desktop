@@ -29,6 +29,7 @@ function stringAvatar(name: string) {
   const first = items[0][0];
   let second = '';
   if (items.length > 1) {
+    // eslint-disable-next-line prefer-destructuring
     second = items[1][0];
   }
 
@@ -49,9 +50,9 @@ export default function Profile() {
   React.useEffect(() => {
     window.electron.ipcRenderer
       .getAccount()
-      .then((account) => {
-        console.info('account:', account);
-        setAccount(account);
+      .then((acc) => {
+        console.info('account:', acc);
+        setAccount(acc);
       })
       .catch((err) => {
         console.error('error:', err);

@@ -25,8 +25,6 @@ import Settings from '@mui/icons-material/Settings';
 import Tooltip from '@mui/material/Tooltip';
 
 import { WalletPackage } from 'common/wallet-types';
-
-import InputAccountDialog from 'renderer/components/InputAccountDialog';
 import { Account } from '../../common/account-types';
 
 const FireNav = styled(List)<{ component?: React.ElementType }>({
@@ -54,11 +52,8 @@ export default function Root() {
   const [accountOpen, setAccountOpen] = React.useState(false);
   const [login, setLogin] = React.useState(false);
   const [account, setAccount] = React.useState<Account | null>(null);
-  const [walletPackage, setWalletPackage] =
-    React.useState<WalletPackage | null>(null);
-  const [walletData, setWalletData] = React.useState<WalletSidebar[] | null>(
-    null
-  );
+  const [walletPackage, setWalletPackage] = React.useState<WalletPackage | null>(null);
+  const [walletData, setWalletData] = React.useState<WalletSidebar[] | null>(null);
   const navigate = useNavigate();
 
   const initDataWithWalletPackage = (wp: WalletPackage) => {
@@ -107,8 +102,10 @@ export default function Root() {
       .then((account) => {
         setAccount(account);
         if (account) {
+          setLogin(true);
           return window.electron.ipcRenderer.getWalletPackage(account.value);
         }
+        setLogin(false);
         return false;
       })
       .then((result) => {
@@ -123,13 +120,12 @@ export default function Root() {
       .catch((err) => console.error(err));
   }, [setAccount]);
 
-  const accountData = [
+  const unLoggedAccountData = [
     {
       icon: <LoginIcon />,
       label: 'Login',
       handleClick: () => {
         navigate('/signin');
-        // setLogin(true);
       },
     },
     {
@@ -137,11 +133,10 @@ export default function Root() {
       label: 'Signup',
       handleClick: () => {
         navigate('/signup');
-        // setLogin(true);
       },
     },
   ];
-  const loginAccountData = [
+  const loggedAccountData = [
     {
       icon: <People />,
       label: 'Profile',
@@ -152,9 +147,18 @@ export default function Root() {
     {
       icon: <LogoutIcon />,
       label: 'Logout',
-      handleClick: () => {
-        setLogin(false);
-        navigate('/home');
+      handleClick: async () => {
+        try {
+          const result = await window.electron.ipcRenderer.logout();
+          if (result) {
+            setLogin(false);
+            navigate('/home');
+          }
+          return result;
+        } catch (err) {
+          console.error('cannot logout:', err);
+          return false;
+        }
       },
     },
   ];
@@ -165,28 +169,19 @@ export default function Root() {
   const handleEmailInput = async (email: string) => {
     try {
       // eslint-disable-next-line @typescript-eslint/no-shadow
-      const walletPackage: WalletPackage =
-        (await window.electron.ipcRenderer.getWalletPackage(
-          email
-        )) as WalletPackage;
+      const walletPackage: WalletPackage = (await window.electron.ipcRenderer.getWalletPackage(email)) as WalletPackage;
       await window.electron.ipcRenderer.saveAccount(walletPackage.account);
       setWalletPackage(walletPackage);
       initDataWithWalletPackage(walletPackage);
       setAccount(walletPackage.account);
     } catch (err: any) {
-      console.error(
-        'cannot get wallet package by email:',
-        email,
-        'error:',
-        err.message,
-        err
-      );
+      console.error('cannot get wallet package by email:', email, 'error:', err.message, err);
     }
   };
 
-  if (!account) {
-    return <InputAccountDialog initOpen callback={handleEmailInput} />;
-  }
+  // if (!account) {
+  //   return <InputAccountDialog initOpen callback={handleEmailInput} />;
+  // }
 
   return (
     <div className="root" style={{ display: 'flex', width: '100%' }}>
@@ -275,9 +270,7 @@ export default function Root() {
                       }}
                     >
                       <Settings />
-                      <ArrowRight
-                        sx={{ position: 'absolute', right: 4, opacity: 0 }}
-                      />
+                      <ArrowRight sx={{ position: 'absolute', right: 4, opacity: 0 }} />
                     </IconButton>
                   </Tooltip>
                 </ListItem>
@@ -339,9 +332,7 @@ export default function Root() {
                         }}
                         onClick={item.handleClick}
                       >
-                        <ListItemIcon sx={{ color: 'inherit' }}>
-                          {item.icon}
-                        </ListItemIcon>
+                        <ListItemIcon sx={{ color: 'inherit' }}>{item.icon}</ListItemIcon>
                         <ListItemText
                           primary={item.label}
                           primaryTypographyProps={{
@@ -378,9 +369,7 @@ export default function Root() {
                         noWrap: true,
                         fontSize: 12,
                         lineHeight: '16px',
-                        color: accountOpen
-                          ? 'rgba(0,0,0,0)'
-                          : 'rgba(255,255,255,0.5)',
+                        color: accountOpen ? 'rgba(0,0,0,0)' : 'rgba(255,255,255,0.5)',
                       }}
                       sx={{ my: 0 }}
                     />
@@ -388,16 +377,14 @@ export default function Root() {
                       sx={{
                         mr: -1,
                         opacity: 0,
-                        transform: accountOpen
-                          ? 'rotate(-180deg)'
-                          : 'rotate(0)',
+                        transform: accountOpen ? 'rotate(-180deg)' : 'rotate(0)',
                         transition: '0.2s',
                       }}
                     />
                   </ListItemButton>
                   {accountOpen &&
                     !login &&
-                    accountData.map((item) => (
+                    unLoggedAccountData.map((item) => (
                       <ListItemButton
                         key={item.label}
                         sx={{
@@ -407,9 +394,7 @@ export default function Root() {
                         }}
                         onClick={item.handleClick}
                       >
-                        <ListItemIcon sx={{ color: 'inherit' }}>
-                          {item.icon}
-                        </ListItemIcon>
+                        <ListItemIcon sx={{ color: 'inherit' }}>{item.icon}</ListItemIcon>
                         <ListItemText
                           primary={item.label}
                           primaryTypographyProps={{
@@ -421,7 +406,7 @@ export default function Root() {
                     ))}
                   {accountOpen &&
                     login &&
-                    loginAccountData.map((item) => (
+                    loggedAccountData.map((item) => (
                       <ListItemButton
                         key={item.label}
                         sx={{
@@ -431,9 +416,7 @@ export default function Root() {
                         }}
                         onClick={item.handleClick}
                       >
-                        <ListItemIcon sx={{ color: 'inherit' }}>
-                          {item.icon}
-                        </ListItemIcon>
+                        <ListItemIcon sx={{ color: 'inherit' }}>{item.icon}</ListItemIcon>
                         <ListItemText
                           primary={item.label}
                           primaryTypographyProps={{
