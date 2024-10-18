@@ -3,11 +3,9 @@ import { createTheme, styled, ThemeProvider } from '@mui/material/styles';
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import AppRegistrationIcon from '@mui/icons-material/AppRegistration';
-import ArrowRight from '@mui/icons-material/ArrowRight';
 import Box from '@mui/material/Box';
 import Divider from '@mui/material/Divider';
 import Home from '@mui/icons-material/Home';
-import IconButton from '@mui/material/IconButton';
 import KeyboardArrowDown from '@mui/icons-material/KeyboardArrowDown';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
@@ -21,8 +19,6 @@ import Paper from '@mui/material/Paper';
 import People from '@mui/icons-material/People';
 import * as React from 'react';
 import ReceiptIcon from '@mui/icons-material/Receipt';
-import Settings from '@mui/icons-material/Settings';
-import Tooltip from '@mui/material/Tooltip';
 
 import { WalletPackage } from 'common/wallet-types';
 import { Account } from '../../common/account-types';
@@ -239,40 +235,40 @@ export default function Root() {
                       }}
                     />
                   </ListItemButton>
-                  <Tooltip title="Settings">
-                    <IconButton
-                      size="large"
-                      sx={{
-                        '& svg': {
-                          color: 'rgba(255,255,255,0.8)',
-                          transition: '0.2s',
-                          transform: 'translateX(0) rotate(0)',
-                        },
-                        '&:hover, &:focus': {
-                          bgcolor: 'unset',
-                          '& svg:first-of-type': {
-                            transform: 'translateX(-4px) rotate(-20deg)',
-                          },
-                          '& svg:last-of-type': {
-                            right: 0,
-                            opacity: 1,
-                          },
-                        },
-                        '&:after': {
-                          content: '""',
-                          position: 'absolute',
-                          height: '80%',
-                          display: 'block',
-                          left: 0,
-                          width: '1px',
-                          bgcolor: 'divider',
-                        },
-                      }}
-                    >
-                      <Settings />
-                      <ArrowRight sx={{ position: 'absolute', right: 4, opacity: 0 }} />
-                    </IconButton>
-                  </Tooltip>
+                  {/* <Tooltip title="Settings"> */}
+                  {/*   <IconButton */}
+                  {/*     size="large" */}
+                  {/*     sx={{ */}
+                  {/*       '& svg': { */}
+                  {/*         color: 'rgba(255,255,255,0.8)', */}
+                  {/*         transition: '0.2s', */}
+                  {/*         transform: 'translateX(0) rotate(0)', */}
+                  {/*       }, */}
+                  {/*       '&:hover, &:focus': { */}
+                  {/*         bgcolor: 'unset', */}
+                  {/*         '& svg:first-of-type': { */}
+                  {/*           transform: 'translateX(-4px) rotate(-20deg)', */}
+                  {/*         }, */}
+                  {/*         '& svg:last-of-type': { */}
+                  {/*           right: 0, */}
+                  {/*           opacity: 1, */}
+                  {/*         }, */}
+                  {/*       }, */}
+                  {/*       '&:after': { */}
+                  {/*         content: '""', */}
+                  {/*         position: 'absolute', */}
+                  {/*         height: '80%', */}
+                  {/*         display: 'block', */}
+                  {/*         left: 0, */}
+                  {/*         width: '1px', */}
+                  {/*         bgcolor: 'divider', */}
+                  {/*       }, */}
+                  {/*     }} */}
+                  {/*   > */}
+                  {/*     <Settings /> */}
+                  {/*     <ArrowRight sx={{ position: 'absolute', right: 4, opacity: 0 }} /> */}
+                  {/*   </IconButton> */}
+                  {/* </Tooltip> */}
                 </ListItem>
                 <Divider />
                 <Box
