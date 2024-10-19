@@ -1,3 +1,5 @@
+import { AccountPO } from '@lidh04/circle-chain-sdk/dist/cjs/circle-user';
+
 /**
  * @fileOverview
  * @name account-types.ts
@@ -32,6 +34,13 @@ export interface PhoneAccount {
 export interface VerifyCodeInput {
   type: 'email' | 'phone';
   value: string;
+}
+
+export interface ResetPasswordInput {
+  account: AccountPO;
+  verifyCode: string;
+  password1: string;
+  password2: string;
 }
 
 export interface RegisterInput {

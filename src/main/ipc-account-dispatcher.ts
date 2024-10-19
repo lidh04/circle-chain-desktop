@@ -3,7 +3,7 @@ import { chmod, mkdir, readFile, writeFile } from 'fs/promises';
 import path from 'path';
 import wallet from '@lidh04/circle-chain-sdk';
 // @ts-ignore
-import { Account, RegisterInput, VerifyCodeInput } from '../common/account-types';
+import { Account, RegisterInput, ResetPasswordInput, VerifyCodeInput } from '../common/account-types';
 import { getAccountInfoPath } from '../common/acount';
 import { PrivateWalletPackage } from './wallet-privacy';
 import {
@@ -13,9 +13,11 @@ import {
   LOGIN_VERIFY_CODE,
   LOGOUT,
   REGISTER,
+  RESET_PASSWORD,
   SaveAccount,
   SEND_LOGIN_VERIFY_CODE,
   SEND_REGISTER_VERIFY_CODE,
+  SEND_RESET_PASSWORD_VERIFY_CODE,
   SetPayPassword
 } from '../common/wallet-constants';
 
@@ -74,6 +76,40 @@ export default function setUpAccountDispatcher() {
 
   ipcMain.handle(SetPayPassword, async (event, payPassword: string) => {
     await PrivateWalletPackage.setPayPassword(payPassword);
+  });
+
+  ipcMain.handle(SEND_RESET_PASSWORD_VERIFY_CODE, async (event, input: VerifyCodeInput) => {
+    const { type, value } = input;
+    let response;
+    if (type === 'email') {
+      response = await wallet.user.sendResetPasswordVerifyCode({
+        email: value,
+      });
+    } else {
+      response = await wallet.user.sendResetPasswordVerifyCode({
+        phone: value,
+      });
+    }
+    const { status } = response || {};
+    if (status === 200) {
+      console.log('send reset password verify code success for user:', value);
+      return status;
+    }
+
+    console.error('send reset password verify code failure for user:', value, 'response:', JSON.stringify(response));
+    return status;
+  });
+
+  ipcMain.handle(RESET_PASSWORD, async (event, input: ResetPasswordInput) => {
+    const response = await wallet.user.resetPassword(input);
+    const { status, message } = response || {};
+    if (status === 200) {
+      console.log('reset password success for user:', input.account);
+      return status;
+    }
+
+    console.error('reset password failure for user:', input.account, 'status:', status, 'message:', message);
+    return status;
   });
 
   ipcMain.handle(LOGIN_PASSWORD, async (event, account: Account) => {

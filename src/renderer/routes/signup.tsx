@@ -38,7 +38,7 @@ type IVerifyCode = TypeOf<typeof verifyCodeSchema>;
 
 const SignupPage: FC = () => {
   const [sendLabel, setSendLabel] = React.useState('Send');
-  const [timeoutValue, setTimeoutValue] = React.useState(30);
+  const [timeoutValue, setTimeoutValue] = React.useState(300);
   const [startTimer, setStartTimer] = React.useState(false);
   const [verifyCodeError, setVerifyCodeError] = React.useState('');
   const [registerError, setRegisterError] = React.useState('');
@@ -93,6 +93,7 @@ const SignupPage: FC = () => {
     } catch (error) {
       if (error instanceof WalletError) {
         const { code, message } = error;
+        setRegisterError(message);
         console.log('code:', code, 'message:', message);
       }
     }
@@ -102,17 +103,23 @@ const SignupPage: FC = () => {
   const handleSendVerifyCode: SubmitHandler<ISignUp> = async (values: ISignUp) => {
     console.log('send register verify code...');
     if (!startTimer) {
-      setStartTimer(true);
       try {
         const result = await window.electron.ipcRenderer.sendRegisterVerifyCode({
           type: 'email',
           value: values.email,
         });
         console.log('send register verify code result:', result);
+        if (result !== 200) {
+          const message = buildMessageFromCode(result);
+          setRegisterError(message);
+        } else {
+          setStartTimer(true);
+        }
         return result;
       } catch (error) {
         if (error instanceof WalletError) {
           const { code, message } = error;
+          setRegisterError(message);
           console.log('code:', code, 'message:', message);
         }
       }

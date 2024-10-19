@@ -20,6 +20,8 @@ export const LOGIN_VERIFY_CODE = 'login-verify-code';
 export const SEND_LOGIN_VERIFY_CODE = 'send-login-verify-code';
 export const REGISTER = 'register';
 export const SEND_REGISTER_VERIFY_CODE = 'send-register-verify-code';
+export const SEND_RESET_PASSWORD_VERIFY_CODE = 'send-reset-very-code';
+export const RESET_PASSWORD = 'reset-password';
 export const GetPayPassword = 'get-pay-password';
 export const SetPayPassword = 'set-pay-password';
 

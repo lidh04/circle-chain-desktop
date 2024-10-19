@@ -9,6 +9,7 @@ import styled from '@emotion/styled';
 import FormInput from '../components/FormInput';
 import WalletError from '../../common/wallet-error';
 import { buildMessageFromCode } from '../../common/wallet-constants';
+import { WalletPackage } from '../../common/wallet-types';
 
 // 👇 Styled React Route Dom Link Component
 export const LinkItem = styled(Link)`
@@ -60,6 +61,10 @@ const LoginPage: FC = () => {
       });
       console.log('login result:', result);
       if (result === 200) {
+        const walletPackage: WalletPackage = (await window.electron.ipcRenderer.getWalletPackage(
+          values.email
+        )) as WalletPackage;
+        await window.electron.ipcRenderer.saveAccount(walletPackage.account);
         window.electron.ipcRenderer.reload();
       } else {
         const message = buildMessageFromCode(result);
@@ -178,7 +183,7 @@ const LoginPage: FC = () => {
                     Need an account? <LinkItem to="/signup">Sign up here</LinkItem>
                   </Typography>
                   <Typography sx={{ fontSize: '0.9rem' }}>
-                    Forgot your <LinkItem to="/forgot-password">password?</LinkItem>
+                    <LinkItem to="/forgot-password">Forgot your Password?</LinkItem>
                   </Typography>
                 </Stack>
               </Grid>

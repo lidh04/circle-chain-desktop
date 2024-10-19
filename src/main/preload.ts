@@ -1,5 +1,5 @@
 import { contextBridge, ipcRenderer, IpcRendererEvent } from 'electron';
-import { Account, RegisterInput, VerifyCodeInput } from '../common/account-types';
+import { Account, RegisterInput, ResetPasswordInput, VerifyCodeInput } from '../common/account-types';
 
 import {
   Channels,
@@ -14,10 +14,12 @@ import {
   LOGOUT,
   REGISTER,
   RELOAD,
+  RESET_PASSWORD,
   SaveAccount,
   SearchTransaction,
   SEND_LOGIN_VERIFY_CODE,
   SEND_REGISTER_VERIFY_CODE,
+  SEND_RESET_PASSWORD_VERIFY_CODE,
   SendToChannel,
   SetPayPassword
 } from '../common/wallet-constants';
@@ -70,6 +72,12 @@ const electronHandler = {
     },
     sendRegisterVerifyCode(input: VerifyCodeInput) {
       return ipcRenderer.invoke(SEND_REGISTER_VERIFY_CODE, input);
+    },
+    sendResetPasswordVerifyCode(input: VerifyCodeInput) {
+      return ipcRenderer.invoke(SEND_RESET_PASSWORD_VERIFY_CODE, input);
+    },
+    resetPassword(input: ResetPasswordInput) {
+      return ipcRenderer.invoke(RESET_PASSWORD, input);
     },
     logout() {
       return ipcRenderer.invoke(LOGOUT);
