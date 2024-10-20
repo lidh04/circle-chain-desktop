@@ -285,9 +285,9 @@ function addPrivateKey(privateKey: Uint8Array): [string, Uint8Array] {
     return [address, pubKey];
   }
 
-  if (privateKeys.length >= 3) {
-    throw new Error('you cannot create wallet more than 3!');
-  }
+  // if (privateKeys.length >= 3) {
+  //   throw new Error('you cannot create wallet more than 3!');
+  // }
 
   privateKeys.push(privateKey);
   const privatePoem = makePrivatePoem(privateKey);

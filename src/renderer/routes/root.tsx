@@ -85,9 +85,9 @@ export default function Root() {
         },
       },
     ];
-    if (wallets && wallets.length >= 3) {
-      walletDataArray.splice(0, 1);
-    }
+    // if (wallets && wallets.length >= 3) {
+    //   walletDataArray.splice(0, 1);
+    // }
     setWalletData(walletDataArray);
   };
   React.useEffect(() => {
