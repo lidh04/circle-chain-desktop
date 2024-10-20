@@ -31,8 +31,10 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
+import AddCircleIcon from '@mui/icons-material/AddCircle';
 import QRCode from 'qrcode';
 
+import Divider from '@mui/material/Divider';
 import {
   AutocompleteOption,
   makeWalletLabel,
@@ -41,7 +43,6 @@ import {
   WalletPackage
 } from '../../common/wallet-types';
 import CircleDialog from '../components/CircleDialog';
-import Divider from '@mui/material/Divider';
 
 interface Column {
   id: 'address' | 'balance' | 'identity' | 'ownership' | 'operation' | 'keywords';
@@ -299,6 +300,7 @@ export default function WalletInfo() {
   const [allBalance, setAllBalance] = React.useState(0);
   const [identityCnt, setIdentityCnt] = React.useState(0);
   const [ownershipCnt, setOwnershipCnt] = React.useState(0);
+  const [walletCnt, setWalletCnt] = React.useState(0);
 
   const navigate = useNavigate();
 
@@ -308,12 +310,19 @@ export default function WalletInfo() {
       const totalRows = result.wallets.map((wallet: PublicWallet) =>
         createData(wallet.address, wallet.balance, wallet.identities.length, wallet.ownerships.length)
       );
-      const balanceTotal = result.wallets.map((wallet) => wallet.balance).reduce((total, balance) => total + balance, 0);
+      const balanceTotal = result.wallets
+        .map((wallet) => wallet.balance)
+        .reduce((total, balance) => total + balance, 0);
       setAllBalance(balanceTotal);
-      const identityTotal = result.wallets.map((wallet) => wallet.identities.length).reduce((total, identity) => total + identity, 0);
+      const identityTotal = result.wallets
+        .map((wallet) => wallet.identities.length)
+        .reduce((total, identity) => total + identity, 0);
       setIdentityCnt(identityTotal);
-      const ownershipsTotal = result.wallets.map((wallet) => wallet.ownerships.length).reduce((total, ownership) => total + ownership, 0);
+      const ownershipsTotal = result.wallets
+        .map((wallet) => wallet.ownerships.length)
+        .reduce((total, ownership) => total + ownership, 0);
       setOwnershipCnt(ownershipsTotal);
+      setWalletCnt(result.wallets.length);
       setSearchedRows(totalRows);
       setRows(totalRows);
       setAddresses(
@@ -407,7 +416,7 @@ export default function WalletInfo() {
   return (
     <Paper sx={{ width: '100%', overflow: 'hidden' }}>
       <Typography variant="h4" component="h1" sx={{ textAlign: 'center', mb: '1rem', mt: '1rem' }}>
-        Wallet Balance
+        Wallet Information
       </Typography>
       <Grid container spacing={2} sx={{ mb: '2rem', mt: '1rem', padding: '0.3rem 1rem' }}>
         <Grid item xs={2}>
@@ -439,6 +448,31 @@ export default function WalletInfo() {
           <Typography variant="h6" component="h2" sx={{ textAlign: 'left', mb: '0.5rem', mt: '0.5rem' }}>
             {identityCnt}
           </Typography>
+        </Grid>
+
+        <Grid item xs={2}>
+          <Typography variant="h6" component="h2" sx={{ textAlign: 'right', mb: '0.5rem', mt: '0.5rem' }}>
+            Wallets
+          </Typography>
+        </Grid>
+        <Grid item xs={3}>
+          <Typography variant="h6" component="h2" sx={{ textAlign: 'left', mb: '0.5rem', mt: '0.5rem' }}>
+            {walletCnt}
+          </Typography>
+        </Grid>
+        <Grid item xs={1}>
+          <IconButton
+            color="primary"
+            aria-label="create new wallet"
+            onClick={() => {
+              navigate('/create-wallet');
+            }}
+          >
+            <AddCircleIcon />
+          </IconButton>
+        </Grid>
+        <Grid item xs={1}>
+          <Typography />
         </Grid>
       </Grid>
       <Divider />
@@ -489,7 +523,7 @@ export default function WalletInfo() {
           </Button>
         </Grid>
       </Grid>
-      <TableContainer sx={{ maxHeight: 540 }}>
+      <TableContainer sx={{ maxHeight: 420 }}>
         <Table stickyHeader aria-label="sticky table">
           <TableHead>
             <TableRow>

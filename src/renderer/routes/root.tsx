@@ -1,7 +1,6 @@
 import { Outlet, useNavigate } from 'react-router-dom';
 import { createTheme, styled, ThemeProvider } from '@mui/material/styles';
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
-import AddCircleIcon from '@mui/icons-material/AddCircle';
 import AppRegistrationIcon from '@mui/icons-material/AppRegistration';
 import Box from '@mui/material/Box';
 import Divider from '@mui/material/Divider';
@@ -56,16 +55,16 @@ export default function Root() {
     setWalletPackage(wp);
     const { wallets } = wp;
     const walletDataArray: WalletSidebar[] = [
-      {
-        icon: <AddCircleIcon />,
-        label: 'Create',
-        handleClick: () => {
-          navigate('/create-wallet');
-        },
-      },
+      // {
+      //   icon: <AddCircleIcon />,
+      //   label: 'Create',
+      //   handleClick: () => {
+      //     navigate('/create-wallet');
+      //   },
+      // },
       {
         icon: <AccountBalanceWalletIcon />,
-        label: 'Balance',
+        label: 'Wallet',
         handleClick: () => {
           navigate('/wallet-info');
         },
