@@ -1,13 +1,11 @@
 import { Outlet, useNavigate } from 'react-router-dom';
-import { styled, ThemeProvider, createTheme } from '@mui/material/styles';
+import { createTheme, styled, ThemeProvider } from '@mui/material/styles';
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import AppRegistrationIcon from '@mui/icons-material/AppRegistration';
-import ArrowRight from '@mui/icons-material/ArrowRight';
 import Box from '@mui/material/Box';
 import Divider from '@mui/material/Divider';
 import Home from '@mui/icons-material/Home';
-import IconButton from '@mui/material/IconButton';
 import KeyboardArrowDown from '@mui/icons-material/KeyboardArrowDown';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
@@ -21,13 +19,9 @@ import Paper from '@mui/material/Paper';
 import People from '@mui/icons-material/People';
 import * as React from 'react';
 import ReceiptIcon from '@mui/icons-material/Receipt';
-import Settings from '@mui/icons-material/Settings';
-import Tooltip from '@mui/material/Tooltip';
 
-import { PublicWallet, WalletPackage } from 'common/wallet-types';
-
-import { EmailAccount, PhoneAccount } from '../../common/account-types';
-import InputAccountDialog from 'renderer/components/InputAccountDialog';
+import { WalletPackage } from 'common/wallet-types';
+import { Account } from '../../common/account-types';
 
 const FireNav = styled(List)<{ component?: React.ElementType }>({
   '& .MuiListItemButton-root': {
@@ -52,15 +46,15 @@ type WalletSidebar = {
 export default function Root() {
   const [open, setOpen] = React.useState(true);
   const [accountOpen, setAccountOpen] = React.useState(false);
-  const [login, setLogin] = React.useState(true);
-  const [account, setAccount] = React.useState<EmailAccount | PhoneAccount | null>(null);
+  const [login, setLogin] = React.useState(false);
+  const [account, setAccount] = React.useState<Account | null>(null);
   const [walletPackage, setWalletPackage] = React.useState<WalletPackage | null>(null);
   const [walletData, setWalletData] = React.useState<WalletSidebar[] | null>(null);
   const navigate = useNavigate();
 
   const initDataWithWalletPackage = (wp: WalletPackage) => {
     setWalletPackage(wp);
-    const wallets: PublicWallet[] = wp.wallets;
+    const { wallets } = wp;
     const walletDataArray: WalletSidebar[] = [
       {
         icon: <AddCircleIcon />,
@@ -97,28 +91,37 @@ export default function Root() {
     setWalletData(walletDataArray);
   };
   React.useEffect(() => {
-    window.electron.ipcRenderer.getAccount().then((account) => {
-      setAccount(account);
-      if (account) {
-        return window.electron.ipcRenderer.getWalletPackage(account.value);
-      }
-      return Promise.resolve(null);
-    }).then((result) => {
-      console.log("root page walletPackage:", result);
-      if (result) {
-        const wp: WalletPackage = result as WalletPackage;
-        initDataWithWalletPackage(wp)
-      }
-    }).catch((err) => console.error(err));
-  }, []);
+    // eslint-disable-next-line @typescript-eslint/no-shadow
+    window.electron.ipcRenderer
+      .getAccount()
+      // eslint-disable-next-line @typescript-eslint/no-shadow
+      .then((account) => {
+        setAccount(account);
+        if (account) {
+          setLogin(true);
+          return window.electron.ipcRenderer.getWalletPackage(account.value);
+        }
+        setLogin(false);
+        return false;
+      })
+      .then((result) => {
+        console.log('root page walletPackage:', result);
+        if (result) {
+          const wp: WalletPackage = result as WalletPackage;
+          initDataWithWalletPackage(wp);
+          return true;
+        }
+        return false;
+      })
+      .catch((err) => console.error(err));
+  }, [setAccount]);
 
-  const accountData = [
+  const unLoggedAccountData = [
     {
       icon: <LoginIcon />,
       label: 'Login',
       handleClick: () => {
         navigate('/signin');
-        // setLogin(true);
       },
     },
     {
@@ -126,11 +129,10 @@ export default function Root() {
       label: 'Signup',
       handleClick: () => {
         navigate('/signup');
-        // setLogin(true);
       },
     },
   ];
-  const loginAccountData = [
+  const loggedAccountData = [
     {
       icon: <People />,
       label: 'Profile',
@@ -138,16 +140,23 @@ export default function Root() {
         navigate('/profile');
       },
     },
-    /**
     {
       icon: <LogoutIcon />,
       label: 'Logout',
-      handleClick: () => {
-        setLogin(false);
-        navigate('/home');
+      handleClick: async () => {
+        try {
+          const result = await window.electron.ipcRenderer.logout();
+          if (result) {
+            setLogin(false);
+            navigate('/home');
+          }
+          return result;
+        } catch (err) {
+          console.error('cannot logout:', err);
+          return false;
+        }
       },
     },
-    **/
   ];
   const goHome = () => {
     navigate('/home');
@@ -155,19 +164,20 @@ export default function Root() {
 
   const handleEmailInput = async (email: string) => {
     try {
-      const walletPackage: WalletPackage = await window.electron.ipcRenderer.getWalletPackage(email) as WalletPackage;
+      // eslint-disable-next-line @typescript-eslint/no-shadow
+      const walletPackage: WalletPackage = (await window.electron.ipcRenderer.getWalletPackage(email)) as WalletPackage;
       await window.electron.ipcRenderer.saveAccount(walletPackage.account);
       setWalletPackage(walletPackage);
       initDataWithWalletPackage(walletPackage);
       setAccount(walletPackage.account);
     } catch (err: any) {
-      console.error("cannot get wallet package by email:", email, "error:", err.message, err);
+      console.error('cannot get wallet package by email:', email, 'error:', err.message, err);
     }
   };
 
-  if (!account) {
-    return (<InputAccountDialog initOpen={true} callback={handleEmailInput} />);
-  }
+  // if (!account) {
+  //   return <InputAccountDialog initOpen callback={handleEmailInput} />;
+  // }
 
   return (
     <div className="root" style={{ display: 'flex', width: '100%' }}>
@@ -225,42 +235,40 @@ export default function Root() {
                       }}
                     />
                   </ListItemButton>
-                  <Tooltip title="Settings">
-                    <IconButton
-                      size="large"
-                      sx={{
-                        '& svg': {
-                          color: 'rgba(255,255,255,0.8)',
-                          transition: '0.2s',
-                          transform: 'translateX(0) rotate(0)',
-                        },
-                        '&:hover, &:focus': {
-                          bgcolor: 'unset',
-                          '& svg:first-of-type': {
-                            transform: 'translateX(-4px) rotate(-20deg)',
-                          },
-                          '& svg:last-of-type': {
-                            right: 0,
-                            opacity: 1,
-                          },
-                        },
-                        '&:after': {
-                          content: '""',
-                          position: 'absolute',
-                          height: '80%',
-                          display: 'block',
-                          left: 0,
-                          width: '1px',
-                          bgcolor: 'divider',
-                        },
-                      }}
-                    >
-                      <Settings />
-                      <ArrowRight
-                        sx={{ position: 'absolute', right: 4, opacity: 0 }}
-                      />
-                    </IconButton>
-                  </Tooltip>
+                  {/* <Tooltip title="Settings"> */}
+                  {/*   <IconButton */}
+                  {/*     size="large" */}
+                  {/*     sx={{ */}
+                  {/*       '& svg': { */}
+                  {/*         color: 'rgba(255,255,255,0.8)', */}
+                  {/*         transition: '0.2s', */}
+                  {/*         transform: 'translateX(0) rotate(0)', */}
+                  {/*       }, */}
+                  {/*       '&:hover, &:focus': { */}
+                  {/*         bgcolor: 'unset', */}
+                  {/*         '& svg:first-of-type': { */}
+                  {/*           transform: 'translateX(-4px) rotate(-20deg)', */}
+                  {/*         }, */}
+                  {/*         '& svg:last-of-type': { */}
+                  {/*           right: 0, */}
+                  {/*           opacity: 1, */}
+                  {/*         }, */}
+                  {/*       }, */}
+                  {/*       '&:after': { */}
+                  {/*         content: '""', */}
+                  {/*         position: 'absolute', */}
+                  {/*         height: '80%', */}
+                  {/*         display: 'block', */}
+                  {/*         left: 0, */}
+                  {/*         width: '1px', */}
+                  {/*         bgcolor: 'divider', */}
+                  {/*       }, */}
+                  {/*     }} */}
+                  {/*   > */}
+                  {/*     <Settings /> */}
+                  {/*     <ArrowRight sx={{ position: 'absolute', right: 4, opacity: 0 }} /> */}
+                  {/*   </IconButton> */}
+                  {/* </Tooltip> */}
                 </ListItem>
                 <Divider />
                 <Box
@@ -269,68 +277,73 @@ export default function Root() {
                     pb: open ? 2 : 0,
                   }}
                 >
-                  {/* Wallet section */}
-                  <ListItemButton
-                    alignItems="flex-start"
-                    onClick={() => setOpen(!open)}
-                    sx={{
-                      px: 3,
-                      pt: 2.5,
-                      pb: open ? 0 : 2.5,
-                      '&:hover, &:focus': {
-                        '& svg': { opacity: open ? 1 : 0 },
-                      },
-                    }}
-                  >
-                    <ListItemText
-                      primary="Wallet"
-                      primaryTypographyProps={{
-                        fontSize: 15,
-                        fontWeight: 'medium',
-                        lineHeight: '20px',
-                        mb: '2px',
-                      }}
-                      secondary="Create, Transaction, Post transactions"
-                      secondaryTypographyProps={{
-                        noWrap: true,
-                        fontSize: 12,
-                        lineHeight: '16px',
-                        color: open ? 'rgba(0,0,0,0)' : 'rgba(255,255,255,0.5)',
-                      }}
-                      sx={{ my: 0 }}
-                    />
-                    <KeyboardArrowDown
-                      sx={{
-                        mr: -1,
-                        opacity: 0,
-                        transform: open ? 'rotate(-180deg)' : 'rotate(0)',
-                        transition: '0.2s',
-                      }}
-                    />
-                  </ListItemButton>
-                  {open && walletData &&
-                    walletData.map((item) => (
-                      <ListItemButton
-                        key={item.label}
-                        sx={{
-                          py: 0,
-                          minHeight: 32,
-                          color: 'rgba(255,255,255,.8)',
-                        }}
-                        onClick={item.handleClick}
-                      >
-                        <ListItemIcon sx={{ color: 'inherit' }}>
-                          {item.icon}
-                        </ListItemIcon>
-                        <ListItemText
-                          primary={item.label}
-                          primaryTypographyProps={{
-                            fontSize: 14,
-                            fontWeight: 'medium',
+                  {
+                    /* Wallet section */
+                    login && (
+                      <>
+                        <ListItemButton
+                          alignItems="flex-start"
+                          onClick={() => setOpen(!open)}
+                          sx={{
+                            px: 3,
+                            pt: 2.5,
+                            pb: open ? 0 : 2.5,
+                            '&:hover, &:focus': {
+                              '& svg': { opacity: open ? 1 : 0 },
+                            },
                           }}
-                        />
-                      </ListItemButton>
-                    ))}
+                        >
+                          <ListItemText
+                            primary="Wallet"
+                            primaryTypographyProps={{
+                              fontSize: 15,
+                              fontWeight: 'medium',
+                              lineHeight: '20px',
+                              mb: '2px',
+                            }}
+                            secondary="Create, Transaction, Post transactions"
+                            secondaryTypographyProps={{
+                              noWrap: true,
+                              fontSize: 12,
+                              lineHeight: '16px',
+                              color: open ? 'rgba(0,0,0,0)' : 'rgba(255,255,255,0.5)',
+                            }}
+                            sx={{ my: 0 }}
+                          />
+                          <KeyboardArrowDown
+                            sx={{
+                              mr: -1,
+                              opacity: 0,
+                              transform: open ? 'rotate(-180deg)' : 'rotate(0)',
+                              transition: '0.2s',
+                            }}
+                          />
+                        </ListItemButton>
+                        {open &&
+                          walletData &&
+                          walletData.map((item) => (
+                            <ListItemButton
+                              key={item.label}
+                              sx={{
+                                py: 0,
+                                minHeight: 32,
+                                color: 'rgba(255,255,255,.8)',
+                              }}
+                              onClick={item.handleClick}
+                            >
+                              <ListItemIcon sx={{ color: 'inherit' }}>{item.icon}</ListItemIcon>
+                              <ListItemText
+                                primary={item.label}
+                                primaryTypographyProps={{
+                                  fontSize: 14,
+                                  fontWeight: 'medium',
+                                }}
+                              />
+                            </ListItemButton>
+                          ))}
+                      </>
+                    )
+                  }
 
                   {/* Account section */}
                   <ListItemButton
@@ -358,9 +371,7 @@ export default function Root() {
                         noWrap: true,
                         fontSize: 12,
                         lineHeight: '16px',
-                        color: accountOpen
-                          ? 'rgba(0,0,0,0)'
-                          : 'rgba(255,255,255,0.5)',
+                        color: accountOpen ? 'rgba(0,0,0,0)' : 'rgba(255,255,255,0.5)',
                       }}
                       sx={{ my: 0 }}
                     />
@@ -368,16 +379,14 @@ export default function Root() {
                       sx={{
                         mr: -1,
                         opacity: 0,
-                        transform: accountOpen
-                          ? 'rotate(-180deg)'
-                          : 'rotate(0)',
+                        transform: accountOpen ? 'rotate(-180deg)' : 'rotate(0)',
                         transition: '0.2s',
                       }}
                     />
                   </ListItemButton>
                   {accountOpen &&
                     !login &&
-                    accountData.map((item) => (
+                    unLoggedAccountData.map((item) => (
                       <ListItemButton
                         key={item.label}
                         sx={{
@@ -387,9 +396,7 @@ export default function Root() {
                         }}
                         onClick={item.handleClick}
                       >
-                        <ListItemIcon sx={{ color: 'inherit' }}>
-                          {item.icon}
-                        </ListItemIcon>
+                        <ListItemIcon sx={{ color: 'inherit' }}>{item.icon}</ListItemIcon>
                         <ListItemText
                           primary={item.label}
                           primaryTypographyProps={{
@@ -401,7 +408,7 @@ export default function Root() {
                     ))}
                   {accountOpen &&
                     login &&
-                    loginAccountData.map((item) => (
+                    loggedAccountData.map((item) => (
                       <ListItemButton
                         key={item.label}
                         sx={{
@@ -411,9 +418,7 @@ export default function Root() {
                         }}
                         onClick={item.handleClick}
                       >
-                        <ListItemIcon sx={{ color: 'inherit' }}>
-                          {item.icon}
-                        </ListItemIcon>
+                        <ListItemIcon sx={{ color: 'inherit' }}>{item.icon}</ListItemIcon>
                         <ListItemText
                           primary={item.label}
                           primaryTypographyProps={{

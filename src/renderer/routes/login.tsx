@@ -1,20 +1,15 @@
-import {
-  Container,
-  Grid,
-  Box,
-  Typography,
-  Stack,
-  FormControlLabel,
-  Checkbox,
-} from '@mui/material';
+import { Box, Checkbox, Container, FormControlLabel, Grid, Stack, Typography } from '@mui/material';
 import LoadingButton from '@mui/lab/LoadingButton';
-import { FC } from 'react';
-import { useForm, SubmitHandler, FormProvider } from 'react-hook-form';
+import { FC, useState } from 'react';
+import { FormProvider, SubmitHandler, useForm } from 'react-hook-form';
 import { Link } from 'react-router-dom';
-import { literal, object, string, TypeOf } from 'zod';
+import { boolean, object, string, TypeOf } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import styled from '@emotion/styled';
 import FormInput from '../components/FormInput';
+import WalletError from '../../common/wallet-error';
+import { buildMessageFromCode } from '../../common/wallet-constants';
+import { WalletPackage } from '../../common/wallet-types';
 
 // 👇 Styled React Route Dom Link Component
 export const LinkItem = styled(Link)`
@@ -33,17 +28,20 @@ const loginSchema = object({
     .min(1, 'Password is required')
     .min(8, 'Password must be more than 8 characters')
     .max(32, 'Password must be less than 32 characters'),
-  persistUser: literal(true).optional(),
+  persistUser: boolean().optional(),
 });
 
 // 👇 Infer the Schema to get the TS Type
 type ILogin = TypeOf<typeof loginSchema>;
 
 const LoginPage: FC = () => {
+  const [loginError, setLoginError] = useState('');
+
   // 👇 Default Values
   const defaultValues: ILogin = {
     email: '',
     password: '',
+    persistUser: false,
   };
 
   // 👇 The object returned from useForm Hook
@@ -53,19 +51,40 @@ const LoginPage: FC = () => {
   });
 
   // 👇 Submit Handler
-  const onSubmitHandler: SubmitHandler<ILogin> = (values: ILogin) => {
-    console.log(values);
+  const onSubmitHandler: SubmitHandler<ILogin> = async (values: ILogin) => {
+    console.log('user input:', values, 'isBrowser:', typeof window);
+    try {
+      const result = await window.electron.ipcRenderer.loginWitPassword({
+        type: 'email',
+        value: values.email,
+        password: values.password,
+      });
+      console.log('login result:', result);
+      if (result === 200) {
+        const walletPackage: WalletPackage = (await window.electron.ipcRenderer.getWalletPackage(
+          values.email
+        )) as WalletPackage;
+        await window.electron.ipcRenderer.saveAccount(walletPackage.account);
+        window.electron.ipcRenderer.reload();
+      } else {
+        const message = buildMessageFromCode(result);
+        setLoginError(message);
+      }
+
+      return result;
+    } catch (error) {
+      if (error instanceof WalletError) {
+        const { code, message } = error;
+        console.log('code:', code, 'message:', message);
+      }
+    }
+    return false;
   };
 
   // 👇 JSX to be rendered
   return (
     <Container maxWidth="sm" sx={{ height: '100vh', maxWidth: '560px' }}>
-      <Grid
-        container
-        justifyContent="center"
-        alignItems="center"
-        sx={{ width: '100%', height: 'auto' }}
-      >
+      <Grid container justifyContent="center" alignItems="center" sx={{ width: '100%', height: 'auto' }}>
         <Grid item sx={{ maxWidth: '45rem', width: '100%' }}>
           <Typography
             variant="h4"
@@ -108,35 +127,16 @@ const LoginPage: FC = () => {
                     sx={{ paddingRight: { sm: '3rem' } }}
                     onSubmit={methods.handleSubmit(onSubmitHandler)}
                   >
-                    <Typography
-                      variant="h6"
-                      component="h1"
-                      sx={{ textAlign: 'center', mb: '1.5rem' }}
-                    >
+                    <Typography variant="h6" component="h1" sx={{ textAlign: 'center', mb: '1.5rem' }}>
                       LOG INTO YOUR ACCOUNT
                     </Typography>
 
-                    <FormInput
-                      label="Enter your email"
-                      type="email"
-                      name="email"
-                      required
-                    />
-                    <FormInput
-                      type="password"
-                      label="Password"
-                      name="password"
-                      required
-                    />
+                    <FormInput label="Enter your email" type="email" name="email" required />
+                    <FormInput type="password" label="Password" name="password" required />
 
                     <FormControlLabel
                       control={
-                        <Checkbox
-                          size="small"
-                          aria-label="remember me"
-                          required
-                          {...methods.register('persistUser')}
-                        />
+                        <Checkbox size="small" aria-label="remember me" required {...methods.register('persistUser')} />
                       }
                       label={
                         <Typography
@@ -151,6 +151,14 @@ const LoginPage: FC = () => {
                         </Typography>
                       }
                     />
+
+                    {loginError && (
+                      <Grid container justifyContent="center" rowSpacing={2}>
+                        <Typography sx={{ fontSize: '0.9rem', mt: '1rem', mb: '1rem', color: 'red' }}>
+                          {loginError}
+                        </Typography>
+                      </Grid>
+                    )}
 
                     <LoadingButton
                       loading={false}
@@ -168,15 +176,14 @@ const LoginPage: FC = () => {
                   </Box>
                 </Grid>
               </Grid>
+
               <Grid container justifyContent="center">
                 <Stack sx={{ mt: '3rem', textAlign: 'center' }}>
                   <Typography sx={{ fontSize: '0.9rem', mb: '1rem' }}>
-                    Need an account?{' '}
-                    <LinkItem to="/signup">Sign up here</LinkItem>
+                    Need an account? <LinkItem to="/signup">Sign up here</LinkItem>
                   </Typography>
                   <Typography sx={{ fontSize: '0.9rem' }}>
-                    Forgot your{' '}
-                    <LinkItem to="/forgot-password">password?</LinkItem>
+                    <LinkItem to="/forgot-password">Forgot your Password?</LinkItem>
                   </Typography>
                 </Stack>
               </Grid>

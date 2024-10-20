@@ -1,36 +1,54 @@
-import { Container, Grid, Box, Typography, Stack } from '@mui/material';
+import { Box, Container, Grid, Stack, Typography } from '@mui/material';
 import LoadingButton from '@mui/lab/LoadingButton';
-import { FC } from 'react';
-import { useForm, SubmitHandler, FormProvider } from 'react-hook-form';
+import Button from '@mui/material/Button';
+import React, { FC, useEffect } from 'react';
+import { FormProvider, SubmitHandler, useForm } from 'react-hook-form';
 import { object, string, TypeOf } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { buildMessageFromCode } from 'common/wallet-constants';
 import FormInput from '../components/FormInput';
 import { LinkItem } from './login';
+import WalletError from '../../common/wallet-error';
+import { WalletPackage } from '../../common/wallet-types';
 
 // 👇 SignUp Schema with Zod
 const signupSchema = object({
-  name: string().min(1, 'Name is required').max(70),
   email: string().min(1, 'Email is required').email('Email is invalid'),
-  password: string()
+  password1: string()
     .min(1, 'Password is required')
     .min(8, 'Password must be more than 8 characters')
     .max(32, 'Password must be less than 32 characters'),
-  passwordConfirm: string().min(1, 'Please confirm your password'),
-}).refine((data) => data.password === data.passwordConfirm, {
-  path: ['passwordConfirm'],
+  password2: string()
+    .min(1, 'Password is required')
+    .min(8, 'Password must be more than 8 characters')
+    .max(32, 'Password must be less than 32 characters'),
+  verifyCode: string().optional(),
+}).refine((data) => data.password1 === data.password2, {
+  path: ['password2'],
   message: 'Passwords do not match',
+});
+
+const verifyCodeSchema = object({
+  email: string().min(1, 'Email is required').email('Email is invalid'),
 });
 
 // 👇 Infer the Schema to get TypeScript Type
 type ISignUp = TypeOf<typeof signupSchema>;
+type IVerifyCode = TypeOf<typeof verifyCodeSchema>;
 
 const SignupPage: FC = () => {
+  const [sendLabel, setSendLabel] = React.useState('Send');
+  const [timeoutValue, setTimeoutValue] = React.useState(300);
+  const [startTimer, setStartTimer] = React.useState(false);
+  const [verifyCodeError, setVerifyCodeError] = React.useState('');
+  const [registerError, setRegisterError] = React.useState('');
+
   // 👇 Default Values
   const defaultValues: ISignUp = {
-    name: '',
     email: '',
-    password: '',
-    passwordConfirm: '',
+    password1: '',
+    password2: '',
+    verifyCode: '',
   };
 
   // 👇 Object containing all the methods returned by useForm
@@ -40,19 +58,100 @@ const SignupPage: FC = () => {
   });
 
   // 👇 Form Handler
-  const onSubmitHandler: SubmitHandler<ISignUp> = (values: ISignUp) => {
+  const onSubmitHandler: SubmitHandler<ISignUp> = async (values: ISignUp) => {
     console.log(JSON.stringify(values, null, 4));
+    if (!values.verifyCode) {
+      console.error('verify code should not be empty!');
+      setVerifyCodeError('verify code empty!');
+      return false;
+    }
+    if (values.verifyCode.length !== 6) {
+      console.error('verify code should be 6 digits');
+      setVerifyCodeError('verify code should be 6 digits');
+      return false;
+    }
+    try {
+      const result = await window.electron.ipcRenderer.register({
+        type: 'email',
+        value: values.email,
+        passwordInput1: values.password1,
+        passwordInput2: values.password2,
+        verifyCode: values.verifyCode || '',
+      });
+      console.log('register result:', result);
+      if (result === 200) {
+        const walletPackage: WalletPackage = (await window.electron.ipcRenderer.getWalletPackage(
+          values.email
+        )) as WalletPackage;
+        await window.electron.ipcRenderer.saveAccount(walletPackage.account);
+        window.electron.ipcRenderer.reload();
+      } else {
+        const message = buildMessageFromCode(result);
+        setRegisterError(message);
+      }
+      return result;
+    } catch (error) {
+      if (error instanceof WalletError) {
+        const { code, message } = error;
+        setRegisterError(message);
+        console.log('code:', code, 'message:', message);
+      }
+    }
+    return false;
   };
+
+  const handleSendVerifyCode: SubmitHandler<ISignUp> = async (values: ISignUp) => {
+    console.log('send register verify code...');
+    if (!startTimer) {
+      try {
+        const result = await window.electron.ipcRenderer.sendRegisterVerifyCode({
+          type: 'email',
+          value: values.email,
+        });
+        console.log('send register verify code result:', result);
+        if (result !== 200) {
+          const message = buildMessageFromCode(result);
+          setRegisterError(message);
+        } else {
+          setStartTimer(true);
+        }
+        return result;
+      } catch (error) {
+        if (error instanceof WalletError) {
+          const { code, message } = error;
+          setRegisterError(message);
+          console.log('code:', code, 'message:', message);
+        }
+      }
+      return false;
+    }
+
+    return false;
+  };
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (!startTimer) {
+        return;
+      }
+
+      if (timeoutValue >= 0) {
+        setSendLabel(`(${timeoutValue > 1 ? timeoutValue - 1 : 0})`);
+        setTimeoutValue(timeoutValue - 1);
+      } else {
+        setSendLabel('Send');
+        setTimeoutValue(300);
+        setStartTimer(false);
+      }
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, [startTimer, timeoutValue]);
 
   // 👇 Returned JSX
   return (
     <Container maxWidth="sm" sx={{ height: '100vh', maxWidth: '560px' }}>
-      <Grid
-        container
-        justifyContent="center"
-        alignItems="center"
-        sx={{ width: '100%', height: 'auto' }}
-      >
+      <Grid container justifyContent="center" alignItems="center" sx={{ width: '100%', height: 'auto' }}>
         <Grid item sx={{ maxWidth: '45rem', width: '100%' }}>
           <Grid
             container
@@ -95,38 +194,59 @@ const SignupPage: FC = () => {
                     sx={{ paddingRight: { sm: '3rem' } }}
                     onSubmit={methods.handleSubmit(onSubmitHandler)}
                   >
-                    <Typography
-                      variant="h6"
-                      component="h1"
-                      sx={{ textAlign: 'center', mb: '1.5rem' }}
-                    >
+                    <Typography variant="h6" component="h1" sx={{ textAlign: 'center', mb: '1.5rem' }}>
                       CREATE NEW YOUR ACCOUNT
                     </Typography>
 
-                    <FormInput
-                      label="Enter your name"
-                      type="text"
-                      name="name"
-                      required
-                    />
-                    <FormInput
-                      label="Enter your email"
-                      type="email"
-                      name="email"
-                      required
-                    />
-                    <FormInput
-                      type="password"
-                      label="Password"
-                      name="password"
-                      required
-                    />
-                    <FormInput
-                      type="password"
-                      label="Confirm Password"
-                      name="passwordConfirm"
-                      required
-                    />
+                    <FormInput label="Enter your email" type="text" name="email" required />
+                    <FormInput type="Password" label="Password" name="password1" required />
+                    <FormInput label="Confirm your password" type="password" name="password2" required />
+                    <Grid container spacing={2}>
+                      <Grid item xs={8}>
+                        {verifyCodeError && (
+                          <FormInput
+                            label="Enter your verifyCode"
+                            type="text"
+                            name="verifyCode"
+                            fullWidth
+                            error
+                            helperText={verifyCodeError}
+                            required
+                          />
+                        )}
+                        {!verifyCodeError && (
+                          <FormInput label="Enter your verifyCode" type="text" name="verifyCode" fullWidth required />
+                        )}
+                      </Grid>
+                      <Grid item xs={4}>
+                        {startTimer && (
+                          <Button
+                            variant="text"
+                            sx={{ mt: '10px' }}
+                            disabled
+                            onClick={methods.handleSubmit(handleSendVerifyCode)}
+                          >
+                            {sendLabel}
+                          </Button>
+                        )}
+                        {!startTimer && (
+                          <Button
+                            variant="text"
+                            sx={{ mt: '10px' }}
+                            onClick={methods.handleSubmit(handleSendVerifyCode)}
+                          >
+                            {sendLabel}
+                          </Button>
+                        )}
+                      </Grid>
+                    </Grid>
+                    {registerError && (
+                      <Grid container justifyContent="center" rowSpacing={2}>
+                        <Typography sx={{ fontSize: '0.9rem', mt: '1rem', mb: '1rem', color: 'red' }}>
+                          {registerError}
+                        </Typography>
+                      </Grid>
+                    )}
 
                     <LoadingButton
                       loading={false}
@@ -144,11 +264,11 @@ const SignupPage: FC = () => {
                   </Box>
                 </Grid>
               </Grid>
+
               <Grid container justifyContent="center">
                 <Stack sx={{ mt: '3rem', textAlign: 'center' }}>
                   <Typography sx={{ fontSize: '0.9rem', mb: '1rem' }}>
-                    Already have an account?{' '}
-                    <LinkItem to="/signin">Login</LinkItem>
+                    Already have an account? <LinkItem to="/signin">Login</LinkItem>
                   </Typography>
                 </Stack>
               </Grid>

@@ -1,6 +1,6 @@
 import { Box, Stack, Typography } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
-import React, { MouseEvent, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import QRCode from 'qrcode';
 
 import { PrivatePoem, PublicWallet } from '../../common/wallet-types';
@@ -17,18 +17,18 @@ const getRandom: GetRandom = (p) => {
     return 0;
   }
 
-  return (new Date().getTime() % 100000) + parseInt(p.x + '' + p.y);
+  return (new Date().getTime() % 100000) + parseInt(`${p.x}${p.y}`);
 };
 
-async function generateQRcode(address: string) : Promise<string> {
+async function generateQRcode(address: string): Promise<string> {
   if (!address) {
-    return "";
+    return '';
   }
 
   const svg = await QRCode.toString(address, { type: 'svg' });
   // console.log("svg:", svg);
   return svg;
-};
+}
 
 export default function CreateWallet() {
   const [showNext, setShowNext] = React.useState(false);
@@ -53,22 +53,20 @@ export default function CreateWallet() {
       console.log('created new wallet:', r);
       setWallet(r);
       if (!r) {
-        throw new Error("cannot create wallet!");
+        throw new Error('cannot create wallet!');
       }
-      const address = r.address;
-      console.log("new wallet address:", address);
-      const poem = await window.electron.ipcRenderer.getEncodedPrivateKey(address);
-      setPoem(poem);
-      console.log("new wallet private poem:", r);
+      const { address } = r;
+      console.log('new wallet address:', address);
+      const poem1 = await window.electron.ipcRenderer.getEncodedPrivateKey(address);
+      setPoem(poem1);
+      console.log('new wallet private poem:', r);
       setStep(step + 1);
+    } else if (step === 2) {
+      const svg1 = await generateQRcode(wallet!.address);
+      setSvg(svg1);
+      setTimeout(() => setStep(3), 1000);
     } else {
-      if (step === 2) {
-        const svg = await generateQRcode(wallet.address);
-        setSvg(svg);
-        setTimeout(() => setStep(3), 1000);
-      } else {
-        setStep(step + 1);
-      }
+      setStep(step + 1);
     }
   };
 
@@ -95,11 +93,7 @@ export default function CreateWallet() {
       sx={{ width: '100%', height: 'auto' }}
       onMouseOver={boxMouseOverHandler}
     >
-      <Typography
-        variant="h6"
-        component="h1"
-        sx={{ textAlign: 'center', mb: '1.5rem' }}
-      >
+      <Typography variant="h6" component="h1" sx={{ textAlign: 'center', mb: '1.5rem' }}>
         Create Wallet
       </Typography>
 
@@ -122,7 +116,7 @@ export default function CreateWallet() {
                 textAlign: 'center',
               }}
             >
-              {'Please move your mouse to generate private key...'}
+              Please move your mouse to generate private key...
             </Typography>
             <Typography
               sx={{
@@ -136,7 +130,7 @@ export default function CreateWallet() {
             </Typography>
           </>
         )}
-        {step <= 1 && error &&
+        {step <= 1 && error && (
           <Typography
             sx={{
               fontSize: '1.5rem',
@@ -144,11 +138,11 @@ export default function CreateWallet() {
               mb: '1rem',
               height: '100px',
               textAlign: 'center',
-          }}
+            }}
           >
             {error}
           </Typography>
-        }
+        )}
 
         {step === 2 && (
           <>
@@ -160,34 +154,39 @@ export default function CreateWallet() {
                 textAlign: 'center',
               }}
             >
-              {
-                'Please write down the following Chinese Poem which relate to private key...'
-              }
+              Please write down the following Chinese Poem which relate to private key...
             </Typography>
-            {poem && <Typography
-                       sx={{
-                         fontSize: '1.5rem',
-                         mb: '0',
-                         height: 'auto',
-                         textAlign: 'center',
-                       }}
-                     >
-              {poem.title}
-            </Typography>
-            }
-            {poem && poem.sentences.map(sen => <Typography key={sen}
-                                                 sx={{
-                                                   fontSize: '1rem',
-                                                   mb: '0',
-                                                   height: 'auto',
-                                                   textAlign: 'center',
-                                                 }}
-                                               >{sen}</Typography>)}
+            {poem && (
+              <Typography
+                sx={{
+                  fontSize: '1.5rem',
+                  mb: '0',
+                  height: 'auto',
+                  textAlign: 'center',
+                }}
+              >
+                {poem.title}
+              </Typography>
+            )}
+            {poem &&
+              poem.sentences.map((sen) => (
+                <Typography
+                  key={sen}
+                  sx={{
+                    fontSize: '1rem',
+                    mb: '0',
+                    height: 'auto',
+                    textAlign: 'center',
+                  }}
+                >
+                  {sen}
+                </Typography>
+              ))}
           </>
         )}
 
         {step === 3 && (
-          <React.Fragment>
+          <>
             <Typography
               sx={{
                 fontSize: '1rem',
@@ -196,7 +195,7 @@ export default function CreateWallet() {
                 textAlign: 'center',
               }}
             >
-              {'Your wallet is created success!'}
+              Your wallet is created success!
             </Typography>
             <Stack
               direction="column"
@@ -213,13 +212,13 @@ export default function CreateWallet() {
                   width: 180,
                 }}
               >
-                <div className="Container" dangerouslySetInnerHTML={{ __html: svg }}></div>
+                <div className="Container" dangerouslySetInnerHTML={{ __html: svg }} />
               </Box>
               <Typography sx={{ fontSize: '12px' }}>
-                address: {wallet && wallet.address ? wallet.address: ""}
+                address: {wallet && wallet.address ? wallet.address : ''}
               </Typography>
             </Stack>
-          </React.Fragment>
+          </>
         )}
 
         {showNext && point && (

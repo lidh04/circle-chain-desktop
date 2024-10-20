@@ -1,5 +1,5 @@
 import { FC } from 'react';
-import { useFormContext, Controller } from 'react-hook-form';
+import { Controller, useFormContext } from 'react-hook-form';
 import { TextField, TextFieldProps } from '@mui/material';
 import { styled } from '@mui/material/styles';
 
@@ -53,14 +53,12 @@ const FormInput: FC<FormInputProps> = ({ name, ...otherProps }) => {
       defaultValue=""
       render={({ field }) => (
         <CssTextField
-          {...field}
-          {...otherProps}
-          variant="outlined"
           sx={{ mb: '1.5rem' }}
           error={!!errors[name]}
-          helperText={
-            errors[name] ? (errors[name]?.message as unknown as string) : ''
-          }
+          variant="outlined"
+          helperText={errors[name] ? (errors[name]?.message as unknown as string) : ''}
+          {...field}
+          {...otherProps}
         />
       )}
     />

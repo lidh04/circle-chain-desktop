@@ -14,10 +14,15 @@ import * as React from 'react';
 import TextField from '@mui/material/TextField';
 import { checkPayPassword } from 'common/wallet-types';
 
-
-export default function PayPasswordDialog(props: { initOpen: boolean, callback: (payPassword: string) => Promise<void> }) {
-  const [payPassword, setPayPassword] = React.useState<string>("");
-  const [payPassword2, setPayPassword2] = React.useState<string>("");
+export default function PayPasswordDialog({
+  callback,
+  initOpen,
+}: {
+  initOpen: boolean;
+  callback: (payPassword: string) => Promise<void>;
+}) {
+  const [payPassword, setPayPassword] = React.useState<string>('');
+  const [payPassword2, setPayPassword2] = React.useState<string>('');
   const [inited, setInited] = React.useState<boolean>(false);
   const [error, setError] = React.useState<boolean>(false);
   const [error2, setError2] = React.useState<boolean>(false);
@@ -28,7 +33,7 @@ export default function PayPasswordDialog(props: { initOpen: boolean, callback: 
     } = event;
     setPayPassword(value);
     console.log('pay password:', value);
-  }
+  };
 
   const handleValueChange2 = (event: React.ChangeEvent<HTMLInputElement>) => {
     const {
@@ -36,48 +41,60 @@ export default function PayPasswordDialog(props: { initOpen: boolean, callback: 
     } = event;
     setPayPassword2(value);
     console.log('pay password:', value);
-  }
+  };
+
+  const handleClose = async () => {
+    setError(false);
+    await callback('');
+  };
 
   const handleInput = async () => {
     if (inited) {
       const oldPayPassword = await window.electron.ipcRenderer.getPayPassword();
-      console.log("old pay password:", oldPayPassword, "payPassword:", payPassword);
+      console.log(
+        'old pay password:',
+        oldPayPassword,
+        'payPassword:',
+        payPassword
+      );
       if (oldPayPassword !== payPassword) {
         setError(true);
       } else {
-        await props.callback(payPassword);
-        setPayPassword(""); // reset pay password
+        await callback(payPassword);
+        setPayPassword(''); // reset pay password
         setError(false);
       }
-    } else {
-      if (payPassword !== payPassword2) {
-        setError2(true);
-      } else {
-        if (checkPayPassword(payPassword)) {
-          await window.electron.ipcRenderer.setPayPassword(payPassword);
-          await props.callback(payPassword);
-          setPayPassword(""); // reset pay password
-          setError(false);
-        } else {
-          setError(true);
-        }
-      }
+      return;
     }
+
+    if (payPassword !== payPassword2) {
+      setError2(true);
+    } else if (checkPayPassword(payPassword)) {
+      await window.electron.ipcRenderer.setPayPassword(payPassword);
+      await callback(payPassword);
+      setPayPassword(''); // reset pay password
+      setError(false);
+    } else {
+      setError(true);
+    }
+
   };
 
   React.useEffect(() => {
-    window.electron.ipcRenderer.getPayPassword().then(oldPayPassword => {
+    window.electron.ipcRenderer.getPayPassword().then((oldPayPassword) => {
       setInited(!!oldPayPassword);
     });
   }, []);
 
   return (
     <div>
-      <Dialog open={props.initOpen}>
-        <DialogTitle>{'Pay Password'}</DialogTitle>
+      <Dialog open={initOpen}>
+        <DialogTitle>Pay Password</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            { inited ? 'Please input pay password' : 'Pay password is not set, Please set pay password.' }
+            {inited
+              ? 'Please input pay password'
+              : 'Pay password is not set, Please set pay password.'}
           </DialogContentText>
           <TextField
             autoFocus
@@ -89,9 +106,9 @@ export default function PayPasswordDialog(props: { initOpen: boolean, callback: 
             fullWidth
             variant="standard"
             error={!!error}
-            helperText={error ? "invalid pay password!" : ""}
+            helperText={error ? 'invalid pay password!' : ''}
           />
-          { !inited &&
+          {!inited && (
             <TextField
               autoFocus
               margin="dense"
@@ -102,11 +119,12 @@ export default function PayPasswordDialog(props: { initOpen: boolean, callback: 
               fullWidth
               variant="standard"
               error={!!error2}
-              helperText={error2 ? "the two pay passwords are not same!" : ""}
+              helperText={error2 ? 'the two pay passwords are not same!' : ''}
             />
-          }
+          )}
         </DialogContent>
         <DialogActions>
+          <Button onClick={handleClose}>Close</Button>
           <Button onClick={handleInput}>Confirm</Button>
         </DialogActions>
       </Dialog>

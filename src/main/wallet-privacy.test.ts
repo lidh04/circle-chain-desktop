@@ -9,25 +9,25 @@ import { EmailAccount } from '../common/account-types';
 import { PrivateWalletPackage } from './wallet-privacy';
 
 const account: EmailAccount = {
-  value: "lidh04@qq.com",
-  type: "email"
+  value: 'smd.source@gmail.com',
+  type: 'email',
 };
-describe("test suites for wallet privacy", () => {
-  it("initLoad test", async () => {
+describe('test suites for wallet privacy', () => {
+  test('initLoad test', async () => {
     const result = await PrivateWalletPackage.initLoad(account);
     expect(result).toBe(true);
     const accountReturn = PrivateWalletPackage.getAccount();
-    console.log("account:", accountReturn);
+    console.log('account:', accountReturn);
     expect(accountReturn).not.toBe(null);
 
     const newAccount: EmailAccount = {
-      type: "email",
-      value: "random223@gmail.com"
+      type: 'email',
+      value: 'random223@gmail.com',
     };
     const newResult = await PrivateWalletPackage.initLoad(newAccount);
     expect(newResult).toBe(false);
     const newAccountReturn = PrivateWalletPackage.getAccount();
-    console.log("new account:", newAccountReturn);
+    console.log('new account:', newAccountReturn);
     expect(newAccountReturn).toStrictEqual(newAccount);
     const newWalletPackage = await PrivateWalletPackage.getWalletPackage();
     expect(newWalletPackage).not.toBe(null);
@@ -39,34 +39,42 @@ describe("test suites for wallet privacy", () => {
     expect(result2).toBe(true);
   });
 
-  it("getWalletPackage test", async () => {
+  test('getWalletPackage test', async () => {
     const walletPackage = await PrivateWalletPackage.getWalletPackage();
-    console.log("walletPackage:", walletPackage);
+    console.log('walletPackage:', walletPackage);
     expect(walletPackage).not.toBe(null);
   });
 
-  it("getEncodedPrivateKey", async () => {
+  test('getEncodedPrivateKey', async () => {
     const walletPackage = await PrivateWalletPackage.getWalletPackage();
-    console.log("walletPackage:", walletPackage);
+    console.log('walletPackage:', walletPackage);
     expect(walletPackage).not.toBe(null);
     walletPackage.wallets.forEach((w) => {
-      const address = w.address;
+      const { address } = w;
       const privatePoem = PrivateWalletPackage.getEncodedPrivateKey(address);
-      console.log(`get private poem by address: ${address}, result: ${JSON.stringify(privatePoem)}`);
+      console.log(
+        `get private poem by address: ${address}, result: ${JSON.stringify(
+          privatePoem
+        )}`
+      );
       expect(privatePoem).not.toBe(null);
     });
   });
 
-  it("makePoemAndDecodePoemTest", async () => {
+  test('makePoemAndDecodePoemTest', async () => {
     const result = await PrivateWalletPackage.initLoad(account);
     expect(result).toBe(true);
     const walletPackage = await PrivateWalletPackage.getWalletPackage();
-    console.log("walletPackage:", walletPackage);
+    console.log('walletPackage:', walletPackage);
     expect(walletPackage).not.toBe(null);
     walletPackage.wallets.forEach((w) => {
-      const address = w.address;
+      const { address } = w;
       const privatePoem = PrivateWalletPackage.getEncodedPrivateKey(address);
-      console.log(`get private poem by address: ${address}, result: ${JSON.stringify(privatePoem)}`);
+      console.log(
+        `get private poem by address: ${address}, result: ${JSON.stringify(
+          privatePoem
+        )}`
+      );
       expect(privatePoem).not.toBe(null);
       const privateKey = PrivateWalletPackage.decodePrivatePoem(privatePoem!);
       const privArray = new Uint8Array(32);
@@ -75,8 +83,16 @@ describe("test suites for wallet privacy", () => {
       });
       const [address2, pubKey2] = PrivateWalletPackage.getAddressAndPubKey(privArray);
       const pubKeyHex2 = Buffer.from(pubKey2).toString('hex');
-      console.log("origin address:", address, "address2:", address2, "origin pubkey:", w.publicKey,
-                  "pubKey2:", pubKeyHex2);
+      console.log(
+        'origin address:',
+        address,
+        'address2:',
+        address2,
+        'origin pubkey:',
+        w.publicKey,
+        'pubKey2:',
+        pubKeyHex2
+      );
       expect(address2).toBe(w.address);
       expect(pubKeyHex2).toBe(w.publicKey);
     });

@@ -1,40 +1,33 @@
-import {
-  Box,
-  Grid,
-  MenuItem,
-  Select,
-  Stack,
-  TextField,
-  Typography,
-} from '@mui/material';
+import { Box, Grid, MenuItem, Select, Stack, TextField, Typography } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 import { useSearchParams } from 'react-router-dom';
 import Autocomplete from '@mui/material/Autocomplete';
-import FormControl, { useFormControl } from '@mui/material/FormControl';
+import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
 import Paper from '@mui/material/Paper';
 import PaymentIcon from '@mui/icons-material/Payment';
 import * as React from 'react';
 
 import {
-  AutocompleteOption,
-  PublicWallet,
-  WalletPackage,
   addressListOf,
+  AutocompleteOption,
   checkValidAddress,
   checkValidAsset,
   makeAssetLabel,
   makeWalletLabel,
-  validateEmail
+  PublicWallet,
+  validateEmail,
+  WalletPackage
 } from '../../common/wallet-types';
 import CircleDialog from '../components/CircleDialog';
 import { TxType } from '../../common/block-types';
 import PayPasswordDialog from '../components/PayPasswordDialog';
 
-const makeAddressOptionList = (addressList: string[]) => addressList.map((address, index) => ({
-  label: makeWalletLabel(address, index),
-  value: address,
-}));
+const makeAddressOptionList = (addressList: string[]) =>
+  addressList.map((address, index) => ({
+    label: makeWalletLabel(address, index),
+    value: address,
+  }));
 
 let addressList: string[] = [
   '1MVQfJrU3mK3M62hygJz9pmgBxVoGzPaKj',
@@ -43,10 +36,11 @@ let addressList: string[] = [
 ];
 let addresses: AutocompleteOption[] = makeAddressOptionList(addressList);
 
-const makeAssetOptionList = (assetList: string[], type: string) => assetList.map((asset) => ({
-  label: makeAssetLabel(asset, type),
-  value: asset,
-}));
+const makeAssetOptionList = (assetList: string[], type: string) =>
+  assetList.map((asset) => ({
+    label: makeAssetLabel(asset, type),
+    value: asset,
+  }));
 
 let identityList: string[] = [
   '1MVQfJrU3mK3M62hygJz9pmgBxVoGzPaKj',
@@ -66,7 +60,10 @@ let ownershipList: string[] = [
   '14hF1BynFVnBEFKxyo51FHmJksVwfxg4sg',
   '1NMhhRzQtyhocMa31kB5hhtXy2fRPy2rn',
 ];
-let ownerships: AutocompleteOption[] = makeAssetOptionList(ownershipList, 'OWN');
+let ownerships: AutocompleteOption[] = makeAssetOptionList(
+  ownershipList,
+  'OWN'
+);
 
 const assetTypes = ['CRY', 'OWN', 'IDT'];
 
@@ -89,11 +86,18 @@ export default function WalletPayment() {
   const [payType, setPayType] = React.useState('from');
   const [payType2, setPayType2] = React.useState('to');
   const [otherEmail, setOtherEmail] = React.useState('');
-  const [address, setAddress] = React.useState<AutocompleteOption>({ label: "", value: "" });
+  const [address, setAddress] = React.useState<AutocompleteOption>({
+    label: '',
+    value: '',
+  });
   const [assetType, setAssetType] = React.useState(0);
   const [currencyValue, setCurrencyValue] = React.useState(0);
-  const [asset, setAsset] = React.useState<AutocompleteOption>({ label: "", value: "" });
-  const [walletPackage, setWalletPackage] = React.useState<WalletPackage | null>(null);
+  const [asset, setAsset] = React.useState<AutocompleteOption>({
+    label: '',
+    value: '',
+  });
+  const [walletPackage, setWalletPackage] =
+    React.useState<WalletPackage | null>(null);
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
   const [error, setError] = React.useState<MyError>({} as MyError);
   const [dialog, setDialog] = React.useState<MyDialog>({} as MyDialog);
@@ -101,35 +105,41 @@ export default function WalletPayment() {
   const [queryParameters] = useSearchParams();
 
   const selectWallet = (walletPackage: WalletPackage, addr: string) => {
-    const wallet = walletPackage.wallets.find((w: PublicWallet) => w.address === addr);
+    const wallet = walletPackage.wallets.find(
+      (w: PublicWallet) => w.address === addr
+    );
     if (!wallet) {
       return;
     }
 
     identityList = wallet.identities.map((item) => item.uuid);
-    console.log("identityList:", identityList);
+    console.log('identityList:', identityList);
     identities = makeAssetOptionList(identityList, 'IDT');
 
     ownershipList = wallet.ownerships.map((item) => item.uuid);
     ownerships = makeAssetOptionList(ownershipList, 'OWN');
-  }
+  };
 
   React.useEffect(() => {
-    window.electron.ipcRenderer.getWalletPackage('').then((result: WalletPackage) => {
-      console.log("wallet-payment walletPackage:", result);
-      setWalletPackage(result);
-      const addr = queryParameters.get('address');
-      addressList = addressListOf(result);
-      if (addr && checkValidAddress(addr)) {
-        if (addressList.includes(addr)) {
-          const address: AutocompleteOption = addresses.find((item) => item.value === addr)!;
-          setAddress(address);
-          selectWallet(result, addr);
+    window.electron.ipcRenderer
+      .getWalletPackage('')
+      .then((result: WalletPackage) => {
+        console.log('wallet-payment walletPackage:', result);
+        setWalletPackage(result);
+        const addr = queryParameters.get('address');
+        addressList = addressListOf(result);
+        if (addr && checkValidAddress(addr)) {
+          if (addressList.includes(addr)) {
+            const address: AutocompleteOption = addresses.find(
+              (item) => item.value === addr
+            )!;
+            setAddress(address);
+            selectWallet(result, addr);
+          }
         }
-      }
 
-      addresses = makeAddressOptionList(addressList);
-    });
+        addresses = makeAddressOptionList(addressList);
+      });
   }, [queryParameters, setAddress]);
 
   const handlePayTypeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -147,13 +157,13 @@ export default function WalletPayment() {
 
   const clearSubAddressMenu = () => {
     setAssetType(0);
-    setAsset({ label: "", value: "" });
+    setAsset({ label: '', value: '' });
     setCurrencyValue(0);
   };
 
   const clearAddressMenu = () => {
-    setAddress({ label: "", value: "" });
-    setOtherEmail("");
+    setAddress({ label: '', value: '' });
+    setOtherEmail('');
     clearSubAddressMenu();
   };
 
@@ -169,8 +179,8 @@ export default function WalletPayment() {
     }
     if (checkValidAddress(value)) {
       if (addressList.includes(value)) {
-        const address = addresses.find((item) => item.value === value)!
-        console.log("selected address:", address);
+        const address = addresses.find((item) => item.value === value)!;
+        console.log('selected address:', address);
         setAddress(address);
         if (walletPackage) {
           selectWallet(walletPackage, value);
@@ -208,7 +218,7 @@ export default function WalletPayment() {
     } = event;
     setCurrencyValue(parseInt(value));
     console.log('asset:', value);
-  }
+  };
 
   const handleInputAssetChange = (
     event: React.SyntheticEvent,
@@ -217,7 +227,7 @@ export default function WalletPayment() {
   ) => {
     console.log('input value:', value, 'reason:', reason);
     if (!value) {
-      setAsset({ label: "", value: "" });
+      setAsset({ label: '', value: '' });
       return;
     }
 
@@ -228,21 +238,32 @@ export default function WalletPayment() {
     }
   };
 
-  const payWithCurrency = async (from: string, toEmail: string, value: number, payPassword: string) => {
-    const [result, msg] = await window.electron.ipcRenderer.sendTo(from, toEmail, 0, value, payPassword);
-    console.log("payWithCurrency result:", result, "msg:", msg);
+  const payWithCurrency = async (
+    from: string,
+    toEmail: string,
+    value: number,
+    payPassword: string
+  ) => {
+    const [result, msg] = await window.electron.ipcRenderer.sendTo(
+      from,
+      toEmail,
+      0,
+      value,
+      payPassword
+    );
+    console.log('payWithCurrency result:', result, 'msg:', msg);
     if (result) {
       setDialog({
-        title: "SUCCESS",
-        body: ["Your payment is processing, please check the transaction"],
-        btnText: "Close",
+        title: 'SUCCESS',
+        body: ['Your payment is processing, please check the transaction'],
+        btnText: 'Close',
         open: true,
       });
     } else {
       setDialog({
-        title: "FAILURE",
+        title: 'FAILURE',
         body: [`Your payment failed, error: ${msg}`],
-        btnText: "Close",
+        btnText: 'Close',
         open: true,
       });
     }
@@ -250,21 +271,33 @@ export default function WalletPayment() {
     clearAddressMenu();
   };
 
-  const sendWithAsset = async (from: string, toEmail: string, value: string, assetType: TxType, payPassword: string) => {
-    const [result, msg] = await window.electron.ipcRenderer.sendTo(from, toEmail, assetType, value, payPassword);
-    console.log("sendWithAsset result:", result, "msg:", msg);
+  const sendWithAsset = async (
+    from: string,
+    toEmail: string,
+    value: string,
+    assetType: TxType,
+    payPassword: string
+  ) => {
+    const [result, msg] = await window.electron.ipcRenderer.sendTo(
+      from,
+      toEmail,
+      assetType,
+      value,
+      payPassword
+    );
+    console.log('sendWithAsset result:', result, 'msg:', msg);
     if (result) {
       setDialog({
-        title: "pay success",
-        body: ["Your payment is processing, please check the transaction"],
-        btnText: "Close",
+        title: 'pay success',
+        body: ['Your payment is processing, please check the transaction'],
+        btnText: 'Close',
         open: true,
       });
     } else {
       setDialog({
-        title: "FAILURE",
+        title: 'FAILURE',
         body: [`Your payment failed, error: ${msg}`],
-        btnText: "Close",
+        btnText: 'Close',
         open: true,
       });
     }
@@ -275,18 +308,34 @@ export default function WalletPayment() {
   const handlePayPasswordCallback = async (payPassword: string) => {
     setPayPasswordOpen(false);
     setIsLoading(true);
+    if (payPassword === '') {
+      setIsLoading(false);
+      return;
+    }
+
     switch (assetType) {
       case 0:
-        await payWithCurrency(address.value, otherEmail, currencyValue, payPassword);
+        await payWithCurrency(
+          address.value,
+          otherEmail,
+          currencyValue,
+          payPassword
+        );
         break;
       case 1:
       case 2:
-        await sendWithAsset(address.value, otherEmail, asset.value, assetType, payPassword);
+        await sendWithAsset(
+          address.value,
+          otherEmail,
+          asset.value,
+          assetType,
+          payPassword
+        );
         break;
       default:
         break;
     }
-    console.log("user clicks the pay now");
+    console.log('user clicks the pay now');
   };
 
   const handlePayNow = async () => {
@@ -296,13 +345,13 @@ export default function WalletPayment() {
       return;
     }
     if (!validateEmail(otherEmail)) {
-      setError({ email: true});
+      setError({ email: true });
       console.error(`${otherEmail} is not valid email!`);
       return;
     }
     if (assetType === 0) {
       if (currencyValue <= 0) {
-        setError({ currency: true});
+        setError({ currency: true });
         console.error(`${currencyValue} must be larger than 0!`);
         return;
       }
@@ -367,7 +416,9 @@ export default function WalletPayment() {
               value: AutocompleteOption
             ) => option.value === value.value}
             onInputChange={handleAddressChange}
-            getOptionLabel={(option) => typeof (option) === "string" ? option : option.value}
+            getOptionLabel={(option) =>
+              typeof option === 'string' ? option : option.value
+            }
             renderOption={(props, option) => (
               <Box component="li" {...props}>
                 {option.label}
@@ -376,9 +427,11 @@ export default function WalletPayment() {
             value={address}
             freeSolo
             renderInput={(params) => (
-              <TextField {...params} label="Enter your address"
+              <TextField
+                {...params}
+                label="Enter your address"
                 error={!!error.address}
-                helperText={ error.address ? "Invalid wallet address" : "" }
+                helperText={error.address ? 'Invalid wallet address' : ''}
               />
             )}
           />
@@ -417,12 +470,11 @@ export default function WalletPayment() {
               value={otherEmail}
               onChange={handleEmailChange}
               error={!!error.email}
-              helperText={ error.email ? "Invalid email" : "" }
+              helperText={error.email ? 'Invalid email' : ''}
             />
           </FormControl>
         </Grid>
-        <Grid item xs={2}>
-        </Grid>
+        <Grid item xs={2} />
       </Grid>
 
       <Grid
@@ -458,7 +510,9 @@ export default function WalletPayment() {
               value={currencyValue}
               onChange={handleValueChange}
               error={!!error.currency}
-              helperText={ error.currency ? "currency value must be larger than 0!" : "" }
+              helperText={
+                error.currency ? 'currency value must be larger than 0!' : ''
+              }
             />
           )}
           {assetType === 1 && (
@@ -474,16 +528,20 @@ export default function WalletPayment() {
                 value: AutocompleteOption
               ) => option.value === value.value}
               onInputChange={handleInputAssetChange}
-              getOptionLabel={(option) => typeof (option) === "string" ? option : option.value}
+              getOptionLabel={(option) =>
+                typeof option === 'string' ? option : option.value
+              }
               renderOption={(props, option) => (
                 <Box component="li" {...props}>
                   {option.label}
                 </Box>
               )}
               renderInput={(params) => (
-                <TextField {...params} label="Enter your ownership asset"
+                <TextField
+                  {...params}
+                  label="Enter your ownership asset"
                   error={!!error.ownership}
-                  helperText={ error.ownership ? "ownership id is invalid!" : "" }
+                  helperText={error.ownership ? 'ownership id is invalid!' : ''}
                 />
               )}
             />
@@ -501,23 +559,26 @@ export default function WalletPayment() {
                 value: AutocompleteOption
               ) => option.value === value.value}
               onInputChange={handleInputAssetChange}
-              getOptionLabel={(option) => typeof(option) === "string" ? option : option.value}
+              getOptionLabel={(option) =>
+                typeof option === 'string' ? option : option.value
+              }
               renderOption={(props, option) => (
                 <Box component="li" {...props}>
                   {option.label}
                 </Box>
               )}
               renderInput={(params) => (
-                <TextField {...params} label="Enter your identity asset"
+                <TextField
+                  {...params}
+                  label="Enter your identity asset"
                   error={!!error.identity}
-                  helperText={ error.identity ? "identity id is invalid!" : "" }
+                  helperText={error.identity ? 'identity id is invalid!' : ''}
                 />
               )}
             />
           )}
         </Grid>
-        <Grid item xs={2}>
-        </Grid>
+        <Grid item xs={2} />
       </Grid>
       <Grid
         container
@@ -553,13 +614,16 @@ export default function WalletPayment() {
         </Grid>
         <CircleDialog
           open={!!dialog.open}
-          title={dialog.title || ""}
-          body={dialog.body || ""}
-          btnText={dialog.btnText || ""}
+          title={dialog.title || ''}
+          body={dialog.body || ''}
+          btnText={dialog.btnText || ''}
           close={() => setDialog({ ...dialog, open: false })}
         />
       </Grid>
-      <PayPasswordDialog initOpen={payPasswordOpen} callback={handlePayPasswordCallback} />
+      <PayPasswordDialog
+        initOpen={payPasswordOpen}
+        callback={handlePayPasswordCallback}
+      />
     </Paper>
   );
 }
