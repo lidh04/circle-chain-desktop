@@ -37,6 +37,6 @@ export default async function createWallet(): Promise<PublicWallet> {
     publicKey,
     balance: 0,
     identities: [],
-    ownerships: []
+    ownerships: [],
   };
 }

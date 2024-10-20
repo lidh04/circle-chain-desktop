@@ -417,7 +417,7 @@ export default function WalletInfo() {
         </Grid>
         <Grid item xs={2}>
           <Typography variant="h6" component="h2" sx={{ textAlign: 'left', mb: '0.5rem', mt: '0.5rem' }}>
-            LI ${allBalance}
+            {allBalance} LI
           </Typography>
         </Grid>
         <Grid item xs={2}>
