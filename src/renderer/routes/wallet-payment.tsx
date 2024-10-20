@@ -375,18 +375,10 @@ export default function WalletPayment() {
 
   return (
     <Paper sx={{ width: '100%', overflow: 'hidden' }}>
-      <Typography
-        variant="h6"
-        component="h1"
-        sx={{ textAlign: 'center', mb: '1rem', mt: '1rem' }}
-      >
+      <Typography variant="h4" component="h1" sx={{ textAlign: 'center', mb: '1rem', mt: '1rem' }}>
         Wallet Payment
       </Typography>
-      <Grid
-        container
-        spacing={2}
-        sx={{ mb: '1rem', mt: '1rem', padding: '0.3rem 1rem' }}
-      >
+      <Grid container spacing={2} sx={{ mb: '1rem', mt: '1rem', padding: '0.3rem 1rem' }}>
         <Grid item xs={3}>
           <FormControl sx={{ m: 0, width: '100%' }} disabled>
             <InputLabel id="demo-simple-select-error-label1">

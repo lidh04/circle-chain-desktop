@@ -1,4 +1,3 @@
-
 class WalletError extends Error {
   code: number = 200;
 
