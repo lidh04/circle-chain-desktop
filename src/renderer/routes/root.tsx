@@ -185,7 +185,8 @@ export default function Root() {
         style={{
           padding: '1rem 2rem',
           borderRight: 'solid 1px #999',
-          width: '321px',
+          width: '20%',
+          minWidth: '240px',
         }}
       >
         <Box sx={{ display: 'flex' }}>
@@ -205,7 +206,7 @@ export default function Root() {
               },
             })}
           >
-            <Paper elevation={0} sx={{ maxWidth: 256 }}>
+            <Paper elevation={0} sx={{ width: '100%' }}>
               <FireNav component="nav" disablePadding>
                 <ListItemButton component="a" href="#customized-list">
                   <ListItemIcon sx={{ fontSize: 20 }}>🔥</ListItemIcon>
@@ -433,7 +434,7 @@ export default function Root() {
           </ThemeProvider>
         </Box>
       </div>
-      <div className="detail" style={{ padding: '1rem 2rem', width: '70%' }}>
+      <div className="detail" style={{ padding: '1rem 2rem', width: '80%' }}>
         <Outlet />
       </div>
     </div>
