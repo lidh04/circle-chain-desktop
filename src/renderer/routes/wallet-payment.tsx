@@ -572,11 +572,7 @@ export default function WalletPayment() {
         </Grid>
         <Grid item xs={2} />
       </Grid>
-      <Grid
-        container
-        spacing={2}
-        sx={{ mb: '1rem', mt: '1rem', padding: '0.3rem 1rem' }}
-      >
+      <Grid container spacing={2} sx={{ mb: '1rem', mt: '1rem', padding: '0.3rem 1rem' }}>
         <Grid item xs={12}>
           <Stack
             direction="column"

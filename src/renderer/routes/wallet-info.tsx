@@ -32,6 +32,7 @@ import TableHead from '@mui/material/TableHead';
 import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
+import RunCircleIcon from '@mui/icons-material/RunCircle';
 import QRCode from 'qrcode';
 
 import Divider from '@mui/material/Divider';
@@ -460,19 +461,31 @@ export default function WalletInfo() {
             {walletCnt}
           </Typography>
         </Grid>
-        <Grid item xs={1}>
-          <IconButton
-            color="primary"
-            aria-label="create new wallet"
+        <Grid item xs={3}>
+          <Button
+            component="label"
+            role={undefined}
+            variant="contained"
             onClick={() => {
               navigate('/create-wallet');
             }}
+            startIcon={<AddCircleIcon />}
           >
-            <AddCircleIcon />
-          </IconButton>
+            Create wallet
+          </Button>
         </Grid>
-        <Grid item xs={1}>
-          <Typography />
+        <Grid item xs={2}>
+          <Button
+            component="label"
+            role={undefined}
+            variant="contained"
+            onClick={() => {
+              navigate('/mine-block');
+            }}
+            startIcon={<RunCircleIcon />}
+          >
+            Mine Block
+          </Button>
         </Grid>
       </Grid>
       <Divider />
