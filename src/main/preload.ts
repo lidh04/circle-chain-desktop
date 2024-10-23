@@ -4,6 +4,7 @@ import { Account, RegisterInput, ResetPasswordInput, VerifyCodeInput } from '../
 import {
   Channels,
   CreateWallet,
+  GET_CPU_COUNT,
   GetAccount,
   GetEncodedPrivateKey,
   GetPayPassword,
@@ -28,6 +29,9 @@ import { AddressType } from '../common/wallet-types';
 
 const electronHandler = {
   ipcRenderer: {
+    getCpuCount() {
+      return ipcRenderer.invoke(GET_CPU_COUNT);
+    },
     sendMessage(channel: Channels, args: unknown[]) {
       ipcRenderer.send(channel, args);
     },

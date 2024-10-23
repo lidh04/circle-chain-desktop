@@ -1,6 +1,7 @@
 export type Channels = 'ipc-circle-chain';
 export const IpcChannel = 'ipc-circle-chain';
 export const RELOAD = 'reload';
+export const GET_CPU_COUNT = 'get-cpu-count';
 // wallet constants
 export const GetWalletPackage = 'get-wallet-package';
 export const ImportWallet = 'import-wallet';

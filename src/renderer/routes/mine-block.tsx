@@ -6,16 +6,20 @@ import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import RunCircleIcon from '@mui/icons-material/RunCircle';
+import { PublicWallet, WalletPackage } from '../../common/wallet-types';
 
 export default function MineBlock() {
   const [core, setCore] = React.useState<number>(1);
   const [cpuList, setCpuList] = React.useState<number[]>([1]);
+  const [addressList, setAddressList] = React.useState<string[]>(['']);
+  const [address, setAddress] = React.useState<string>('');
   const [error, setError] = React.useState(false);
   const [isLoading, setIsLoading] = React.useState(false);
 
   const onSubmitHandler: React.FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
-    console.log('user clicked Submit button');
+    console.log('address:', address, 'cpu core:', core);
+    setIsLoading(true);
   };
 
   const handleCPUChange = (event: SelectChangeEvent) => {
@@ -23,11 +27,28 @@ export default function MineBlock() {
     setCore(event.target.value as number);
   };
 
-  const handleMineNow = async () => {};
-
+  const handleAddressChange = (event: SelectChangeEvent) => {
+    event.preventDefault();
+    setAddress(event.target.value as string);
+  };
   useEffect(() => {
-    setCpuList([1, 2, 3]);
-  }, []);
+    window.electron.ipcRenderer.getCpuCount().then((cpuCount) => {
+      const items = [];
+      for (let i = 0; i < cpuCount; i += 1) {
+        items.push(i + 1);
+      }
+      setCpuList(items);
+      return true;
+    });
+    window.electron.ipcRenderer.getWalletPackage('').then((result: WalletPackage) => {
+      const addresses = result.wallets.map((wallet: PublicWallet) => wallet.address);
+      setAddressList(addresses);
+      if (addresses.length > 0) {
+        setAddress(addresses[0]);
+      }
+      return true;
+    });
+  }, [setAddressList]);
 
   return (
     <Stack
@@ -60,7 +81,7 @@ export default function MineBlock() {
             </Typography>
           </Grid>
           <Grid item xs={7}>
-            <FormControl fullWidth>
+            <FormControl fullWidth disabled={isLoading}>
               <InputLabel id="demo-simple-select-label">Cores</InputLabel>
               <Select
                 labelId="core-select-label"
@@ -70,7 +91,31 @@ export default function MineBlock() {
                 onChange={handleCPUChange}
               >
                 {cpuList.map((cpu) => (
-                  <MenuItem value={cpu}>{cpu}</MenuItem>
+                  <MenuItem value={cpu} key={`cpu-${cpu}`}>{cpu}</MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Grid>
+        </Grid>
+
+        <Grid container spacing={2} sx={{ mb: '1rem', mt: '1rem', padding: '0.3rem 1rem' }}>
+          <Grid item xs={3}>
+            <Typography variant="h6" component="h1" sx={{ textAlign: 'right', mt: '0.5rem' }}>
+              Address
+            </Typography>
+          </Grid>
+          <Grid item xs={7}>
+            <FormControl fullWidth disabled={isLoading}>
+              <InputLabel id="demo-simple-select-label">Mined to the address</InputLabel>
+              <Select
+                labelId="mine-select-label"
+                id="mine-select"
+                value={address}
+                label="Mined to the address"
+                onChange={handleAddressChange}
+              >
+                {addressList.map((item) => (
+                  <MenuItem value={item} key={`address-${item}`}>{item}</MenuItem>
                 ))}
               </Select>
             </FormControl>

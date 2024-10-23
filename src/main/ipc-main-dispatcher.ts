@@ -1,5 +1,6 @@
 import { BrowserWindow, ipcMain } from 'electron';
-import { IpcChannel, RELOAD } from '../common/wallet-constants';
+import os from 'os';
+import { GET_CPU_COUNT, IpcChannel, RELOAD } from '../common/wallet-constants';
 import setUpWalletDispatcher from './ipc-wallet-dispatcher';
 import setUpAccountDispatcher from './ipc-account-dispatcher';
 import setUpBlockDispatcher from './ipc-block-dispatcher';
@@ -13,6 +14,10 @@ export default function setUpIPCMainDispatchers(mainWindow: BrowserWindow) {
 
   ipcMain.on(RELOAD, async (event, arg: string) => {
     mainWindow.webContents.reloadIgnoringCache();
+  });
+
+  ipcMain.handle(GET_CPU_COUNT, async (event) => {
+    return os.cpus().length;
   });
 
   setUpWalletDispatcher();
