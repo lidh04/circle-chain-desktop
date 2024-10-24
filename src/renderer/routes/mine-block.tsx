@@ -63,7 +63,7 @@ export default function MineBlock() {
         Mine Block
       </Typography>
       <Typography variant="h6" component="h1" sx={{ textAlign: 'center', mb: '1.5rem' }}>
-        Get the mine data and mine the block locally, you will the miner coin 100,000 LI each block.
+        Get the mine data and mine the block locally, you will get the miner coin 100,000 LI each block.
       </Typography>
       <Box
         display="flex"
