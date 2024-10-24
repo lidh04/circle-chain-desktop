@@ -55,6 +55,17 @@ export interface WalletPackage {
   wallets: PublicWallet[];
 }
 
+export interface MyBlockData {
+  ipPort: string;
+  blockHeaderHexString: string;
+}
+
+export interface MyBlockRequest {
+  address: string;
+  ipPort: string;
+  blockHeaderHexString: string;
+}
+
 export function addressListOf(walletPackage: WalletPackage) {
   return walletPackage.wallets.map((w) => w.address);
 }

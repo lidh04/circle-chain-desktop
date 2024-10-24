@@ -9,6 +9,8 @@ export const GetEncodedPrivateKey = 'get-encoded-private-key';
 export const SearchTransaction = 'search-transaction';
 export const CreateWallet = 'create-wallet';
 export const SendToChannel = 'send-to';
+export const FETCH_MY_BLOCK = 'fetch-my-block';
+export const POST_MY_BLOCK = 'post-my-block';
 
 // account constants
 export const LOGIN = 'login';

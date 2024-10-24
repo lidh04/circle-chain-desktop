@@ -4,6 +4,7 @@ import { Account, RegisterInput, ResetPasswordInput, VerifyCodeInput } from '../
 import {
   Channels,
   CreateWallet,
+  FETCH_MY_BLOCK,
   GET_CPU_COUNT,
   GetAccount,
   GetEncodedPrivateKey,
@@ -13,6 +14,7 @@ import {
   LOGIN_PASSWORD,
   LOGIN_VERIFY_CODE,
   LOGOUT,
+  POST_MY_BLOCK,
   REGISTER,
   RELOAD,
   RESET_PASSWORD,
@@ -25,7 +27,7 @@ import {
   SetPayPassword
 } from '../common/wallet-constants';
 import { TxType } from '../common/block-types';
-import { AddressType } from '../common/wallet-types';
+import { AddressType, MyBlockRequest } from '../common/wallet-types';
 
 const electronHandler = {
   ipcRenderer: {
@@ -91,6 +93,12 @@ const electronHandler = {
     },
     sendTo(from: string, toEmail: string, assetType: TxType, value: number | string, payPassword: string) {
       return ipcRenderer.invoke(SendToChannel, from, toEmail, assetType, value, payPassword);
+    },
+    fetchMyBlock(address: string) {
+      return ipcRenderer.invoke(FETCH_MY_BLOCK, address);
+    },
+    postMyBlock(data: MyBlockRequest) {
+      return ipcRenderer.invoke(POST_MY_BLOCK, data);
     },
     on(channel: Channels, func: (...args: unknown[]) => void) {
       const subscription = (_event: IpcRendererEvent, ...args: unknown[]) => func(...args);
