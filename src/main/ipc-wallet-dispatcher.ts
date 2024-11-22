@@ -5,6 +5,7 @@ import {
   GetEncodedPrivateKey,
   GetWalletPackage,
   ImportWallet,
+  MINE_BLOCK,
   POST_MY_BLOCK,
   SendToChannel
 } from '../common/wallet-constants';
@@ -12,7 +13,7 @@ import createWallet from './create-wallet';
 import { EmailAccount } from '../common/account-types';
 import { PrivateWalletPackage } from './wallet-privacy';
 import { sendTo } from './blocks';
-import { fetchMyBlockData, postMyBlock } from './wallet-service';
+import { fetchMyBlockData, mineBlock, postMyBlock } from './wallet-service';
 import { MyBlockRequest } from '../common/wallet-types';
 
 export default function setUpWalletDispatcher() {
@@ -74,5 +75,9 @@ export default function setUpWalletDispatcher() {
 
   ipcMain.handle(POST_MY_BLOCK, async (event, data: MyBlockRequest) => {
     return postMyBlock(data);
+  });
+
+  ipcMain.handle(MINE_BLOCK, async (event, address: string, threadCount: number) => {
+    return mineBlock(address, threadCount);
   });
 }

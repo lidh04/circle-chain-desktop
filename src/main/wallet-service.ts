@@ -6,6 +6,7 @@
  */
 
 import axios from 'axios';
+import wallet from '@lidh04/circle-chain-sdk';
 import { Identity, MyBlockData, MyBlockRequest, Ownership, PublicWallet } from '../common/wallet-types';
 import { store_get } from '../common/store-config';
 
@@ -125,7 +126,7 @@ export async function uploadUidAndAddress(uid: string, addresses: AddressSignVO[
 
 export async function fetchMyBlockData(address: string) {
   const host = store_get('host');
-  const url = `${host}//public/v1/miner/fetchMyBlock?address=${address}`;
+  const url = `${host}/public/v1/miner/fetchMyBlock?address=${address}`;
   try {
     const response = await axios.get(url);
     if (response.status === 200) {
@@ -163,4 +164,50 @@ export async function postMyBlock(data: MyBlockRequest) {
     console.error('post url:', url, 'data:', data, 'error:', err.name, err.message, err);
   }
   return false;
+}
+
+export async function mineBlock(address: string, threadCount: number) {
+  let data: MyBlockData | null = null;
+  let times = 0;
+  while (times < 24 * 60 * 2) {
+    // eslint-disable-next-line no-await-in-loop
+    data = await fetchMyBlockData(address);
+    if (data) {
+      break;
+    }
+    times += 1;
+
+    // eslint-disable-next-line no-await-in-loop
+    await new Promise((resolve) => {
+      setTimeout(resolve, 30000);
+    });
+  }
+
+  if (!data) {
+    return {
+      code: 404,
+      msg: 'there is no block exists to be mined!',
+    };
+  }
+
+  const { ipPort, blockHeaderHexString } = data;
+  const minedBlockHeaderHexString = await wallet.miner.mineBlock(blockHeaderHexString, threadCount);
+  if (minedBlockHeaderHexString) {
+    const postResult = await postMyBlock({
+      address,
+      ipPort,
+      blockHeaderHexString: minedBlockHeaderHexString,
+    });
+    console.log('mine result:', postResult);
+    return {
+      code: 200,
+      data: postResult,
+      msg: 'success',
+    };
+  }
+
+  return {
+    code: 10000,
+    msg: 'mined failure',
+  };
 }

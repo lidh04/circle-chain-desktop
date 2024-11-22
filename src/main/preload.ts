@@ -14,6 +14,7 @@ import {
   LOGIN_PASSWORD,
   LOGIN_VERIFY_CODE,
   LOGOUT,
+  MINE_BLOCK,
   POST_MY_BLOCK,
   REGISTER,
   RELOAD,
@@ -99,6 +100,9 @@ const electronHandler = {
     },
     postMyBlock(data: MyBlockRequest) {
       return ipcRenderer.invoke(POST_MY_BLOCK, data);
+    },
+    mineBlock(address: string, threadCount: number) {
+      return ipcRenderer.invoke(MINE_BLOCK, address, threadCount);
     },
     on(channel: Channels, func: (...args: unknown[]) => void) {
       const subscription = (_event: IpcRendererEvent, ...args: unknown[]) => func(...args);

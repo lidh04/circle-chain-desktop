@@ -1,36 +1,65 @@
 import React, { useEffect } from 'react';
-import { Box, Grid, Stack, Typography } from '@mui/material';
+import { Box, Button, Grid, Stack, Typography } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import RunCircleIcon from '@mui/icons-material/RunCircle';
+import Cookies from 'js-cookie';
 import { PublicWallet, WalletPackage } from '../../common/wallet-types';
+import CircleDialog from '../components/CircleDialog';
 
 export default function MineBlock() {
   const [core, setCore] = React.useState<number>(1);
   const [cpuList, setCpuList] = React.useState<number[]>([1]);
   const [addressList, setAddressList] = React.useState<string[]>(['']);
   const [address, setAddress] = React.useState<string>('');
-  const [error, setError] = React.useState(false);
+  const [error, setError] = React.useState('');
   const [isLoading, setIsLoading] = React.useState(false);
+  const [openMineSuccess, setOpenMineSuccess] = React.useState(false);
+
+  const stopMineBlock = () => {
+    setIsLoading(false);
+    Cookies.remove('isLoading');
+    Cookies.remove('address');
+    Cookies.remove('core');
+  };
 
   const onSubmitHandler: React.FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
     console.log('address:', address, 'cpu core:', core);
     setIsLoading(true);
+    setError('');
+    Cookies.set('isLoading', '1');
+    const response = await window.electron.ipcRenderer.mineBlock(address, core);
+    console.log('mine block response:', response);
+    if (response.code === 200 && response.data) {
+      console.log('mine block success!');
+      // TODO pop up dialog and show success info.
+      setOpenMineSuccess(true);
+    } else {
+      if (response.code !== 200) {
+        setError(response.msg);
+      } else {
+        setError('the mined blocked is obsoleted!');
+      }
+    }
+    stopMineBlock();
   };
 
   const handleCPUChange = (event: SelectChangeEvent) => {
     event.preventDefault();
     setCore(event.target.value as number);
+    Cookies.set('core', `${event.target.value}`, { expires: 1 });
   };
 
   const handleAddressChange = (event: SelectChangeEvent) => {
     event.preventDefault();
     setAddress(event.target.value as string);
+    Cookies.set('address', event.target.value as string, { expires: 1 });
   };
+
   useEffect(() => {
     window.electron.ipcRenderer.getCpuCount().then((cpuCount) => {
       const items = [];
@@ -38,17 +67,30 @@ export default function MineBlock() {
         items.push(i + 1);
       }
       setCpuList(items);
+
+      const coreInCookie = Cookies.get('core');
+      if (coreInCookie) {
+        setCore(parseInt(coreInCookie, 10));
+      }
       return true;
     });
     window.electron.ipcRenderer.getWalletPackage('').then((result: WalletPackage) => {
       const addresses = result.wallets.map((wallet: PublicWallet) => wallet.address);
       setAddressList(addresses);
-      if (addresses.length > 0) {
+      const addressInCookie = Cookies.get('address');
+      if (addressInCookie) {
+        setAddress(addressInCookie);
+      } else if (addresses.length > 0) {
         setAddress(addresses[0]);
       }
       return true;
     });
-  }, [setAddressList]);
+
+    const isLoadingInCookie = Cookies.get('isLoading');
+    if (isLoadingInCookie) {
+      setIsLoading(true);
+    }
+  }, [setAddressList, setCpuList]);
 
   return (
     <Stack
@@ -91,7 +133,9 @@ export default function MineBlock() {
                 onChange={handleCPUChange}
               >
                 {cpuList.map((cpu) => (
-                  <MenuItem value={cpu} key={`cpu-${cpu}`}>{cpu}</MenuItem>
+                  <MenuItem value={cpu} key={`cpu-${cpu}`}>
+                    {cpu}
+                  </MenuItem>
                 ))}
               </Select>
             </FormControl>
@@ -115,7 +159,9 @@ export default function MineBlock() {
                 onChange={handleAddressChange}
               >
                 {addressList.map((item) => (
-                  <MenuItem value={item} key={`address-${item}`}>{item}</MenuItem>
+                  <MenuItem value={item} key={`address-${item}`}>
+                    {item}
+                  </MenuItem>
                 ))}
               </Select>
             </FormControl>
@@ -147,10 +193,37 @@ export default function MineBlock() {
               >
                 Start
               </LoadingButton>
+              {isLoading && (
+                <Button
+                  component="label"
+                  role={undefined}
+                  variant="contained"
+                  onClick={() => {
+                    stopMineBlock();
+                  }}
+                >
+                  Stop
+                </Button>
+              )}
+
+              {error && (
+                <Grid container justifyContent="center" rowSpacing={2}>
+                  <Typography sx={{ fontSize: '0.9rem', mt: '1rem', mb: '1rem', color: 'red' }}>
+                    {error}
+                  </Typography>
+                </Grid>
+              )}
             </Stack>
           </Grid>
         </Grid>
       </Box>
+      <CircleDialog
+        open={openMineSuccess}
+        title="Success"
+        body={['Congrats!', 'You mined one block success!']}
+        btnText="Close"
+        close={() => setOpenMineSuccess(false)}
+      />
     </Stack>
   );
 }

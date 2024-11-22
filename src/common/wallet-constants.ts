@@ -11,6 +11,7 @@ export const CreateWallet = 'create-wallet';
 export const SendToChannel = 'send-to';
 export const FETCH_MY_BLOCK = 'fetch-my-block';
 export const POST_MY_BLOCK = 'post-my-block';
+export const MINE_BLOCK = 'mine-block';
 
 // account constants
 export const LOGIN = 'login';
