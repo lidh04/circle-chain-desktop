@@ -166,6 +166,10 @@ export async function postMyBlock(data: MyBlockRequest) {
   return false;
 }
 
+export async function stopMineBlock() {
+  await wallet.miner.terminateAndClearWorkers();
+}
+
 export async function mineBlock(address: string, threadCount: number) {
   let data: MyBlockData | null = null;
   let times = 0;
@@ -191,7 +195,21 @@ export async function mineBlock(address: string, threadCount: number) {
   }
 
   const { ipPort, blockHeaderHexString } = data;
-  const minedBlockHeaderHexString = await wallet.miner.mineBlock(blockHeaderHexString, threadCount);
+  let minedBlockHeaderHexString;
+  try {
+    minedBlockHeaderHexString = await wallet.miner.mineBlock(blockHeaderHexString, threadCount);
+  } catch (err) {
+    if (err instanceof Error) {
+      const { message } = err;
+      if (message.indexOf('not support') !== -1) {
+        return {
+          code: 10000,
+          msg: message,
+        };
+      }
+    }
+  }
+
   if (minedBlockHeaderHexString) {
     const postResult = await postMyBlock({
       address,

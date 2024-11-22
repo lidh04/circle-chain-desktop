@@ -19,7 +19,8 @@ export default function MineBlock() {
   const [isLoading, setIsLoading] = React.useState(false);
   const [openMineSuccess, setOpenMineSuccess] = React.useState(false);
 
-  const stopMineBlock = () => {
+  const stopMineBlock = async () => {
+    await window.electron.ipcRenderer.stopMineBlock();
     setIsLoading(false);
     Cookies.remove('isLoading');
     Cookies.remove('address');
@@ -45,7 +46,7 @@ export default function MineBlock() {
         setError('the mined blocked is obsoleted!');
       }
     }
-    stopMineBlock();
+    await stopMineBlock();
   };
 
   const handleCPUChange = (event: SelectChangeEvent) => {
@@ -198,8 +199,8 @@ export default function MineBlock() {
                   component="label"
                   role={undefined}
                   variant="contained"
-                  onClick={() => {
-                    stopMineBlock();
+                  onClick={async () => {
+                    await stopMineBlock();
                   }}
                 >
                   Stop

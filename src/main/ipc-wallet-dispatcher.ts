@@ -1,20 +1,18 @@
 import { ipcMain } from 'electron';
 import {
   CreateWallet,
-  FETCH_MY_BLOCK,
   GetEncodedPrivateKey,
   GetWalletPackage,
   ImportWallet,
   MINE_BLOCK,
-  POST_MY_BLOCK,
-  SendToChannel
+  SendToChannel,
+  STOP_MINE_BLOCK
 } from '../common/wallet-constants';
 import createWallet from './create-wallet';
 import { EmailAccount } from '../common/account-types';
 import { PrivateWalletPackage } from './wallet-privacy';
 import { sendTo } from './blocks';
-import { fetchMyBlockData, mineBlock, postMyBlock } from './wallet-service';
-import { MyBlockRequest } from '../common/wallet-types';
+import { mineBlock, stopMineBlock } from './wallet-service';
 
 export default function setUpWalletDispatcher() {
   ipcMain.handle(CreateWallet, async (event) => {
@@ -67,17 +65,10 @@ export default function setUpWalletDispatcher() {
     }
   );
 
-  ipcMain.handle(FETCH_MY_BLOCK, async (event, address: string) => {
-    const myBlockData = await fetchMyBlockData(address);
-    console.log('fetch data for address:', address, 'data:', myBlockData);
-    return myBlockData;
-  });
-
-  ipcMain.handle(POST_MY_BLOCK, async (event, data: MyBlockRequest) => {
-    return postMyBlock(data);
-  });
-
   ipcMain.handle(MINE_BLOCK, async (event, address: string, threadCount: number) => {
     return mineBlock(address, threadCount);
+  });
+  ipcMain.handle(STOP_MINE_BLOCK, async (event) => {
+    return stopMineBlock();
   });
 }
