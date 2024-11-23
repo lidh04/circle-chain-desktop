@@ -195,7 +195,7 @@ export async function mineBlock(address: string, threadCount: number) {
   }
 
   const { ipPort, blockHeaderHexString } = data;
-  let minedBlockHeaderHexString;
+  let minedBlockHeaderHexString = '';
   const timeoutPromise = new Promise((resolve, reject) => {
     setTimeout(() => {
       reject(new Error('mine block timeout!'));
@@ -203,7 +203,13 @@ export async function mineBlock(address: string, threadCount: number) {
   });
   try {
     const mineBlockPromise = wallet.miner.mineBlock(blockHeaderHexString, threadCount);
-    minedBlockHeaderHexString = await Promise.any([timeoutPromise, mineBlockPromise]);
+    const minedResult = await Promise.any([timeoutPromise, mineBlockPromise]);
+    if (minedResult) {
+      const minedContent = minedResult as string;
+      const items = minedContent.split('\n');
+      // eslint-disable-next-line prefer-destructuring
+      minedBlockHeaderHexString = items[0];
+    }
   } catch (err) {
     if (err instanceof Error) {
       const { message } = err;
@@ -227,7 +233,7 @@ export async function mineBlock(address: string, threadCount: number) {
     const postResult = await postMyBlock({
       address,
       ipPort,
-      blockHeaderHexString: minedBlockHeaderHexString as string,
+      blockHeaderHexString: minedBlockHeaderHexString,
     });
     console.log('mine result:', postResult);
     return {
