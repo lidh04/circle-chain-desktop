@@ -13,7 +13,7 @@ import {
   LOGIN_PASSWORD,
   LOGIN_VERIFY_CODE,
   LOGOUT,
-  MINE_BLOCK,
+  MINE_BLOCK_REQUEST,
   REGISTER,
   RELOAD,
   RESET_PASSWORD,
@@ -95,20 +95,20 @@ const electronHandler = {
       return ipcRenderer.invoke(SendToChannel, from, toEmail, assetType, value, payPassword);
     },
     mineBlock(address: string, threadCount: number) {
-      return ipcRenderer.invoke(MINE_BLOCK, address, threadCount);
+      return ipcRenderer.send(MINE_BLOCK_REQUEST, address, threadCount);
     },
     stopMineBlock() {
       return ipcRenderer.invoke(STOP_MINE_BLOCK);
     },
-    on(channel: Channels, func: (...args: unknown[]) => void) {
-      const subscription = (_event: IpcRendererEvent, ...args: unknown[]) => func(...args);
+    on(channel: string, func: (...args: string[]) => void) {
+      const subscription = (_event: IpcRendererEvent, ...args: string[]) => func(...args);
       ipcRenderer.on(channel, subscription);
 
       return () => {
         ipcRenderer.removeListener(channel, subscription);
       };
     },
-    once(channel: Channels, func: (...args: unknown[]) => void) {
+    once(channel: string, func: (...args: string[]) => void) {
       ipcRenderer.once(channel, (_event, ...args) => func(...args));
     },
   },

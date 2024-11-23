@@ -9,6 +9,7 @@ import RunCircleIcon from '@mui/icons-material/RunCircle';
 import Cookies from 'js-cookie';
 import { PublicWallet, WalletPackage } from '../../common/wallet-types';
 import CircleDialog from '../components/CircleDialog';
+import { MINE_BLOCK_REPLY } from '../../common/wallet-constants';
 
 export default function MineBlock() {
   const [core, setCore] = React.useState<number>(1);
@@ -33,20 +34,7 @@ export default function MineBlock() {
     setIsLoading(true);
     setError('');
     Cookies.set('isLoading', '1');
-    const response = await window.electron.ipcRenderer.mineBlock(address, core);
-    console.log('mine block response:', response);
-    if (response.code === 200 && response.data) {
-      console.log('mine block success!');
-      // TODO pop up dialog and show success info.
-      setOpenMineSuccess(true);
-    } else {
-      if (response.code !== 200) {
-        setError(response.msg);
-      } else {
-        setError('the mined blocked is obsoleted!');
-      }
-    }
-    await stopMineBlock();
+    await window.electron.ipcRenderer.mineBlock(address, core);
   };
 
   const handleCPUChange = (event: SelectChangeEvent) => {
@@ -91,6 +79,25 @@ export default function MineBlock() {
     if (isLoadingInCookie) {
       setIsLoading(true);
     }
+
+    window.electron.ipcRenderer.on(MINE_BLOCK_REPLY, (result: string) => {
+      const response: { code: number; msg: string; data?: boolean } = JSON.parse(result);
+      console.log('mine block response:', result);
+      if (response.code === 200 && response.data) {
+        console.log('mine block success!');
+        // TODO pop up dialog and show success info.
+        setOpenMineSuccess(true);
+      } else {
+        if (response.code !== 200) {
+          setError(response.msg);
+        } else {
+          setError('the mined blocked is obsoleted!');
+        }
+      }
+      stopMineBlock()
+        .then(() => console.log('stop mine block success.'))
+        .catch((err) => console.error('stop mine block error:', err));
+    });
   }, [setAddressList, setCpuList]);
 
   return (

@@ -4,7 +4,8 @@ import {
   GetEncodedPrivateKey,
   GetWalletPackage,
   ImportWallet,
-  MINE_BLOCK,
+  MINE_BLOCK_REPLY,
+  MINE_BLOCK_REQUEST,
   SendToChannel,
   STOP_MINE_BLOCK
 } from '../common/wallet-constants';
@@ -65,8 +66,24 @@ export default function setUpWalletDispatcher() {
     }
   );
 
-  ipcMain.handle(MINE_BLOCK, async (event, address: string, threadCount: number) => {
-    return mineBlock(address, threadCount);
+  ipcMain.on(MINE_BLOCK_REQUEST, (event, address: string, threadCount: number) => {
+    mineBlock(address, threadCount)
+      // eslint-disable-next-line promise/always-return
+      .then((result) => {
+        event.reply(MINE_BLOCK_REPLY, JSON.stringify(result));
+      })
+      .catch((error) => {
+        console.error('mine block error:', error);
+        if (error instanceof Error) {
+          event.reply(
+            MINE_BLOCK_REPLY,
+            JSON.stringify({
+              code: 500,
+              msg: error.message,
+            })
+          );
+        }
+      });
   });
   ipcMain.handle(STOP_MINE_BLOCK, async (event) => {
     return stopMineBlock();
