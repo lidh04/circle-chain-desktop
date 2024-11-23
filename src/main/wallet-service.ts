@@ -227,7 +227,7 @@ export async function mineBlock(address: string, threadCount: number) {
     const postResult = await postMyBlock({
       address,
       ipPort,
-      blockHeaderHexString: minedBlockHeaderHexString,
+      blockHeaderHexString: minedBlockHeaderHexString as string,
     });
     console.log('mine result:', postResult);
     return {
