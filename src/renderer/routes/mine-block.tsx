@@ -80,19 +80,15 @@ export default function MineBlock() {
       setIsLoading(true);
     }
 
-    window.electron.ipcRenderer.on(MINE_BLOCK_REPLY, (result: string) => {
+    window.electron.ipcRenderer.once(MINE_BLOCK_REPLY, (result: string) => {
       const response: { code: number; msg: string; data?: boolean } = JSON.parse(result);
       console.log('mine block response:', result);
       if (response.code === 200 && response.data) {
         console.log('mine block success!');
-        // TODO pop up dialog and show success info.
         setOpenMineSuccess(true);
       } else {
-        if (response.code !== 200) {
-          setError(response.msg);
-        } else {
-          setError('the mined blocked is obsoleted!');
-        }
+        const mineBlockError = response.code === 200 ? 'the mined blocked is obsoleted!' : response.msg;
+        setError(mineBlockError);
       }
       stopMineBlock()
         .then(() => console.log('stop mine block success.'))
