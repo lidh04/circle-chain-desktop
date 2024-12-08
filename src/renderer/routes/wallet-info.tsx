@@ -341,6 +341,7 @@ export default function WalletInfo() {
           label: makeWalletLabel(row.address, index),
         }))
       );
+      return true;
     });
   }, [setAllBalance, setOwnershipCnt, setIdentityCnt, setSearchedRows, setRows, setAddresses]);
 
@@ -394,12 +395,12 @@ export default function WalletInfo() {
       return;
     }
     try {
-      const [address, _] = await window.electron.ipcRenderer.importWallet(newKeywords);
+      const [importedAddress, _] = await window.electron.ipcRenderer.importWallet(newKeywords);
       setImportError(false);
       setErrorMessage('');
       setNewKeyworkds('');
       setOpenImportSuccess(true);
-      console.log('import address:', address, 'success!');
+      console.log('import address:', importedAddress, 'success!');
     } catch (err: any) {
       console.error('cannot import wallet by keywords:', newKeywords, 'error:', err.message, err);
       setImportError(true);
