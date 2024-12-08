@@ -41,6 +41,7 @@ export interface PublicWallet {
   address: string;
   publicKey: string;
   balance: number;
+  unconfirmed: number;
   identities: Identity[];
   ownerships: Ownership[];
 }

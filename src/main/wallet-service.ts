@@ -32,6 +32,7 @@ export async function getWalletAssetsByAddress(address: string): Promise<Partial
   return {
     address,
     balance: balanceVO.confirmed,
+    unconfirmed: balanceVO.unconfirmed,
     identities,
     ownerships,
   };

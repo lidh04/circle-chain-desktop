@@ -66,6 +66,7 @@ interface AddressDialogProps {
 const columns: readonly Column[] = [
   { id: 'address', label: 'Address', minWidth: 150 },
   { id: 'balance', label: 'Balance', minWidth: 60 },
+  { id: 'unconfirmed', label: 'unconfirmed', minWidth: 60 },
   {
     id: 'identity',
     label: 'Identity',
@@ -95,16 +96,18 @@ const columns: readonly Column[] = [
 interface Data {
   address: string;
   balance: number;
+  unconfirmed: number;
   identity: number;
   ownership: number;
   operation: string;
   keywords: string;
 }
 
-function createData(address: string, balance: number, identity: number, ownership: number): Data {
+function createData(address: string, balance: number, unconfirmed: number, identity: number, ownership: number): Data {
   return {
     address,
     balance,
+    unconfirmed,
     identity,
     ownership,
     operation: address,
@@ -309,10 +312,16 @@ export default function WalletInfo() {
     window.electron.ipcRenderer.getWalletPackage('').then((result: WalletPackage) => {
       console.log('wallet-info walletPackage:', result);
       const totalRows = result.wallets.map((wallet: PublicWallet) =>
-        createData(wallet.address, wallet.balance, wallet.identities.length, wallet.ownerships.length)
+        createData(
+          wallet.address,
+          wallet.balance,
+          wallet.unconfirmed,
+          wallet.identities.length,
+          wallet.ownerships.length
+        )
       );
       const balanceTotal = result.wallets
-        .map((wallet) => wallet.balance)
+        .map((wallet) => wallet.balance + wallet.unconfirmed)
         .reduce((total, balance) => total + balance, 0);
       setAllBalance(balanceTotal);
       const identityTotal = result.wallets

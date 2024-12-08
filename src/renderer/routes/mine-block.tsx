@@ -80,7 +80,7 @@ export default function MineBlock() {
       setIsLoading(true);
     }
 
-    window.electron.ipcRenderer.once(MINE_BLOCK_REPLY, (result: string) => {
+    window.electron.ipcRenderer.on(MINE_BLOCK_REPLY, (result: string) => {
       const response: { code: number; msg: string; data?: boolean } = JSON.parse(result);
       console.log('mine block response:', result);
       if (response.code === 200 && response.data) {

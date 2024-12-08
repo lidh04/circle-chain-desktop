@@ -401,6 +401,7 @@ async function getWalletPackage(): Promise<WalletPackage> {
         publicKey,
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         balance: walletAssets.balance!,
+        unconfirmed: walletAssets.unconfirmed!,
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         identities: walletAssets.identities!,
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
