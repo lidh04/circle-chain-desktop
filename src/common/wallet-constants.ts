@@ -1,6 +1,7 @@
 export type Channels = 'ipc-circle-chain';
 export const IpcChannel = 'ipc-circle-chain';
 export const RELOAD = 'reload';
+export const GET_CPU_COUNT = 'get-cpu-count';
 // wallet constants
 export const GetWalletPackage = 'get-wallet-package';
 export const ImportWallet = 'import-wallet';
@@ -8,6 +9,9 @@ export const GetEncodedPrivateKey = 'get-encoded-private-key';
 export const SearchTransaction = 'search-transaction';
 export const CreateWallet = 'create-wallet';
 export const SendToChannel = 'send-to';
+export const MINE_BLOCK_REQUEST = 'mine-block-request';
+export const MINE_BLOCK_REPLY = 'mine-block-reply';
+export const STOP_MINE_BLOCK = 'stop-mine-block';
 
 // account constants
 export const LOGIN = 'login';

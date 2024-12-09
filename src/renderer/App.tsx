@@ -1,6 +1,6 @@
 import React from 'react';
-import { RouterProvider, createMemoryRouter } from 'react-router-dom';
-import { ThemeProvider, createTheme } from '@mui/material/styles';
+import { createMemoryRouter, RouterProvider } from 'react-router-dom';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { CssBaseline } from '@mui/material';
 import ErrorPage from './routes/error-page';
 import Root from './routes/root';
@@ -13,6 +13,7 @@ import CreateWallet from './routes/create-wallet';
 import WalletInfo from './routes/wallet-info';
 import WalletPayment from './routes/wallet-payment';
 import WalletTrans from './routes/wallet-trans';
+import MineBlock from './routes/mine-block';
 import './App.css';
 
 const router = createMemoryRouter(
@@ -50,6 +51,11 @@ const router = createMemoryRouter(
         {
           path: 'create-wallet',
           element: <CreateWallet />,
+          errorElement: <ErrorPage />,
+        },
+        {
+          path: 'mine-block',
+          element: <MineBlock />,
           errorElement: <ErrorPage />,
         },
         {

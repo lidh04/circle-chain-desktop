@@ -1,8 +1,10 @@
 import { Box, Stack, Typography } from '@mui/material';
+import Button from '@mui/material/Button';
 import { LoadingButton } from '@mui/lab';
 import React, { useEffect } from 'react';
 import QRCode from 'qrcode';
 
+import { useNavigate } from 'react-router-dom';
 import { PrivatePoem, PublicWallet } from '../../common/wallet-types';
 
 type Point2D = {
@@ -17,7 +19,7 @@ const getRandom: GetRandom = (p) => {
     return 0;
   }
 
-  return (new Date().getTime() % 100000) + parseInt(`${p.x}${p.y}`);
+  return (new Date().getTime() % 100000) + parseInt(`${p.x}${p.y}`, 10);
 };
 
 async function generateQRcode(address: string): Promise<string> {
@@ -39,14 +41,16 @@ export default function CreateWallet() {
   const [wallet, setWallet] = React.useState<PublicWallet | null>(null);
   const [poem, setPoem] = React.useState<PrivatePoem | null>(null);
 
+  const navigate = useNavigate();
+
   const onSubmitHandler: React.FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
     console.log('click the next button.');
-    const walletPackage = await window.electron.ipcRenderer.getWalletPackage();
-    if (walletPackage && walletPackage.wallets && walletPackage.wallets.length >= 3) {
-      setError('you already created 3 wallets, cannot create any wallet now!');
-      return;
-    }
+    // const walletPackage = await window.electron.ipcRenderer.getWalletPackage();
+    // if (walletPackage && walletPackage.wallets && walletPackage.wallets.length >= 3) {
+    //   setError('you already created 3 wallets, cannot create any wallet now!');
+    //   return;
+    // }
     setShowNext(step + 1 < 3);
     if (step === 1) {
       const r = await window.electron.ipcRenderer.createWallet();
@@ -93,7 +97,7 @@ export default function CreateWallet() {
       sx={{ width: '100%', height: 'auto' }}
       onMouseOver={boxMouseOverHandler}
     >
-      <Typography variant="h6" component="h1" sx={{ textAlign: 'center', mb: '1.5rem' }}>
+      <Typography variant="h4" component="h1" sx={{ textAlign: 'center', mb: '1.5rem' }}>
         Create Wallet
       </Typography>
 
@@ -217,6 +221,15 @@ export default function CreateWallet() {
               <Typography sx={{ fontSize: '12px' }}>
                 address: {wallet && wallet.address ? wallet.address : ''}
               </Typography>
+              <Button
+                variant="contained"
+                disableElevation
+                onClick={() => {
+                  navigate('/wallet-info');
+                }}
+              >
+                OK
+              </Button>
             </Stack>
           </>
         )}
@@ -234,6 +247,24 @@ export default function CreateWallet() {
             }}
           >
             Next
+          </LoadingButton>
+        )}
+
+        {step <= 1 && (
+          <LoadingButton
+            loading={false}
+            variant="contained"
+            sx={{
+              py: '0.4rem',
+              mt: 2,
+              width: '118px',
+              marginInline: 'auto',
+            }}
+            onClick={() => {
+              navigate('/wallet-info');
+            }}
+          >
+            Close
           </LoadingButton>
         )}
       </Box>

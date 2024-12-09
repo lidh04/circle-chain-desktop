@@ -1,13 +1,4 @@
-import {
-  Box,
-  Button,
-  Grid,
-  MenuItem,
-  Select,
-  Stack,
-  TextField,
-  Typography,
-} from '@mui/material';
+import { Box, Button, Grid, MenuItem, Select, Stack, TextField, Typography } from '@mui/material';
 import Alert from '@mui/material/Alert';
 import TextareaAutosize from '@mui/base/TextareaAutosize';
 import ImportExportIcon from '@mui/icons-material/ImportExport';
@@ -40,25 +31,22 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
+import AddCircleIcon from '@mui/icons-material/AddCircle';
+import RunCircleIcon from '@mui/icons-material/RunCircle';
 import QRCode from 'qrcode';
 
+import Divider from '@mui/material/Divider';
 import {
   AutocompleteOption,
-  PublicWallet,
-  WalletPackage,
   makeWalletLabel,
-  PrivatePoem
+  PrivatePoem,
+  PublicWallet,
+  WalletPackage
 } from '../../common/wallet-types';
 import CircleDialog from '../components/CircleDialog';
 
 interface Column {
-  id:
-    | 'address'
-    | 'balance'
-    | 'identity'
-    | 'ownership'
-    | 'operation'
-    | 'keywords';
+  id: 'address' | 'balance' | 'identity' | 'ownership' | 'operation' | 'keywords';
   label: string;
   minWidth?: number;
   align?: 'right';
@@ -78,6 +66,7 @@ interface AddressDialogProps {
 const columns: readonly Column[] = [
   { id: 'address', label: 'Address', minWidth: 150 },
   { id: 'balance', label: 'Balance', minWidth: 60 },
+  { id: 'unconfirmed', label: 'unconfirmed', minWidth: 60 },
   {
     id: 'identity',
     label: 'Identity',
@@ -107,21 +96,18 @@ const columns: readonly Column[] = [
 interface Data {
   address: string;
   balance: number;
+  unconfirmed: number;
   identity: number;
   ownership: number;
   operation: string;
   keywords: string;
 }
 
-function createData(
-  address: string,
-  balance: number,
-  identity: number,
-  ownership: number
-): Data {
+function createData(address: string, balance: number, unconfirmed: number, identity: number, ownership: number): Data {
   return {
     address,
     balance,
+    unconfirmed,
     identity,
     ownership,
     operation: address,
@@ -145,10 +131,7 @@ function OperationsDialog(props: OperationsDialogProps) {
       <DialogTitle>Operations on address</DialogTitle>
       <List sx={{ pt: 0 }}>
         <ListItem disableGutters>
-          <ListItemButton
-            key="searchByAddress"
-            onClick={() => handleListItemClick('searchByAddress')}
-          >
+          <ListItemButton key="searchByAddress" onClick={() => handleListItemClick('searchByAddress')}>
             <ListItemAvatar>
               <Avatar sx={{ bgcolor: blue[100], color: blue[600] }}>
                 <SearchIcon />
@@ -159,10 +142,7 @@ function OperationsDialog(props: OperationsDialogProps) {
         </ListItem>
 
         <ListItem disableGutters>
-          <ListItemButton
-            key="payWithAddress"
-            onClick={() => handleListItemClick('payWithAddress')}
-          >
+          <ListItemButton key="payWithAddress" onClick={() => handleListItemClick('payWithAddress')}>
             <ListItemAvatar>
               <Avatar sx={{ bgcolor: blue[100], color: blue[600] }}>
                 <PaymentIcon />
@@ -215,19 +195,19 @@ function BootstrapDialogTitle(props: DialogTitleProps) {
   );
 }
 
-async function generateQRcode(address: string) : Promise<string> {
+async function generateQRcode(address: string): Promise<string> {
   if (!address) {
-    return "";
+    return '';
   }
 
   const svg = await QRCode.toString(address, { type: 'svg' });
   // console.log("svg:", svg);
   return svg;
-};
+}
 
 function AddressDialog(props: AddressDialogProps) {
   const [poem, setPoem] = React.useState<PrivatePoem | null>(null);
-  const [svg, setSvg] = React.useState<string>("");
+  const [svg, setSvg] = React.useState<string>('');
   const { onClose, open, address } = props;
 
   React.useEffect(() => {
@@ -241,18 +221,10 @@ function AddressDialog(props: AddressDialogProps) {
     onClose();
   };
 
-
   return (
     <>
-      <BootstrapDialog
-        onClose={handleClose}
-        aria-labelledby="customized-dialog-title"
-        open={open}
-      >
-        <BootstrapDialogTitle
-          id="customized-dialog-title"
-          onClose={handleClose}
-        >
+      <BootstrapDialog onClose={handleClose} aria-labelledby="customized-dialog-title" open={open}>
+        <BootstrapDialogTitle id="customized-dialog-title" onClose={handleClose}>
           Address Keywords
         </BootstrapDialogTitle>
         <DialogContent dividers>
@@ -264,23 +236,34 @@ function AddressDialog(props: AddressDialogProps) {
             spacing={2}
             sx={{ width: '100%', height: 'auto' }}
           >
-            {poem && <Typography
-              sx={{
-                fontSize: '1.5rem',
-                mb: '0',
-                mt: "0",
-                height: 'auto',
-                textAlign: 'center',
-              }}>{poem.title}</Typography>
-            }
-            {poem && poem.sentences.map(sen => <Typography key={sen}
-              sx={{
-                fontSize: '1rem',
-                mb: '0',
-                mt: "0",
-                height: 'auto',
-                textAlign: 'center',
-              }}>{sen}</Typography>)}
+            {poem && (
+              <Typography
+                sx={{
+                  fontSize: '1.5rem',
+                  mb: '0',
+                  mt: '0',
+                  height: 'auto',
+                  textAlign: 'center',
+                }}
+              >
+                {poem.title}
+              </Typography>
+            )}
+            {poem &&
+              poem.sentences.map((sen) => (
+                <Typography
+                  key={sen}
+                  sx={{
+                    fontSize: '1rem',
+                    mb: '0',
+                    mt: '0',
+                    height: 'auto',
+                    textAlign: 'center',
+                  }}
+                >
+                  {sen}
+                </Typography>
+              ))}
 
             <Typography gutterBottom>Address QrCode:</Typography>
             <Box
@@ -290,11 +273,9 @@ function AddressDialog(props: AddressDialogProps) {
                 width: 180,
               }}
             >
-              <div className="Container" dangerouslySetInnerHTML={{ __html: svg }}></div>
+              <div className="Container" dangerouslySetInnerHTML={{ __html: svg }} />
             </Box>
-            <Typography sx={{ fontSize: '12px' }}>
-              address: {address}
-            </Typography>
+            <Typography sx={{ fontSize: '12px' }}>address: {address}</Typography>
           </Stack>
         </DialogContent>
         <DialogActions>
@@ -320,22 +301,49 @@ export default function WalletInfo() {
   const [openKeywords, setOpenKeywords] = React.useState(false);
   const [openImportSuccess, setOpenImportSuccess] = React.useState(false);
   const [addresses, setAddresses] = React.useState([] as AutocompleteOption[]);
+  const [allBalance, setAllBalance] = React.useState(0);
+  const [identityCnt, setIdentityCnt] = React.useState(0);
+  const [ownershipCnt, setOwnershipCnt] = React.useState(0);
+  const [walletCnt, setWalletCnt] = React.useState(0);
+
   const navigate = useNavigate();
 
   React.useEffect(() => {
     window.electron.ipcRenderer.getWalletPackage('').then((result: WalletPackage) => {
-      console.log("wallet-info walletPackage:", result);
-      const searchedRows = result.wallets.map(
-        (wallet: PublicWallet) => createData(wallet.address, wallet.balance,
-                                             wallet.identities.length, wallet.ownerships.length));
-      setSearchedRows(searchedRows);
-      setRows(searchedRows);
-      setAddresses(searchedRows.map((row, index) => ({
-        value: row.address,
-        label: makeWalletLabel(row.address, index),
-      })));
+      console.log('wallet-info walletPackage:', result);
+      const totalRows = result.wallets.map((wallet: PublicWallet) =>
+        createData(
+          wallet.address,
+          wallet.balance,
+          wallet.unconfirmed,
+          wallet.identities.length,
+          wallet.ownerships.length
+        )
+      );
+      const balanceTotal = result.wallets
+        .map((wallet) => wallet.balance + wallet.unconfirmed)
+        .reduce((total, balance) => total + balance, 0);
+      setAllBalance(balanceTotal);
+      const identityTotal = result.wallets
+        .map((wallet) => wallet.identities.length)
+        .reduce((total, identity) => total + identity, 0);
+      setIdentityCnt(identityTotal);
+      const ownershipsTotal = result.wallets
+        .map((wallet) => wallet.ownerships.length)
+        .reduce((total, ownership) => total + ownership, 0);
+      setOwnershipCnt(ownershipsTotal);
+      setWalletCnt(result.wallets.length);
+      setSearchedRows(totalRows);
+      setRows(totalRows);
+      setAddresses(
+        totalRows.map((row, index) => ({
+          value: row.address,
+          label: makeWalletLabel(row.address, index),
+        }))
+      );
+      return true;
     });
-  }, []);
+  }, [setAllBalance, setOwnershipCnt, setIdentityCnt, setSearchedRows, setRows, setAddresses]);
 
   const handleDialogClose = (value?: string) => {
     setOpen(false);
@@ -350,31 +358,23 @@ export default function WalletInfo() {
     setPage(newPage);
   };
 
-  const handleChangeRowsPerPage = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
+  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
     setRowsPerPage(+event.target.value);
     setPage(0);
   };
 
-  const handleChangeKeyWords = (
-    event: React.ChangeEvent<HTMLTextAreaElement>
-  ) => {
+  const handleChangeKeyWords = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     const { value } = event.target;
-    console.log("keywords:", value);
+    console.log('keywords:', value);
     setNewKeyworkds(value);
   };
 
   const handleSelectChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const value = event.target.value;
+    const { value } = event.target;
     console.log('selected target vaule:', value);
   };
 
-  const handleAddressChange = (
-    event: React.SyntheticEvent,
-    value: string,
-    reason: string
-  ) => {
+  const handleAddressChange = (event: React.SyntheticEvent, value: string, reason: string) => {
     console.log('input value:', value, 'reason:', reason);
     setAddress(value);
   };
@@ -391,18 +391,18 @@ export default function WalletInfo() {
 
   const handleImport = async () => {
     if (!newKeywords) {
-      console.error("please input new keywords");
+      console.error('please input new keywords');
       return;
     }
     try {
-      const [address, _] = await window.electron.ipcRenderer.importWallet(newKeywords);
+      const [importedAddress, _] = await window.electron.ipcRenderer.importWallet(newKeywords);
       setImportError(false);
       setErrorMessage('');
       setNewKeyworkds('');
       setOpenImportSuccess(true);
-      console.log("import address:", address, "success!");
+      console.log('import address:', importedAddress, 'success!');
     } catch (err: any) {
-      console.error('cannot import wallet by keywords:', newKeywords, "error:", err.message, err);
+      console.error('cannot import wallet by keywords:', newKeywords, 'error:', err.message, err);
       setImportError(true);
       setErrorMessage(err.message);
     }
@@ -426,18 +426,80 @@ export default function WalletInfo() {
 
   return (
     <Paper sx={{ width: '100%', overflow: 'hidden' }}>
-      <Typography
-        variant="h6"
-        component="h1"
-        sx={{ textAlign: 'center', mb: '1rem', mt: '1rem' }}
-      >
-        Wallet Balance
+      <Typography variant="h4" component="h1" sx={{ textAlign: 'center', mb: '1rem', mt: '1rem' }}>
+        Wallet Information
       </Typography>
-      <Grid
-        container
-        spacing={2}
-        sx={{ mb: '1rem', mt: '1rem', padding: '0.3rem 1rem' }}
-      >
+      <Grid container spacing={2} sx={{ mb: '2rem', mt: '1rem', padding: '0.3rem 1rem' }}>
+        <Grid item xs={2}>
+          <Typography variant="h6" component="h2" sx={{ textAlign: 'right', mb: '0.5rem', mt: '0.5rem' }}>
+            Balance
+          </Typography>
+        </Grid>
+        <Grid item xs={2}>
+          <Typography variant="h6" component="h2" sx={{ textAlign: 'left', mb: '0.5rem', mt: '0.5rem' }}>
+            {allBalance} LI
+          </Typography>
+        </Grid>
+        <Grid item xs={2}>
+          <Typography variant="h6" component="h2" sx={{ textAlign: 'right', mb: '0.5rem', mt: '0.5rem' }}>
+            Ownerships
+          </Typography>
+        </Grid>
+        <Grid item xs={2}>
+          <Typography variant="h6" component="h2" sx={{ textAlign: 'left', mb: '0.5rem', mt: '0.5rem' }}>
+            {ownershipCnt}
+          </Typography>
+        </Grid>
+        <Grid item xs={2}>
+          <Typography variant="h6" component="h2" sx={{ textAlign: 'right', mb: '0.5rem', mt: '0.5rem' }}>
+            Identities
+          </Typography>
+        </Grid>
+        <Grid item xs={2}>
+          <Typography variant="h6" component="h2" sx={{ textAlign: 'left', mb: '0.5rem', mt: '0.5rem' }}>
+            {identityCnt}
+          </Typography>
+        </Grid>
+
+        <Grid item xs={2}>
+          <Typography variant="h6" component="h2" sx={{ textAlign: 'right', mb: '0.5rem', mt: '0.5rem' }}>
+            Wallets
+          </Typography>
+        </Grid>
+        <Grid item xs={3}>
+          <Typography variant="h6" component="h2" sx={{ textAlign: 'left', mb: '0.5rem', mt: '0.5rem' }}>
+            {walletCnt}
+          </Typography>
+        </Grid>
+        <Grid item xs={3}>
+          <Button
+            component="label"
+            role={undefined}
+            variant="contained"
+            onClick={() => {
+              navigate('/create-wallet');
+            }}
+            startIcon={<AddCircleIcon />}
+          >
+            Create wallet
+          </Button>
+        </Grid>
+        <Grid item xs={2}>
+          <Button
+            component="label"
+            role={undefined}
+            variant="contained"
+            onClick={() => {
+              navigate('/mine-block');
+            }}
+            startIcon={<RunCircleIcon />}
+          >
+            Mine Block
+          </Button>
+        </Grid>
+      </Grid>
+      <Divider />
+      <Grid container spacing={2} sx={{ mb: '1rem', mt: '1rem', padding: '0.3rem 1rem' }}>
         <Grid item xs={3}>
           <FormControl sx={{ m: 0, width: '100%' }}>
             <InputLabel id="addressInputlabel">address</InputLabel>
@@ -459,20 +521,17 @@ export default function WalletInfo() {
             id="combo-box-demo"
             options={addresses}
             sx={{ width: '100%' }}
-            isOptionEqualToValue={(
-              option: AutocompleteOption,
-              value: AutocompleteOption
-            ) => option.value === value.value}
-            getOptionLabel={(option) => typeof (option) === "string" ? option : option.value}
+            isOptionEqualToValue={(option: AutocompleteOption, value: AutocompleteOption) =>
+              option.value === value.value
+            }
+            getOptionLabel={(option) => (typeof option === 'string' ? option : option.value)}
             renderOption={(props, option) => (
               <Box component="li" {...props}>
                 {option.label}
               </Box>
             )}
             onInputChange={handleAddressChange}
-            renderInput={(params) => (
-              <TextField {...params} label="Enter your wallet address" />
-            )}
+            renderInput={(params) => <TextField {...params} label="Enter your wallet address" />}
           />
         </Grid>
         <Grid item xs={2}>
@@ -487,16 +546,12 @@ export default function WalletInfo() {
           </Button>
         </Grid>
       </Grid>
-      <TableContainer sx={{ maxHeight: 540 }}>
+      <TableContainer sx={{ maxHeight: 420 }}>
         <Table stickyHeader aria-label="sticky table">
           <TableHead>
             <TableRow>
               {columns.map((column) => (
-                <TableCell
-                  key={column.id}
-                  align={column.align}
-                  style={{ minWidth: column.minWidth }}
-                >
+                <TableCell key={column.id} align={column.align} style={{ minWidth: column.minWidth }}>
                   {column.label}
                 </TableCell>
               ))}
@@ -504,43 +559,30 @@ export default function WalletInfo() {
           </TableHead>
           <TableBody>
             {searchedRows &&
-             searchedRows
-               .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-               .map((row) => {
-                 return (
-                   <TableRow
-                     hover
-                     role="checkbox"
-                     tabIndex={-1}
-                     key={row.address}
-                   >
-                     {columns.map((column) => {
-                       const value = row[column.id];
-                       return (
-                         <TableCell key={column.id} align={column.align}>
-                           {column.id === 'keywords' ? (
-                             <Button
-                               variant="text"
-                               onClick={() => showKeywords(value as string)}
-                             >
-                               Show
-                             </Button>
-                           ) : column.id === 'operation' ? (
-                             <Button
-                               variant="text"
-                               onClick={() => openTrans(value as string)}
-                             >
-                               Open
-                             </Button>
-                           ) : (
-                             value
-                           )}
-                         </TableCell>
-                       );
-                     })}
-                   </TableRow>
-                 );
-            })}
+              searchedRows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
+                return (
+                  <TableRow hover role="checkbox" tabIndex={-1} key={row.address}>
+                    {columns.map((column) => {
+                      const value = row[column.id];
+                      return (
+                        <TableCell key={column.id} align={column.align}>
+                          {column.id === 'keywords' ? (
+                            <Button variant="text" onClick={() => showKeywords(value as string)}>
+                              Show
+                            </Button>
+                          ) : column.id === 'operation' ? (
+                            <Button variant="text" onClick={() => openTrans(value as string)}>
+                              Open
+                            </Button>
+                          ) : (
+                            value
+                          )}
+                        </TableCell>
+                      );
+                    })}
+                  </TableRow>
+                );
+              })}
           </TableBody>
         </Table>
       </TableContainer>
@@ -553,11 +595,10 @@ export default function WalletInfo() {
         onPageChange={handleChangePage}
         onRowsPerPageChange={handleChangeRowsPerPage}
       />
-      <Grid
-        container
-        spacing={2}
-        sx={{ mb: '1rem', mt: '1rem', padding: '0.3rem 1rem' }}
-      >
+
+      <Divider />
+
+      <Grid container spacing={2} sx={{ mb: '1rem', mt: '1rem', padding: '0.3rem 1rem' }}>
         <Grid item xs={2}>
           <Typography variant="subtitle1" component="h6">
             Address keywords:
@@ -585,28 +626,20 @@ export default function WalletInfo() {
           </Button>
         </Grid>
       </Grid>
-      {importError &&
-        <Grid
-          container
-          spacing={2}
-          sx={{ padding: '0.3rem 1rem', margin: '1rem auto', width: '100%' }}
-        >
+      {importError && (
+        <Grid container spacing={2} sx={{ padding: '0.3rem 1rem', margin: '1rem auto', width: '100%' }}>
           <Alert severity="error">import wallet error: {errorMessage}</Alert>
         </Grid>
-      }
+      )}
       <CircleDialog
         open={openImportSuccess}
-        title={'Import Success!'}
+        title="Import Success!"
         body={['Congrats!', 'Import the new wallet success!']}
-        btnText={'Close'}
+        btnText="Close"
         close={() => setOpenImportSuccess(false)}
       />
       <OperationsDialog open={open} onClose={handleDialogClose} />
-      <AddressDialog
-        open={openKeywords}
-        onClose={handleAddressDialogClose}
-        address={address}
-      />
+      <AddressDialog open={openKeywords} onClose={handleAddressDialogClose} address={address} />
     </Paper>
   );
 }

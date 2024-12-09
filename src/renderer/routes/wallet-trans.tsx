@@ -1,14 +1,4 @@
-import { makeAssetLabel } from '../../common/wallet-types';
-
-import {
-  Box,
-  Button,
-  Grid,
-  MenuItem,
-  Select,
-  TextField,
-  Typography,
-} from '@mui/material';
+import { Box, Button, Grid, MenuItem, Select, TextField, Typography } from '@mui/material';
 import { SelectChangeEvent } from '@mui/material/Select';
 import { styled } from '@mui/material/styles';
 import { useSearchParams } from 'react-router-dom';
@@ -26,15 +16,16 @@ import TableHead from '@mui/material/TableHead';
 import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
 
+import { TxType } from 'common/block-types';
 import {
   AddressType,
   AutocompleteOption,
-  PublicWallet,
-  WalletPackage,
   checkValidAddress,
+  makeAssetLabel,
   makeWalletLabel,
+  PublicWallet,
+  WalletPackage
 } from '../../common/wallet-types';
-import { TxType } from 'common/block-types';
 
 const Note = styled('div')(({ theme }) => ({
   ...theme.typography.body1,
@@ -92,77 +83,67 @@ export default function WalletTrans() {
   });
   const [searchedData, setSearchedData] = React.useState<Data[] | null>(null);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
-  const [addressList, setAddressList] = React.useState<string[]>(
-    [] as string[]
-  );
-  const [addresses, setAddresses] = React.useState<AutocompleteOption[]>(
-    [] as AutocompleteOption[]
-  );
-    const [uuids, setUuids] = React.useState<AutocompleteOption[]>([] as AutocompleteOption[]);
-    const [queryParameters] = useSearchParams();
+  const [addressList, setAddressList] = React.useState<string[]>([] as string[]);
+  const [addresses, setAddresses] = React.useState<AutocompleteOption[]>([] as AutocompleteOption[]);
+  const [uuids, setUuids] = React.useState<AutocompleteOption[]>([] as AutocompleteOption[]);
+  const [queryParameters] = useSearchParams();
 
   React.useEffect(() => {
-    let addr = queryParameters.get('address') || "";
+    let addr = queryParameters.get('address') || '';
     if (addr && !checkValidAddress(addr)) {
       addr = '';
     }
     if (addr) {
-      window.electron.ipcRenderer
-        .searchTransaction(addr, filter as AddressType)
-        .then((result) => {
-          setSearchedData(result);
-        });
+      window.electron.ipcRenderer.searchTransaction(addr, filter as AddressType).then((result) => {
+        setSearchedData(result);
+      });
     }
   }, [queryParameters, setSearchedData, filter]);
 
   React.useEffect(() => {
-    window.electron.ipcRenderer
-      .getWalletPackage('')
-      .then((result: WalletPackage) => {
-        console.log('wallet-trans walletPackage:', result);
-        const addr = queryParameters.get('address');
-        const addressList = result.wallets.map((w: PublicWallet) => w.address);
-        if (addr && checkValidAddress(addr)) {
-          if (!addressList.includes(addr)) {
-            addressList.push(addr);
-            setInput({
-              label: makeWalletLabel(addr, addressList.length - 1),
-              value: addr,
-            });
-          } else {
-            const index = addressList.indexOf(addr);
-            setInput({ label: makeWalletLabel(addr, index), value: addr });
-          }
-        }
-        setAddressList(addressList);
-
-        const allUuids = result.wallets.flatMap((w: PublicWallet) => {
-          const idts = (w.identities || []).map((idt) => ({ asset: idt.uuid, type: "IDT" }));
-          const owns = (w.ownerships || []).map((own) => ({ asset: own.uuid, type: "OWN" }));
-          return [...idts, ...owns];
-        });
-        const uuids = allUuids.map((item: { asset: string, type: string}) => ({
-          label: makeAssetLabel(item.asset, item.type),
-          value: item.asset,
-        }));
-        setUuids(uuids);
-
-        setAddresses(
-          addressList.map((addr, index) => ({
-            label: makeWalletLabel(addr, index),
+    window.electron.ipcRenderer.getWalletPackage('').then((result: WalletPackage) => {
+      console.log('wallet-trans walletPackage:', result);
+      const addr = queryParameters.get('address');
+      const addressList = result.wallets.map((w: PublicWallet) => w.address);
+      if (addr && checkValidAddress(addr)) {
+        if (!addressList.includes(addr)) {
+          addressList.push(addr);
+          setInput({
+            label: makeWalletLabel(addr, addressList.length - 1),
             value: addr,
-          }))
-        );
+          });
+        } else {
+          const index = addressList.indexOf(addr);
+          setInput({ label: makeWalletLabel(addr, index), value: addr });
+        }
+      }
+      setAddressList(addressList);
+
+      const allUuids = result.wallets.flatMap((w: PublicWallet) => {
+        const idts = (w.identities || []).map((idt) => ({ asset: idt.uuid, type: 'IDT' }));
+        const owns = (w.ownerships || []).map((own) => ({ asset: own.uuid, type: 'OWN' }));
+        return [...idts, ...owns];
       });
+      const uuids = allUuids.map((item: { asset: string; type: string }) => ({
+        label: makeAssetLabel(item.asset, item.type),
+        value: item.asset,
+      }));
+      setUuids(uuids);
+
+      setAddresses(
+        addressList.map((addr, index) => ({
+          label: makeWalletLabel(addr, index),
+          value: addr,
+        }))
+      );
+    });
   }, [queryParameters, setInput, setAddressList, setAddresses]);
 
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage);
   };
 
-  const handleChangeRowsPerPage = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
+  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
     setRowsPerPage(+event.target.value);
     setPage(0);
   };
@@ -176,11 +157,7 @@ export default function WalletTrans() {
     setInput({ label: '', value: '' });
   };
 
-  const handleInputChange = (
-    event: React.SyntheticEvent,
-    value: string,
-    reason: string
-  ) => {
+  const handleInputChange = (event: React.SyntheticEvent, value: string, reason: string) => {
     console.log('input value:', value, 'reason:', reason, 'filter:', filter);
     if (!value) {
       setInput({ label: '', value: '' });
@@ -209,58 +186,30 @@ export default function WalletTrans() {
   };
 
   const handleSearch = async () => {
-    console.log(
-      'use click search button, search by input:',
-      input,
-      'filter:',
-      filter
-    );
+    console.log('use click search button, search by input:', input, 'filter:', filter);
     if (filter === 'from' || filter === 'to') {
-      const rows = await window.electron.ipcRenderer.searchTransaction(
-        input.value,
-        filter as AddressType
-      );
-      console.info(
-        `search address: ${input.value}, type: ${filter}, transactions:`,
-        rows
-      );
+      const rows = await window.electron.ipcRenderer.searchTransaction(input.value, filter as AddressType);
+      console.info(`search address: ${input.value}, type: ${filter}, transactions:`, rows);
       setSearchedData(rows);
     } else if (filter === 'type') {
       let txType = input.value === 'CRY' ? 0 : 1;
       if (input.value === 'IDT') {
         txType = 2;
       }
-      const rows = await window.electron.ipcRenderer.searchTransaction(
-        '',
-        'from',
-        txType as TxType
-      );
+      const rows = await window.electron.ipcRenderer.searchTransaction('', 'from', txType as TxType);
       setSearchedData(rows);
     } else if (filter === 'uuid') {
-      const rows = await window.electron.ipcRenderer.searchTransaction(
-        '',
-        'from',
-        undefined,
-        input.value
-      );
+      const rows = await window.electron.ipcRenderer.searchTransaction('', 'from', undefined, input.value);
       setSearchedData(rows);
     }
   };
 
   return (
     <Paper sx={{ width: '100%', overflow: 'hidden' }}>
-      <Typography
-        variant="h6"
-        component="h1"
-        sx={{ textAlign: 'center', mb: '1rem', mt: '1rem' }}
-      >
+      <Typography variant="h4" component="h1" sx={{ textAlign: 'center', mb: '1rem', mt: '1rem' }}>
         Wallet Transactions
       </Typography>
-      <Grid
-        container
-        spacing={2}
-        sx={{ mb: '1rem', mt: '1rem', padding: '0.3rem 1rem' }}
-      >
+      <Grid container spacing={2} sx={{ mb: '1rem', mt: '1rem', padding: '0.3rem 1rem' }}>
         <Grid item xs={3}>
           <FormControl sx={{ m: 0, width: '100%' }}>
             <InputLabel id="assetType">{filter}</InputLabel>
@@ -286,14 +235,11 @@ export default function WalletTrans() {
               id="type-auto-complete"
               options={types}
               sx={{ width: '100%' }}
-              isOptionEqualToValue={(
-                option: AutocompleteOption,
-                value: AutocompleteOption
-              ) => option.value === value.value}
+              isOptionEqualToValue={(option: AutocompleteOption, value: AutocompleteOption) =>
+                option.value === value.value
+              }
               onInputChange={handleInputChange}
-              renderInput={(params) => (
-                <TextField {...params} label="Enter type" />
-              )}
+              renderInput={(params) => <TextField {...params} label="Enter type" />}
             />
           )}
           {(filter === 'from' || filter === 'to') && (
@@ -304,20 +250,17 @@ export default function WalletTrans() {
               value={input}
               sx={{ width: '100%' }}
               freeSolo
-              isOptionEqualToValue={(
-                option: AutocompleteOption,
-                value: AutocompleteOption
-              ) => option.value === value.value}
+              isOptionEqualToValue={(option: AutocompleteOption, value: AutocompleteOption) =>
+                option.value === value.value
+              }
               onInputChange={handleInputChange}
-              getOptionLabel={(option) => typeof (option) === "string" ? option : option.value}
+              getOptionLabel={(option) => (typeof option === 'string' ? option : option.value)}
               renderOption={(props, option) => (
                 <Box component="li" {...props}>
                   {option.label}
                 </Box>
               )}
-              renderInput={(params) => (
-                <TextField {...params} label="Enter wallet address" />
-              )}
+              renderInput={(params) => <TextField {...params} label="Enter wallet address" />}
             />
           )}
           {filter === 'uuid' && (
@@ -328,20 +271,17 @@ export default function WalletTrans() {
               value={input}
               sx={{ width: '100%' }}
               freeSolo
-              isOptionEqualToValue={(
-                option: AutocompleteOption,
-                value: AutocompleteOption
-              ) => option.value === value.value}
+              isOptionEqualToValue={(option: AutocompleteOption, value: AutocompleteOption) =>
+                option.value === value.value
+              }
               onInputChange={handleInputChange}
-              getOptionLabel={(option) => typeof (option) === "string" ? option : option.value}
+              getOptionLabel={(option) => (typeof option === 'string' ? option : option.value)}
               renderOption={(props, option) => (
                 <Box component="li" {...props}>
                   {option.label}
                 </Box>
               )}
-              renderInput={(params) => (
-                <TextField {...params} label="Enter uuid" />
-              )}
+              renderInput={(params) => <TextField {...params} label="Enter uuid" />}
             />
           )}
         </Grid>
@@ -360,19 +300,14 @@ export default function WalletTrans() {
 
       <TableContainer sx={{ maxHeight: 540 }}>
         <Note>
-          CRY: stands for currency value of the transaction; IDT: stands for
-          identity id of the transaction; OWN: stands for owership id of the
-          transaction.
+          CRY: stands for currency value of the transaction; IDT: stands for identity id of the transaction; OWN: stands
+          for owership id of the transaction.
         </Note>
         <Table stickyHeader aria-label="transaction table">
           <TableHead>
             <TableRow>
               {columns.map((column) => (
-                <TableCell
-                  key={column.id}
-                  align={column.align}
-                  style={{ minWidth: column.minWidth }}
-                >
+                <TableCell key={column.id} align={column.align} style={{ minWidth: column.minWidth }}>
                   {column.label}
                 </TableCell>
               ))}
@@ -380,29 +315,20 @@ export default function WalletTrans() {
           </TableHead>
           <TableBody>
             {searchedData &&
-              searchedData
-                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                .map((row) => {
-                  return (
-                    <TableRow
-                      hover
-                      role="checkbox"
-                      tabIndex={-1}
-                      key={`${row.from}-${row.to}`}
-                    >
-                      {columns.map((column) => {
-                        const value = row[column.id];
-                        return (
-                          <TableCell key={column.id} align={column.align}>
-                            {column.format && typeof value === 'number'
-                              ? column.format(value)
-                              : value}
-                          </TableCell>
-                        );
-                      })}
-                    </TableRow>
-                  );
-                })}
+              searchedData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
+                return (
+                  <TableRow hover role="checkbox" tabIndex={-1} key={`${row.from}-${row.to}`}>
+                    {columns.map((column) => {
+                      const value = row[column.id];
+                      return (
+                        <TableCell key={column.id} align={column.align}>
+                          {column.format && typeof value === 'number' ? column.format(value) : value}
+                        </TableCell>
+                      );
+                    })}
+                  </TableRow>
+                );
+              })}
           </TableBody>
         </Table>
       </TableContainer>

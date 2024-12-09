@@ -4,6 +4,7 @@ import { Account, RegisterInput, ResetPasswordInput, VerifyCodeInput } from '../
 import {
   Channels,
   CreateWallet,
+  GET_CPU_COUNT,
   GetAccount,
   GetEncodedPrivateKey,
   GetPayPassword,
@@ -12,6 +13,7 @@ import {
   LOGIN_PASSWORD,
   LOGIN_VERIFY_CODE,
   LOGOUT,
+  MINE_BLOCK_REQUEST,
   REGISTER,
   RELOAD,
   RESET_PASSWORD,
@@ -21,13 +23,17 @@ import {
   SEND_REGISTER_VERIFY_CODE,
   SEND_RESET_PASSWORD_VERIFY_CODE,
   SendToChannel,
-  SetPayPassword
+  SetPayPassword,
+  STOP_MINE_BLOCK
 } from '../common/wallet-constants';
 import { TxType } from '../common/block-types';
 import { AddressType } from '../common/wallet-types';
 
 const electronHandler = {
   ipcRenderer: {
+    getCpuCount() {
+      return ipcRenderer.invoke(GET_CPU_COUNT);
+    },
     sendMessage(channel: Channels, args: unknown[]) {
       ipcRenderer.send(channel, args);
     },
@@ -88,15 +94,21 @@ const electronHandler = {
     sendTo(from: string, toEmail: string, assetType: TxType, value: number | string, payPassword: string) {
       return ipcRenderer.invoke(SendToChannel, from, toEmail, assetType, value, payPassword);
     },
-    on(channel: Channels, func: (...args: unknown[]) => void) {
-      const subscription = (_event: IpcRendererEvent, ...args: unknown[]) => func(...args);
+    mineBlock(address: string, threadCount: number) {
+      return ipcRenderer.send(MINE_BLOCK_REQUEST, address, threadCount);
+    },
+    stopMineBlock() {
+      return ipcRenderer.invoke(STOP_MINE_BLOCK);
+    },
+    on(channel: string, func: (...args: string[]) => void) {
+      const subscription = (_event: IpcRendererEvent, ...args: string[]) => func(...args);
       ipcRenderer.on(channel, subscription);
 
       return () => {
         ipcRenderer.removeListener(channel, subscription);
       };
     },
-    once(channel: Channels, func: (...args: unknown[]) => void) {
+    once(channel: string, func: (...args: string[]) => void) {
       ipcRenderer.once(channel, (_event, ...args) => func(...args));
     },
   },

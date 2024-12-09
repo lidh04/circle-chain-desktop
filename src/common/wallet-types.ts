@@ -41,6 +41,7 @@ export interface PublicWallet {
   address: string;
   publicKey: string;
   balance: number;
+  unconfirmed: number;
   identities: Identity[];
   ownerships: Ownership[];
 }
@@ -53,6 +54,17 @@ export interface PrivatePoem {
 export interface WalletPackage {
   account: Account;
   wallets: PublicWallet[];
+}
+
+export interface MyBlockData {
+  ipPort: string;
+  blockHeaderHexString: string;
+}
+
+export interface MyBlockRequest {
+  address: string;
+  ipPort: string;
+  blockHeaderHexString: string;
 }
 
 export function addressListOf(walletPackage: WalletPackage) {

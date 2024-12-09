@@ -73,7 +73,7 @@ export async function searchTransaction(
   const url = `${host}/wallet/public/v1/search-transaction`;
   const data = {
     address,
-    inOut: addressType == 'from' ? 'OUT' : 'IN',
+    inOut: addressType === 'from' ? 'OUT' : 'IN',
     transactionContent: {
       type: typeof txType === 'undefined' ? 0 : txType,
       uuid: '',
@@ -104,16 +104,7 @@ export async function searchTransaction(
       }
     }
   } catch (err: any) {
-    console.error(
-      'cannot post to url',
-      url,
-      'with data:',
-      data,
-      'error:',
-      err.name,
-      err.message,
-      err
-    );
+    console.error('cannot post to url', url, 'with data:', data, 'error:', err.name, err.message, err);
   }
 
   return [];
@@ -179,15 +170,11 @@ export async function sendTo(
           unsignedTxJson: txJson,
         };
         const confirmUrl = `${host}/wallet/public/v1/confirm-send-to`;
-        const confirmResponse = await axios.post(
-          confirmUrl,
-          confirmSendToRequest,
-          {
-            headers: {
-              'Content-Type': 'application/json',
-            },
-          }
-        );
+        const confirmResponse = await axios.post(confirmUrl, confirmSendToRequest, {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
         if (confirmResponse.status === 200) {
           const confirmJson = confirmResponse.data as {
             status: number;
@@ -195,45 +182,21 @@ export async function sendTo(
             message: string;
           };
           msg = confirmJson.message;
-          console.log(
-            'get data from confirmUrl:',
-            confirmUrl,
-            'json data:',
-            confirmJson
-          );
+          console.log('get data from confirmUrl:', confirmUrl, 'json data:', confirmJson);
           if (confirmJson.status === 200) {
             return [confirmJson.data, msg];
           }
           return [false, msg];
         }
-        console.error(
-          'confirm url:',
-          confirmUrl,
-          'status:',
-          confirmResponse.status
-        );
+        console.error('confirm url:', confirmUrl, 'status:', confirmResponse.status);
         return [false, `status: ${confirmResponse.status}`];
       }
       return [false, msg];
     }
-    console.error(
-      'post url:',
-      url,
-      'data:',
-      data,
-      'status:',
-      tryResponse.status
-    );
+    console.error('post url:', url, 'data:', data, 'status:', tryResponse.status);
     return [false, `status: ${tryResponse.status}`];
   } catch (err: any) {
-    console.error(
-      'try to send to request url:',
-      url,
-      'error:',
-      err.name,
-      err.messge,
-      err
-    );
+    console.error('try to send to request url:', url, 'error:', err.name, err.messge, err);
     return [false, err.message as string];
   }
 }
@@ -253,9 +216,7 @@ function makeValueHex(value: number | string) {
 function makeKeyToSignedDataMap(tx: RemoteTransaction, address: string) {
   const record: Record<string, string> = {};
   tx.inputs.forEach((input) => {
-    const key = `${Buffer.from(input.txId).toString('hex')}:${
-      input.txOutputIndex
-    }`;
+    const key = `${Buffer.from(input.txId).toString('hex')}:${input.txOutputIndex}`;
     const data = Buffer.from(key);
     const signedData = PrivateWalletPackage.signData(data, address);
     record[key] = Buffer.from(signedData).toString('hex');

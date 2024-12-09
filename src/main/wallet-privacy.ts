@@ -8,6 +8,7 @@
 import { createHash, randomBytes } from 'crypto';
 import secp256k1 from 'secp256k1';
 import r from 'jsrsasign';
+import _ from 'lodash';
 
 import { access, chmod, mkdir, readFile, writeFile } from 'fs/promises';
 import os from 'os';
@@ -285,9 +286,9 @@ function addPrivateKey(privateKey: Uint8Array): [string, Uint8Array] {
     return [address, pubKey];
   }
 
-  if (privateKeys.length >= 3) {
-    throw new Error('you cannot create wallet more than 3!');
-  }
+  // if (privateKeys.length >= 3) {
+  //   throw new Error('you cannot create wallet more than 3!');
+  // }
 
   privateKeys.push(privateKey);
   const privatePoem = makePrivatePoem(privateKey);
@@ -386,23 +387,32 @@ async function getWalletPackage(): Promise<WalletPackage> {
   if (!account) {
     throw new Error('cannot get WalletPackage because account is not intialized!');
   }
+  const batchSize = 5;
+  const privateKeysChunks = _.chunk(privateKeys, batchSize);
+  let publicWallets: PublicWallet[] = [] as PublicWallet[];
+  // eslint-disable-next-line no-restricted-syntax
+  for (const chunk of privateKeysChunks) {
+    const promises = chunk.map(async (pk: Uint8Array) => {
+      const [address, pubKey] = getAddressAndPubKey(pk);
+      const publicKey = Buffer.from(pubKey).toString('hex');
+      const walletAssets = await getWalletAssetsByAddress(address);
+      return {
+        address,
+        publicKey,
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        balance: walletAssets.balance!,
+        unconfirmed: walletAssets.unconfirmed!,
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        identities: walletAssets.identities!,
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        ownerships: walletAssets.ownerships!,
+      };
+    });
+    // eslint-disable-next-line no-await-in-loop
+    const items: PublicWallet[] = await Promise.all(promises);
+    publicWallets = publicWallets.concat(items);
+  }
 
-  const promises = privateKeys.map(async (pk) => {
-    const [address, pubKey] = getAddressAndPubKey(pk);
-    const publicKey = Buffer.from(pubKey).toString('hex');
-    const walletAssets = await getWalletAssetsByAddress(address);
-    return {
-      address,
-      publicKey,
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      balance: walletAssets.balance!,
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      identities: walletAssets.identities!,
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      ownerships: walletAssets.ownerships!,
-    };
-  });
-  const publicWallets: PublicWallet[] = await Promise.all(promises);
   return {
     account: {
       type: account.type,
