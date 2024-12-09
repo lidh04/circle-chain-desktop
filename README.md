@@ -13,7 +13,7 @@ Using the node version: 16.15.0, please install node with this version.
 Clone the repo and install dependencies:
 
 ```bash
-git clone --depth 1 --branch main git@github.com:lidh04/circle-chain-desktop.git circle-chain-desktop
+git clone --depth 1 --branch main git@gitee.com:lidh04/circle-chain-desktop.git circle-chain-desktop
 cd circle-chain-desktop
 npm install
 ```
@@ -36,7 +36,7 @@ npm run package
 
 ## Docs
 
-Please referer to [intro](https://github.com/lidh04/circle-chain-desktop/tree/main/docs/intro.md).
+Please referer to [intro](https://gitee.com/lidh04/circle-chain-desktop/tree/main/docs/intro.md).
 
 ## Community
 
@@ -58,7 +58,7 @@ Please referer to [intro](https://github.com/lidh04/circle-chain-desktop/tree/ma
 
 ## Maintainers
 
-- [lidh04](https://github.com/lidh04)
+- [lidh04](https://gitee.com/lidh04)
 
 ## License
 
