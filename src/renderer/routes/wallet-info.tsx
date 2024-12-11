@@ -609,7 +609,7 @@ export default function WalletInfo() {
             aria-label="keywords"
             minRows={3}
             value={newKeywords}
-            placeholder="Please paste address keyworkds here."
+            placeholder="Please paste address secret keywords here."
             onChange={handleChangeKeyWords}
             style={{ width: '100%', height: 50 }}
           />
