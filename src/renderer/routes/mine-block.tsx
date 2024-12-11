@@ -31,6 +31,15 @@ export default function MineBlock() {
   const onSubmitHandler: React.FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
     console.log('address:', address, 'cpu core:', core);
+    if (!address) {
+      setError('address cannot be empty!');
+      return;
+    }
+    if (!core || cpuList.indexOf(core) === -1) {
+      setError('invalid cpu core!');
+      return;
+    }
+
     setIsLoading(true);
     setError('');
     Cookies.set('isLoading', '1');
@@ -39,7 +48,7 @@ export default function MineBlock() {
 
   const handleCPUChange = (event: SelectChangeEvent) => {
     event.preventDefault();
-    setCore(event.target.value as number);
+    setCore(parseInt(event.target.value as string, 10));
     Cookies.set('core', `${event.target.value}`, { expires: 1 });
   };
 
@@ -50,30 +59,37 @@ export default function MineBlock() {
   };
 
   useEffect(() => {
-    window.electron.ipcRenderer.getCpuCount().then((cpuCount) => {
-      const items = [];
-      for (let i = 0; i < cpuCount; i += 1) {
-        items.push(i + 1);
-      }
-      setCpuList(items);
+    window.electron.ipcRenderer
+      .getCpuCount()
+      .then((cpuCount) => {
+        const items = [];
+        for (let i = 0; i < cpuCount; i += 1) {
+          items.push(i + 1);
+        }
+        setCpuList(items);
 
-      const coreInCookie = Cookies.get('core');
-      if (coreInCookie) {
-        setCore(parseInt(coreInCookie, 10));
-      }
-      return true;
-    });
-    window.electron.ipcRenderer.getWalletPackage('').then((result: WalletPackage) => {
-      const addresses = result.wallets.map((wallet: PublicWallet) => wallet.address);
-      setAddressList(addresses);
-      const addressInCookie = Cookies.get('address');
-      if (addressInCookie) {
-        setAddress(addressInCookie);
-      } else if (addresses.length > 0) {
-        setAddress(addresses[0]);
-      }
-      return true;
-    });
+        const coreInCookie = Cookies.get('core');
+        if (coreInCookie) {
+          setCore(parseInt(coreInCookie, 10));
+        }
+        return true;
+      })
+      .catch((err) => console.error(err));
+
+    window.electron.ipcRenderer
+      .getWalletPackage('')
+      .then((result: WalletPackage) => {
+        const addresses = result.wallets.map((wallet: PublicWallet) => wallet.address);
+        setAddressList(addresses);
+        const addressInCookie = Cookies.get('address');
+        if (addressInCookie) {
+          setAddress(addressInCookie);
+        } else if (addresses.length > 0) {
+          setAddress(addresses[0]);
+        }
+        return true;
+      })
+      .catch((err) => console.error(err));
 
     const isLoadingInCookie = Cookies.get('isLoading');
     if (isLoadingInCookie) {
@@ -132,7 +148,7 @@ export default function MineBlock() {
               <Select
                 labelId="core-select-label"
                 id="core-select"
-                value={core}
+                value={`${core}`}
                 label="CPU Cores"
                 onChange={handleCPUChange}
               >
@@ -212,9 +228,7 @@ export default function MineBlock() {
 
               {error && (
                 <Grid container justifyContent="center" rowSpacing={2}>
-                  <Typography sx={{ fontSize: '0.9rem', mt: '1rem', mb: '1rem', color: 'red' }}>
-                    {error}
-                  </Typography>
+                  <Typography sx={{ fontSize: '0.9rem', mt: '1rem', mb: '1rem', color: 'red' }}>{error}</Typography>
                 </Grid>
               )}
             </Stack>
