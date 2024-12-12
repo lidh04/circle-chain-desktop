@@ -6,10 +6,15 @@ import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import RunCircleIcon from '@mui/icons-material/RunCircle';
-import Cookies from 'js-cookie';
 import { PublicWallet, WalletPackage } from '../../common/wallet-types';
 import CircleDialog from '../components/CircleDialog';
 import { MINE_BLOCK_REPLY } from '../../common/wallet-constants';
+
+interface MineBlockInfo {
+  isLoading: boolean;
+  address: string;
+  core: number;
+}
 
 export default function MineBlock() {
   const [core, setCore] = React.useState<number>(1);
@@ -23,9 +28,7 @@ export default function MineBlock() {
   const stopMineBlock = async () => {
     await window.electron.ipcRenderer.stopMineBlock();
     setIsLoading(false);
-    Cookies.remove('isLoading');
-    Cookies.remove('address');
-    Cookies.remove('core');
+    await window.electron.ipcRenderer.setMineBlockInfo('');
   };
 
   const onSubmitHandler: React.FormEventHandler<HTMLFormElement> = async (e) => {
@@ -42,59 +45,65 @@ export default function MineBlock() {
 
     setIsLoading(true);
     setError('');
-    Cookies.set('isLoading', '1');
     await window.electron.ipcRenderer.mineBlock(address, core);
   };
 
   const handleCPUChange = (event: SelectChangeEvent) => {
     event.preventDefault();
     setCore(parseInt(event.target.value as string, 10));
-    Cookies.set('core', `${event.target.value}`, { expires: 1 });
   };
 
   const handleAddressChange = (event: SelectChangeEvent) => {
     event.preventDefault();
     setAddress(event.target.value as string);
-    Cookies.set('address', event.target.value as string, { expires: 1 });
   };
 
   useEffect(() => {
     window.electron.ipcRenderer
-      .getCpuCount()
-      .then((cpuCount) => {
-        const items = [];
-        for (let i = 0; i < cpuCount; i += 1) {
-          items.push(i + 1);
+      .getMineBlockInfo()
+      .then((mineBlockInfo) => {
+        console.log('getMineBlockInfo:', mineBlockInfo);
+        let info: MineBlockInfo = {
+          core: 1,
+          address: '',
+          isLoading: false,
+        };
+        if (mineBlockInfo) {
+          info = JSON.parse(mineBlockInfo);
         }
-        setCpuList(items);
+        window.electron.ipcRenderer
+          .getCpuCount()
+          .then((cpuCount) => {
+            const items = [];
+            for (let i = 0; i < cpuCount; i += 1) {
+              items.push(i + 1);
+            }
+            setCpuList(items);
+            setCore(info.core);
+            return true;
+          })
+          .catch((err) => console.error(err));
 
-        const coreInCookie = Cookies.get('core');
-        if (coreInCookie) {
-          setCore(parseInt(coreInCookie, 10));
-        }
+        // set address list and selected address.
+        window.electron.ipcRenderer
+          .getWalletPackage('')
+          .then((result: WalletPackage) => {
+            const addresses = result.wallets.map((wallet: PublicWallet) => wallet.address);
+            setAddressList(addresses);
+            if (info.address) {
+              setAddress(info.address);
+            } else if (addresses.length > 0) {
+              setAddress(addresses[0]);
+            }
+            return true;
+          })
+          .catch((err) => console.error(err));
+
+        // set loading.
+        setIsLoading(info.isLoading);
         return true;
       })
-      .catch((err) => console.error(err));
-
-    window.electron.ipcRenderer
-      .getWalletPackage('')
-      .then((result: WalletPackage) => {
-        const addresses = result.wallets.map((wallet: PublicWallet) => wallet.address);
-        setAddressList(addresses);
-        const addressInCookie = Cookies.get('address');
-        if (addressInCookie) {
-          setAddress(addressInCookie);
-        } else if (addresses.length > 0) {
-          setAddress(addresses[0]);
-        }
-        return true;
-      })
-      .catch((err) => console.error(err));
-
-    const isLoadingInCookie = Cookies.get('isLoading');
-    if (isLoadingInCookie) {
-      setIsLoading(true);
-    }
+      .catch((err) => console.error('getMineBlockInfo error:', err));
 
     window.electron.ipcRenderer.on(MINE_BLOCK_REPLY, (result: string) => {
       const response: { code: number; msg: string; data?: boolean } = JSON.parse(result);

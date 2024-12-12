@@ -8,7 +8,7 @@
 import axios from 'axios';
 import wallet from '@lidh04/circle-chain-sdk';
 import { Identity, MyBlockData, MyBlockRequest, Ownership, PublicWallet } from '../common/wallet-types';
-import { store_get } from '../common/store-config';
+import storeGet from '../common/store-config';
 
 type BalanceVO = {
   confirmed: number;
@@ -39,7 +39,7 @@ export async function getWalletAssetsByAddress(address: string): Promise<Partial
 }
 
 async function getBalance(address: string): Promise<BalanceVO> {
-  const host = store_get('host');
+  const host = storeGet('host');
   const url = `${host}/wallet/public/v1/get-balance-by-address?address=${address}`;
   const balanceVO: BalanceVO = {
     confirmed: 0,
@@ -68,7 +68,7 @@ async function getBalance(address: string): Promise<BalanceVO> {
 }
 
 async function getAssetsOfAddress(address: string, type: number): Promise<Identity[] | Ownership[]> {
-  const host = store_get('host');
+  const host = storeGet('host');
   const url = `${host}/wallet/public/v1/get-assets-of-address?address=${address}&type=${type}`;
   try {
     const response = await axios.get(url);
@@ -101,7 +101,7 @@ async function getAssetsOfAddress(address: string, type: number): Promise<Identi
 }
 
 export async function uploadUidAndAddress(uid: string, addresses: AddressSignVO[]) {
-  const host = store_get('host');
+  const host = storeGet('host');
   const url = `${host}/wallet/public/v1/upload-uid-and-address`;
   const data = {
     uid,
@@ -126,7 +126,7 @@ export async function uploadUidAndAddress(uid: string, addresses: AddressSignVO[
 }
 
 export async function fetchMyBlockData(address: string) {
-  const host = store_get('host');
+  const host = storeGet('host');
   const url = `${host}/public/v1/miner/fetchMyBlock?address=${address}`;
   try {
     const response = await axios.get(url);
@@ -147,7 +147,7 @@ export async function fetchMyBlockData(address: string) {
 }
 
 export async function postMyBlock(data: MyBlockRequest) {
-  const host = store_get('host');
+  const host = storeGet('host');
   const url = `${host}/public/v1/miner/postMyBlock`;
   try {
     const response = await axios.post(url, data, {

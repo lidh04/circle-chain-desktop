@@ -1,12 +1,16 @@
 import { ipcMain } from 'electron';
+import Store from 'electron-store';
 import {
   CreateWallet,
+  GET_MINE_BLOCK_INFO,
   GetEncodedPrivateKey,
   GetWalletPackage,
   ImportWallet,
+  MINE_BLOCK_INFO,
   MINE_BLOCK_REPLY,
   MINE_BLOCK_REQUEST,
   SendToChannel,
+  SET_MINE_BLOCK_INFO,
   STOP_MINE_BLOCK
 } from '../common/wallet-constants';
 import createWallet from './create-wallet';
@@ -66,7 +70,28 @@ export default function setUpWalletDispatcher() {
     }
   );
 
+  ipcMain.handle(GET_MINE_BLOCK_INFO, async (event) => {
+    const store = new Store();
+    const content = store.get(MINE_BLOCK_INFO, '');
+    console.log('key:', MINE_BLOCK_INFO, 'content:', content);
+    return content;
+  });
+
+  ipcMain.handle(SET_MINE_BLOCK_INFO, async (event, mineBlockInfo: string) => {
+    const store = new Store();
+    store.set(MINE_BLOCK_INFO, mineBlockInfo);
+    return true;
+  });
+
   ipcMain.on(MINE_BLOCK_REQUEST, (event, address: string, threadCount: number) => {
+    const mineBlockInfo = JSON.stringify({
+      isLoading: true,
+      address,
+      core: threadCount,
+    });
+    const store = new Store();
+    store.set(MINE_BLOCK_INFO, mineBlockInfo);
+
     mineBlock(address, threadCount)
       // eslint-disable-next-line promise/always-return
       .then((result) => {

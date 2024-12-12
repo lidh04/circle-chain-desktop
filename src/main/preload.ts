@@ -5,6 +5,7 @@ import {
   Channels,
   CreateWallet,
   GET_CPU_COUNT,
+  GET_MINE_BLOCK_INFO,
   GetAccount,
   GetEncodedPrivateKey,
   GetPayPassword,
@@ -23,6 +24,7 @@ import {
   SEND_REGISTER_VERIFY_CODE,
   SEND_RESET_PASSWORD_VERIFY_CODE,
   SendToChannel,
+  SET_MINE_BLOCK_INFO,
   SetPayPassword,
   STOP_MINE_BLOCK
 } from '../common/wallet-constants';
@@ -93,6 +95,12 @@ const electronHandler = {
     },
     sendTo(from: string, toEmail: string, assetType: TxType, value: number | string, payPassword: string) {
       return ipcRenderer.invoke(SendToChannel, from, toEmail, assetType, value, payPassword);
+    },
+    setMineBlockInfo(mineBlockInfo: string) {
+      return ipcRenderer.invoke(SET_MINE_BLOCK_INFO, mineBlockInfo);
+    },
+    getMineBlockInfo() {
+      return ipcRenderer.invoke(GET_MINE_BLOCK_INFO);
     },
     mineBlock(address: string, threadCount: number) {
       return ipcRenderer.send(MINE_BLOCK_REQUEST, address, threadCount);

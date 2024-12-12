@@ -12,6 +12,9 @@ export const SendToChannel = 'send-to';
 export const MINE_BLOCK_REQUEST = 'mine-block-request';
 export const MINE_BLOCK_REPLY = 'mine-block-reply';
 export const STOP_MINE_BLOCK = 'stop-mine-block';
+export const MINE_BLOCK_INFO = 'mine-block-info';
+export const GET_MINE_BLOCK_INFO = 'get-mine-block-info';
+export const SET_MINE_BLOCK_INFO = 'set-mine-block-info';
 
 // account constants
 export const LOGIN = 'login';
