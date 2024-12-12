@@ -42,6 +42,7 @@ const SignupPage: FC = () => {
   const [startTimer, setStartTimer] = React.useState(false);
   const [verifyCodeError, setVerifyCodeError] = React.useState('');
   const [registerError, setRegisterError] = React.useState('');
+  const [isLoading, setIsLoading] = React.useState(false);
 
   // 👇 Default Values
   const defaultValues: ISignUp = {
@@ -60,14 +61,17 @@ const SignupPage: FC = () => {
   // 👇 Form Handler
   const onSubmitHandler: SubmitHandler<ISignUp> = async (values: ISignUp) => {
     console.log(JSON.stringify(values, null, 4));
+    setIsLoading(true);
     if (!values.verifyCode) {
       console.error('verify code should not be empty!');
       setVerifyCodeError('verify code empty!');
+      setIsLoading(false);
       return false;
     }
     if (values.verifyCode.length !== 6) {
       console.error('verify code should be 6 digits');
       setVerifyCodeError('verify code should be 6 digits');
+      setIsLoading(false);
       return false;
     }
     try {
@@ -89,8 +93,10 @@ const SignupPage: FC = () => {
         const message = buildMessageFromCode(result);
         setRegisterError(message);
       }
+      setIsLoading(false);
       return result;
     } catch (error) {
+      setIsLoading(false);
       if (error instanceof WalletError) {
         const { code, message } = error;
         setRegisterError(message);
@@ -249,7 +255,7 @@ const SignupPage: FC = () => {
                     )}
 
                     <LoadingButton
-                      loading={false}
+                      loading={isLoading}
                       type="submit"
                       variant="contained"
                       sx={{
