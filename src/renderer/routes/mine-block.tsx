@@ -250,7 +250,7 @@ export default function MineBlock() {
           </Grid>
         </Grid>
 
-        <Grid container spacing={2} sx={{ mb: '1rem', mt: '0.1rem', padding: '0.2rem 1rem' }}>
+        <Grid container spacing={2} sx={{ mb: '0.5rem', mt: '0.1rem', padding: '0.2rem 1rem' }}>
           <Grid item xs={12}>
             <Stack
               direction="column"
@@ -308,8 +308,8 @@ export default function MineBlock() {
               <MinHeightTextarea
                 placeholder="mine block console"
                 disabled
-                minRows={10}
-                maxRows={15}
+                minRows={2}
+                maxRows={8}
                 value={mineBlockLog.join('\n')}
               />
             </Stack>
