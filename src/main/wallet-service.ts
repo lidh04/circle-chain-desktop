@@ -9,6 +9,8 @@ import axios from 'axios';
 import wallet from '@lidh04/circle-chain-sdk';
 import { Identity, MyBlockData, MyBlockRequest, Ownership, PublicWallet } from '../common/wallet-types';
 import storeGet from '../common/store-config';
+import { MINE_BLOCK_LOG_CHANNEL } from '../common/wallet-constants';
+import IpcMainEvent = Electron.IpcMainEvent;
 
 type BalanceVO = {
   confirmed: number;
@@ -171,7 +173,8 @@ export async function stopMineBlock() {
   await wallet.miner.terminateAndClearWorkers();
 }
 
-export async function mineBlock(address: string, threadCount: number) {
+export async function mineBlock(event: IpcMainEvent, address: string, threadCount: number) {
+  let logs = [] as string[];
   let data: MyBlockData | null = null;
   let times = 0;
   while (times < 24 * 60 * 2) {
@@ -189,6 +192,7 @@ export async function mineBlock(address: string, threadCount: number) {
   }
 
   if (!data) {
+    event.reply(MINE_BLOCK_LOG_CHANNEL, 'there is no block exists to be mined!');
     return {
       code: 404,
       msg: 'there is no block exists to be mined!',
@@ -196,6 +200,10 @@ export async function mineBlock(address: string, threadCount: number) {
   }
 
   const { ipPort, blockHeaderHexString } = data;
+  logs.push(`get the mine block data: ${blockHeaderHexString}`);
+  logs.push(`begin to mine block locally: ${blockHeaderHexString}`);
+  event.reply(MINE_BLOCK_LOG_CHANNEL, `${logs.join('\n')}`);
+  logs = [];
   let minedBlockHeaderHexString = '';
   const timeoutPromise = new Promise((resolve, reject) => {
     setTimeout(() => {
@@ -210,10 +218,13 @@ export async function mineBlock(address: string, threadCount: number) {
       const items = minedContent.split('\n');
       // eslint-disable-next-line prefer-destructuring
       minedBlockHeaderHexString = items[0];
+      logs.push(`mine block locally success: ${minedBlockHeaderHexString}`);
     }
   } catch (err) {
     if (err instanceof Error) {
       const { message } = err;
+      logs.push(`mine block locally failure: ${message}`);
+      event.reply(MINE_BLOCK_LOG_CHANNEL, `${logs.join('\n')}`);
       if (message.indexOf('not support') !== -1) {
         return {
           code: 10000,
@@ -228,6 +239,11 @@ export async function mineBlock(address: string, threadCount: number) {
         };
       }
     }
+
+    return {
+      code: 500,
+      msg: 'unknown error',
+    };
   }
 
   if (minedBlockHeaderHexString) {
@@ -237,13 +253,16 @@ export async function mineBlock(address: string, threadCount: number) {
       blockHeaderHexString: minedBlockHeaderHexString,
     });
     console.log('mine result:', postResult);
+    logs.push(`post mined block to the cloud nodes result: ${postResult}`);
+    event.reply(MINE_BLOCK_LOG_CHANNEL, `${logs.join('\n')}`);
     return {
       code: 200,
       data: postResult,
       msg: 'success',
     };
   }
-
+  logs.push('mine block locally result: mined failure');
+  event.reply(MINE_BLOCK_LOG_CHANNEL, `${logs.join('\n')}`);
   return {
     code: 10000,
     msg: 'mined failure',

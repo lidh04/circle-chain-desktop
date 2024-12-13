@@ -5,7 +5,7 @@ import {
   Channels,
   CreateWallet,
   GET_CPU_COUNT,
-  GET_MINE_BLOCK_INFO,
+  GET_MINE_BLOCK_INFO_CHANNEL,
   GetAccount,
   GetEncodedPrivateKey,
   GetPayPassword,
@@ -14,19 +14,21 @@ import {
   LOGIN_PASSWORD,
   LOGIN_VERIFY_CODE,
   LOGOUT,
-  MINE_BLOCK_REQUEST,
+  MINE_BLOCK_REQUEST_CHANNEL,
+  READ_MINE_BLOCK_LOG_CHANNEL,
   REGISTER,
   RELOAD,
   RESET_PASSWORD,
+  SAVE_MINE_BLOCK_LOG_CHANNEL,
   SaveAccount,
   SearchTransaction,
   SEND_LOGIN_VERIFY_CODE,
   SEND_REGISTER_VERIFY_CODE,
   SEND_RESET_PASSWORD_VERIFY_CODE,
   SendToChannel,
-  SET_MINE_BLOCK_INFO,
+  SET_MINE_BLOCK_INFO_CHANNEL,
   SetPayPassword,
-  STOP_MINE_BLOCK
+  STOP_MINE_BLOCK_CHANNEL
 } from '../common/wallet-constants';
 import { TxType } from '../common/block-types';
 import { AddressType } from '../common/wallet-types';
@@ -97,16 +99,22 @@ const electronHandler = {
       return ipcRenderer.invoke(SendToChannel, from, toEmail, assetType, value, payPassword);
     },
     setMineBlockInfo(mineBlockInfo: string) {
-      return ipcRenderer.invoke(SET_MINE_BLOCK_INFO, mineBlockInfo);
+      return ipcRenderer.invoke(SET_MINE_BLOCK_INFO_CHANNEL, mineBlockInfo);
     },
     getMineBlockInfo() {
-      return ipcRenderer.invoke(GET_MINE_BLOCK_INFO);
+      return ipcRenderer.invoke(GET_MINE_BLOCK_INFO_CHANNEL);
     },
     mineBlock(address: string, threadCount: number) {
-      return ipcRenderer.send(MINE_BLOCK_REQUEST, address, threadCount);
+      return ipcRenderer.send(MINE_BLOCK_REQUEST_CHANNEL, address, threadCount);
     },
     stopMineBlock() {
-      return ipcRenderer.invoke(STOP_MINE_BLOCK);
+      return ipcRenderer.invoke(STOP_MINE_BLOCK_CHANNEL);
+    },
+    saveMineBlockLog(logs: string[]) {
+      return ipcRenderer.invoke(SAVE_MINE_BLOCK_LOG_CHANNEL, logs);
+    },
+    readMineBlockLog() {
+      return ipcRenderer.invoke(READ_MINE_BLOCK_LOG_CHANNEL);
     },
     on(channel: string, func: (...args: string[]) => void) {
       const subscription = (_event: IpcRendererEvent, ...args: string[]) => func(...args);

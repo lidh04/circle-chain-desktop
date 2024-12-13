@@ -77,7 +77,7 @@ const LoginPage: FC = () => {
       return result;
     } catch (error) {
       setIsLoading(false);
-      
+
       if (error instanceof WalletError) {
         const { code, message } = error;
         console.log('code:', code, 'message:', message);

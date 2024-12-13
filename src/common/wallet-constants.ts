@@ -9,12 +9,16 @@ export const GetEncodedPrivateKey = 'get-encoded-private-key';
 export const SearchTransaction = 'search-transaction';
 export const CreateWallet = 'create-wallet';
 export const SendToChannel = 'send-to';
-export const MINE_BLOCK_REQUEST = 'mine-block-request';
-export const MINE_BLOCK_REPLY = 'mine-block-reply';
-export const STOP_MINE_BLOCK = 'stop-mine-block';
-export const MINE_BLOCK_INFO = 'mine-block-info';
-export const GET_MINE_BLOCK_INFO = 'get-mine-block-info';
-export const SET_MINE_BLOCK_INFO = 'set-mine-block-info';
+export const MINE_BLOCK_REQUEST_CHANNEL = 'mine-block-request';
+export const MINE_BLOCK_REPLY_CHANNEL = 'mine-block-reply';
+export const STOP_MINE_BLOCK_CHANNEL = 'stop-mine-block';
+export const MINE_BLOCK_INFO_STORE_KEY = 'mine-block-info';
+export const GET_MINE_BLOCK_INFO_CHANNEL = 'get-mine-block-info';
+export const SET_MINE_BLOCK_INFO_CHANNEL = 'set-mine-block-info';
+export const MINE_BLOCK_LOG_CHANNEL = 'mine-block-log';
+export const SAVE_MINE_BLOCK_LOG_CHANNEL = 'save-mine-block-log';
+export const READ_MINE_BLOCK_LOG_CHANNEL = 'read-mine-block-log';
+export const MINE_BLOCK_LOG_STORE_KEY = 'mine-block-log';
 
 // account constants
 export const LOGIN = 'login';
