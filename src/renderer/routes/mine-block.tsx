@@ -224,7 +224,7 @@ export default function MineBlock() {
           </Grid>
         </Grid>
 
-        <Grid container spacing={2} sx={{ mb: '0.5rem', mt: '1rem', padding: '0.3rem 1rem' }}>
+        <Grid container spacing={2} sx={{ mb: '0.1rem', mt: '1rem', padding: '0.2rem 1rem' }}>
           <Grid item xs={3}>
             <Typography variant="h6" component="h1" sx={{ textAlign: 'right', mt: '0.5rem' }}>
               Address
@@ -250,7 +250,7 @@ export default function MineBlock() {
           </Grid>
         </Grid>
 
-        <Grid container spacing={2} sx={{ mb: '1rem', mt: '0.5rem', padding: '0.3rem 1rem' }}>
+        <Grid container spacing={2} sx={{ mb: '1rem', mt: '0.1rem', padding: '0.2rem 1rem' }}>
           <Grid item xs={12}>
             <Stack
               direction="column"
