@@ -96,19 +96,23 @@ Please referer to [intro](https://gitee.com/lidh04/circle-chain-desktop/tree/mai
 
 ## Donations
 
-- None
+- SHC
 
 ## Backers
 
-- None
+- SHC
 
 ## Sponsors
 
-- None
+- SHC
 
 ## Maintainers
 
-- [lidh04](https://gitee.com/lidh04)
+- lidh04
+- dhoegreet
+- jhtu0232
+- dhoegreedy
+- alexander.stack
 
 ## License
 
