@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Box, Button, Grid, Stack, Typography } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 import InputLabel from '@mui/material/InputLabel';
@@ -6,6 +7,7 @@ import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import RunCircleIcon from '@mui/icons-material/RunCircle';
+import { Account } from 'common/account-types';
 import { PublicWallet, WalletPackage } from '../../common/wallet-types';
 import CircleDialog from '../components/CircleDialog';
 import { MINE_BLOCK_LOG_CHANNEL, MINE_BLOCK_REPLY_CHANNEL } from '../../common/wallet-constants';
@@ -17,7 +19,12 @@ interface MineBlockInfo {
   core: number;
 }
 
-export default function MineBlock() {
+interface Props {
+  account: Account | null;
+}
+
+export default function MineBlock(props: Props) {
+  const { account } = props;
   const [core, setCore] = React.useState<number>(1);
   const [cpuList, setCpuList] = React.useState<number[]>([1]);
   const [addressList, setAddressList] = React.useState<string[]>(['']);
@@ -27,6 +34,8 @@ export default function MineBlock() {
   const [openMineSuccess, setOpenMineSuccess] = React.useState(false);
   const [mineBlockLog, setMineBlockLog] = React.useState([] as string[]);
   const [logStore, setLogStore] = React.useState([] as string[]);
+
+  const navigate = useNavigate();
 
   const record = (log: string) => {
     return `${new Date().toISOString()} - ${log}`;
@@ -72,6 +81,11 @@ export default function MineBlock() {
   };
 
   useEffect(() => {
+    if (!account) {
+      navigate('/login');
+      return;
+    }
+
     window.electron.ipcRenderer
       .getMineBlockInfo()
       .then((mineBlockInfo) => {
@@ -171,8 +185,9 @@ export default function MineBlock() {
           .then((result) => console.log('saveMineBlockLog result:', result))
           .catch((err) => console.error('saveMineBlockLog error:', err));
       }
+      return true;
     };
-  }, []);
+  }, [account]);
 
   return (
     <Stack

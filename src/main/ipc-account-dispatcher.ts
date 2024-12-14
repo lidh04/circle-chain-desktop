@@ -35,6 +35,7 @@ export default function setUpAccountDispatcher() {
 
       const response = await wallet.user.userInfo();
       const { status, data } = response;
+      console.log('GetAccount userInfo response:', JSON.stringify(response));
       if (status === 200 && data && data.userId) {
         logged = true;
         console.log('get account:', account, 'in account info path:', accountInfoPath);
