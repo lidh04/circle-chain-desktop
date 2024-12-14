@@ -86,9 +86,13 @@ Please referer to [intro](https://gitee.com/lidh04/circle-chain-desktop/tree/mai
 
 ## Community
 
-## Sponsors
+## Versions
 
-- None
+- 4.7.1 support mac arm64 mine block locally
+
+- 4.7.0 support mine block locally and improved UI
+
+- 4.6.0 initial version
 
 ## Donations
 

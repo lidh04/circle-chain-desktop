@@ -46,6 +46,7 @@ const ForgotPassword: FC = () => {
   const [startTimer, setStartTimer] = React.useState(false);
   const [verifyCodeError, setVerifyCodeError] = React.useState('');
   const [resetPasswordError, setResetPasswordError] = React.useState('');
+  const [isLoading, setIsLoading] = React.useState(false);
 
   const navigate = useNavigate();
 
@@ -66,14 +67,17 @@ const ForgotPassword: FC = () => {
   // 👇 Submit Handler
   const onSubmitHandler: SubmitHandler<IReset> = async (values: IReset) => {
     console.log(JSON.stringify(values, null, 4));
+    setIsLoading(true);
     if (!values.verifyCode) {
       console.error('verify code should not be empty!');
       setVerifyCodeError('verify code empty!');
+      setIsLoading(false);
       return false;
     }
     if (values.verifyCode.length !== 6) {
       console.error('verify code should be 6 digits');
       setVerifyCodeError('verify code should be 6 digits');
+      setIsLoading(false);
       return false;
     }
     try {
@@ -93,6 +97,7 @@ const ForgotPassword: FC = () => {
         const message = buildMessageFromCode(result);
         setResetPasswordError(message);
       }
+      setIsLoading(false);
       return result;
     } catch (error) {
       if (error instanceof WalletError) {
@@ -100,6 +105,7 @@ const ForgotPassword: FC = () => {
         setResetPasswordError(message);
         console.log('code:', code, 'message:', message);
       }
+      setIsLoading(false);
     }
     return false;
   };
@@ -266,7 +272,7 @@ const ForgotPassword: FC = () => {
                       )}
 
                       <LoadingButton
-                        loading={false}
+                        loading={isLoading}
                         type="submit"
                         variant="contained"
                         sx={{

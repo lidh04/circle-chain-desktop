@@ -6,10 +6,16 @@ import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import RunCircleIcon from '@mui/icons-material/RunCircle';
-import Cookies from 'js-cookie';
 import { PublicWallet, WalletPackage } from '../../common/wallet-types';
 import CircleDialog from '../components/CircleDialog';
-import { MINE_BLOCK_REPLY } from '../../common/wallet-constants';
+import { MINE_BLOCK_LOG_CHANNEL, MINE_BLOCK_REPLY_CHANNEL } from '../../common/wallet-constants';
+import MinHeightTextarea from '../components/MinHeightTextarea';
+
+interface MineBlockInfo {
+  isLoading: boolean;
+  address: string;
+  core: number;
+}
 
 export default function MineBlock() {
   const [core, setCore] = React.useState<number>(1);
@@ -19,13 +25,19 @@ export default function MineBlock() {
   const [error, setError] = React.useState('');
   const [isLoading, setIsLoading] = React.useState(false);
   const [openMineSuccess, setOpenMineSuccess] = React.useState(false);
+  const [mineBlockLog, setMineBlockLog] = React.useState([] as string[]);
+  const [logStore, setLogStore] = React.useState([] as string[]);
+
+  const record = (log: string) => {
+    return `${new Date().toISOString()} - ${log}`;
+  };
 
   const stopMineBlock = async () => {
     await window.electron.ipcRenderer.stopMineBlock();
     setIsLoading(false);
-    Cookies.remove('isLoading');
-    Cookies.remove('address');
-    Cookies.remove('core');
+    await window.electron.ipcRenderer.setMineBlockInfo('');
+    logStore.push(record('mine block task is stopped.'));
+    setMineBlockLog([...logStore]);
   };
 
   const onSubmitHandler: React.FormEventHandler<HTMLFormElement> = async (e) => {
@@ -42,75 +54,125 @@ export default function MineBlock() {
 
     setIsLoading(true);
     setError('');
-    Cookies.set('isLoading', '1');
-    await window.electron.ipcRenderer.mineBlock(address, core);
+    logStore.push(record(`begin to mine block task using ${core} cpus with address: ${address}`));
+    setMineBlockLog([...logStore]);
+    window.electron.ipcRenderer.mineBlock(address, core);
+    logStore.push(record(`mine block task using ${core} cpus with address: ${address} started`));
+    setMineBlockLog([...logStore]);
   };
 
   const handleCPUChange = (event: SelectChangeEvent) => {
     event.preventDefault();
     setCore(parseInt(event.target.value as string, 10));
-    Cookies.set('core', `${event.target.value}`, { expires: 1 });
   };
 
   const handleAddressChange = (event: SelectChangeEvent) => {
     event.preventDefault();
     setAddress(event.target.value as string);
-    Cookies.set('address', event.target.value as string, { expires: 1 });
   };
 
   useEffect(() => {
     window.electron.ipcRenderer
-      .getCpuCount()
-      .then((cpuCount) => {
-        const items = [];
-        for (let i = 0; i < cpuCount; i += 1) {
-          items.push(i + 1);
+      .getMineBlockInfo()
+      .then((mineBlockInfo) => {
+        console.log('getMineBlockInfo:', mineBlockInfo);
+        let info: MineBlockInfo = {
+          core: 1,
+          address: '',
+          isLoading: false,
+        };
+        if (mineBlockInfo) {
+          info = JSON.parse(mineBlockInfo);
         }
-        setCpuList(items);
+        window.electron.ipcRenderer
+          .getCpuCount()
+          .then((cpuCount) => {
+            const items = [];
+            for (let i = 0; i < cpuCount; i += 1) {
+              items.push(i + 1);
+            }
+            setCpuList(items);
+            setCore(info.core);
+            return true;
+          })
+          .catch((err) => console.error(err));
 
-        const coreInCookie = Cookies.get('core');
-        if (coreInCookie) {
-          setCore(parseInt(coreInCookie, 10));
-        }
+        // set address list and selected address.
+        window.electron.ipcRenderer
+          .getWalletPackage('')
+          .then((result: WalletPackage) => {
+            const addresses = result.wallets.map((wallet: PublicWallet) => wallet.address);
+            setAddressList(addresses);
+            if (info.address) {
+              setAddress(info.address);
+            } else if (addresses.length > 0) {
+              setAddress(addresses[0]);
+            }
+            return true;
+          })
+          .catch((err) => console.error(err));
+
+        // set loading.
+        setIsLoading(info.isLoading);
+
+        window.electron.ipcRenderer
+          .readMineBlockLog()
+          .then((logs: string[]) => {
+            if (logs.length > 0 && info.isLoading) {
+              setLogStore(logs);
+              setMineBlockLog([...logs]);
+            }
+            return true;
+          })
+          .catch((err) => console.error('readMineBlockLog error:', err));
+
         return true;
       })
-      .catch((err) => console.error(err));
+      .catch((err) => console.error('getMineBlockInfo error:', err));
 
-    window.electron.ipcRenderer
-      .getWalletPackage('')
-      .then((result: WalletPackage) => {
-        const addresses = result.wallets.map((wallet: PublicWallet) => wallet.address);
-        setAddressList(addresses);
-        const addressInCookie = Cookies.get('address');
-        if (addressInCookie) {
-          setAddress(addressInCookie);
-        } else if (addresses.length > 0) {
-          setAddress(addresses[0]);
-        }
-        return true;
-      })
-      .catch((err) => console.error(err));
-
-    const isLoadingInCookie = Cookies.get('isLoading');
-    if (isLoadingInCookie) {
-      setIsLoading(true);
-    }
-
-    window.electron.ipcRenderer.on(MINE_BLOCK_REPLY, (result: string) => {
+    window.electron.ipcRenderer.on(MINE_BLOCK_REPLY_CHANNEL, (result: string) => {
       const response: { code: number; msg: string; data?: boolean } = JSON.parse(result);
       console.log('mine block response:', result);
+      logStore.push(record(`mine the block task response: ${JSON.stringify(response)}`));
       if (response.code === 200 && response.data) {
         console.log('mine block success!');
+        logStore.push(record('mine block task success!'));
         setOpenMineSuccess(true);
       } else {
         const mineBlockError = response.code === 200 ? 'the mined blocked is obsoleted!' : response.msg;
+        logStore.push(record(`mine block task failure: ${response.msg}`));
         setError(mineBlockError);
       }
+      setMineBlockLog([...logStore]);
       stopMineBlock()
         .then(() => console.log('stop mine block success.'))
         .catch((err) => console.error('stop mine block error:', err));
     });
-  }, [setAddressList, setCpuList]);
+
+    window.electron.ipcRenderer.on(MINE_BLOCK_LOG_CHANNEL, (log: string) => {
+      console.log('receive mine block log:', log);
+      const formattedLog = log
+        .split('\n')
+        .filter((it) => !!it)
+        .map((it) => record(it))
+        .join('\n');
+      const exist = logStore.find((line) => line === formattedLog);
+      if (!exist) {
+        logStore.push(formattedLog);
+        setMineBlockLog([...logStore]);
+      }
+    });
+
+    return () => {
+      console.log('mine block page is unmounted.');
+      if (logStore.length > 0) {
+        window.electron.ipcRenderer
+          .saveMineBlockLog(logStore)
+          .then((result) => console.log('saveMineBlockLog result:', result))
+          .catch((err) => console.error('saveMineBlockLog error:', err));
+      }
+    };
+  }, []);
 
   return (
     <Stack
@@ -162,7 +224,7 @@ export default function MineBlock() {
           </Grid>
         </Grid>
 
-        <Grid container spacing={2} sx={{ mb: '1rem', mt: '1rem', padding: '0.3rem 1rem' }}>
+        <Grid container spacing={2} sx={{ mb: '0.1rem', mt: '1rem', padding: '0.2rem 1rem' }}>
           <Grid item xs={3}>
             <Typography variant="h6" component="h1" sx={{ textAlign: 'right', mt: '0.5rem' }}>
               Address
@@ -188,7 +250,7 @@ export default function MineBlock() {
           </Grid>
         </Grid>
 
-        <Grid container spacing={2} sx={{ mb: '1rem', mt: '1rem', padding: '0.3rem 1rem' }}>
+        <Grid container spacing={2} sx={{ mb: '0.5rem', mt: '0.1rem', padding: '0.2rem 1rem' }}>
           <Grid item xs={12}>
             <Stack
               direction="column"
@@ -231,6 +293,25 @@ export default function MineBlock() {
                   <Typography sx={{ fontSize: '0.9rem', mt: '1rem', mb: '1rem', color: 'red' }}>{error}</Typography>
                 </Grid>
               )}
+            </Stack>
+          </Grid>
+
+          <Grid item xs={12}>
+            <Stack
+              direction="row"
+              justifyContent="center"
+              alignItems="center"
+              mt={2}
+              spacing={2}
+              sx={{ width: '100%', height: 'auto' }}
+            >
+              <MinHeightTextarea
+                placeholder="mine block console"
+                disabled
+                minRows={2}
+                maxRows={8}
+                value={mineBlockLog.join('\n')}
+              />
             </Stack>
           </Grid>
         </Grid>

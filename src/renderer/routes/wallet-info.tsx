@@ -1,6 +1,5 @@
 import { Box, Button, Grid, MenuItem, Select, Stack, TextField, Typography } from '@mui/material';
 import Alert from '@mui/material/Alert';
-import TextareaAutosize from '@mui/base/TextareaAutosize';
 import ImportExportIcon from '@mui/icons-material/ImportExport';
 import { blue } from '@mui/material/colors';
 import { styled } from '@mui/material/styles';
@@ -44,6 +43,7 @@ import {
   WalletPackage
 } from '../../common/wallet-types';
 import CircleDialog from '../components/CircleDialog';
+import MinHeightTextarea from 'renderer/components/MinHeightTextarea';
 
 interface Column {
   id: 'address' | 'balance' | 'identity' | 'ownership' | 'operation' | 'keywords';
@@ -605,11 +605,11 @@ export default function WalletInfo() {
           </Typography>
         </Grid>
         <Grid item xs={8}>
-          <TextareaAutosize
+          <MinHeightTextarea
             aria-label="keywords"
             minRows={3}
             value={newKeywords}
-            placeholder="Please paste address keyworkds here."
+            placeholder="Please paste address secret keywords here."
             onChange={handleChangeKeyWords}
             style={{ width: '100%', height: 50 }}
           />

@@ -8,7 +8,7 @@ import axios from 'axios';
 import { AddressType } from 'common/wallet-types';
 import { TransVO, TxType } from 'common/block-types';
 import { PrivateWalletPackage } from './wallet-privacy';
-import { store_get } from '../common/store-config';
+import storeGet from '../common/store-config';
 
 type TransactionInfo = {
   fromAddress: string;
@@ -69,7 +69,7 @@ export async function searchTransaction(
   txType?: TxType,
   uuid?: string
 ): Promise<TransVO[]> {
-  const host = store_get('host');
+  const host = storeGet('host');
   const url = `${host}/wallet/public/v1/search-transaction`;
   const data = {
     address,
@@ -130,7 +130,7 @@ export async function sendTo(
   value: number | string,
   payPassword: string
 ) {
-  const host = store_get('host');
+  const host = storeGet('host');
   const url = `${host}/wallet/public/v1/try-send-to`;
   // eslint-disable-next-line @typescript-eslint/no-use-before-define
   const valueHex = makeValueHex(value);

@@ -36,6 +36,7 @@ type ILogin = TypeOf<typeof loginSchema>;
 
 const LoginPage: FC = () => {
   const [loginError, setLoginError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   // 👇 Default Values
   const defaultValues: ILogin = {
@@ -53,6 +54,7 @@ const LoginPage: FC = () => {
   // 👇 Submit Handler
   const onSubmitHandler: SubmitHandler<ILogin> = async (values: ILogin) => {
     console.log('user input:', values, 'isBrowser:', typeof window);
+    setIsLoading(true);
     try {
       const result = await window.electron.ipcRenderer.loginWitPassword({
         type: 'email',
@@ -70,9 +72,12 @@ const LoginPage: FC = () => {
         const message = buildMessageFromCode(result);
         setLoginError(message);
       }
+      setIsLoading(false);
 
       return result;
     } catch (error) {
+      setIsLoading(false);
+
       if (error instanceof WalletError) {
         const { code, message } = error;
         console.log('code:', code, 'message:', message);
@@ -161,7 +166,7 @@ const LoginPage: FC = () => {
                     )}
 
                     <LoadingButton
-                      loading={false}
+                      loading={isLoading}
                       type="submit"
                       variant="contained"
                       sx={{

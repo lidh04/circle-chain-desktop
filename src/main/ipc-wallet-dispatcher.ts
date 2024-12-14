@@ -1,13 +1,20 @@
 import { ipcMain } from 'electron';
+import Store from 'electron-store';
 import {
   CreateWallet,
+  GET_MINE_BLOCK_INFO_CHANNEL,
   GetEncodedPrivateKey,
   GetWalletPackage,
   ImportWallet,
-  MINE_BLOCK_REPLY,
-  MINE_BLOCK_REQUEST,
+  MINE_BLOCK_INFO_STORE_KEY,
+  MINE_BLOCK_LOG_STORE_KEY,
+  MINE_BLOCK_REPLY_CHANNEL,
+  MINE_BLOCK_REQUEST_CHANNEL,
+  READ_MINE_BLOCK_LOG_CHANNEL,
+  SAVE_MINE_BLOCK_LOG_CHANNEL,
   SendToChannel,
-  STOP_MINE_BLOCK
+  SET_MINE_BLOCK_INFO_CHANNEL,
+  STOP_MINE_BLOCK_CHANNEL
 } from '../common/wallet-constants';
 import createWallet from './create-wallet';
 import { EmailAccount } from '../common/account-types';
@@ -66,17 +73,54 @@ export default function setUpWalletDispatcher() {
     }
   );
 
-  ipcMain.on(MINE_BLOCK_REQUEST, (event, address: string, threadCount: number) => {
-    mineBlock(address, threadCount)
+  ipcMain.handle(GET_MINE_BLOCK_INFO_CHANNEL, async (event) => {
+    const store = new Store();
+    const content = store.get(MINE_BLOCK_INFO_STORE_KEY, '');
+    console.log('key:', MINE_BLOCK_INFO_STORE_KEY, 'content:', content);
+    return content;
+  });
+
+  ipcMain.handle(SET_MINE_BLOCK_INFO_CHANNEL, async (event, mineBlockInfo: string) => {
+    const store = new Store();
+    store.set(MINE_BLOCK_INFO_STORE_KEY, mineBlockInfo);
+    return true;
+  });
+
+  ipcMain.handle(SAVE_MINE_BLOCK_LOG_CHANNEL, async (event, logs: string[]) => {
+    const store = new Store();
+    store.set(MINE_BLOCK_LOG_STORE_KEY, logs);
+    return true;
+  });
+
+  ipcMain.handle(READ_MINE_BLOCK_LOG_CHANNEL, async (event) => {
+    const store = new Store();
+    const value = store.get(MINE_BLOCK_LOG_STORE_KEY);
+    if (!value) {
+      return [] as string[];
+    }
+
+    return value as string[];
+  });
+
+  ipcMain.on(MINE_BLOCK_REQUEST_CHANNEL, (event, address: string, threadCount: number) => {
+    const mineBlockInfo = JSON.stringify({
+      isLoading: true,
+      address,
+      core: threadCount,
+    });
+    const store = new Store();
+    store.set(MINE_BLOCK_INFO_STORE_KEY, mineBlockInfo);
+
+    mineBlock(event, address, threadCount)
       // eslint-disable-next-line promise/always-return
       .then((result) => {
-        event.reply(MINE_BLOCK_REPLY, JSON.stringify(result));
+        event.reply(MINE_BLOCK_REPLY_CHANNEL, JSON.stringify(result));
       })
       .catch((error) => {
         console.error('mine block error:', error);
         if (error instanceof Error) {
           event.reply(
-            MINE_BLOCK_REPLY,
+            MINE_BLOCK_REPLY_CHANNEL,
             JSON.stringify({
               code: 500,
               msg: error.message,
@@ -84,8 +128,9 @@ export default function setUpWalletDispatcher() {
           );
         }
       });
+    return true;
   });
-  ipcMain.handle(STOP_MINE_BLOCK, async (event) => {
+  ipcMain.handle(STOP_MINE_BLOCK_CHANNEL, async (event) => {
     return stopMineBlock();
   });
 }

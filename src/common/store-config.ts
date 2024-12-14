@@ -13,7 +13,7 @@ const storeSchema = {
   },
 };
 
-export function store_get(key: string) {
+export default function storeGet(key: string) {
   const store = new Store({ schema: storeSchema });
   return store.get(key);
 }
