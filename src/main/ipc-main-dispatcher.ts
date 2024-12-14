@@ -12,11 +12,11 @@ export default function setUpIPCMainDispatchers(mainWindow: BrowserWindow) {
     event.reply('ipc-circle-chain', msgTemplate('pong'));
   });
 
-  ipcMain.on(RELOAD, async (event, arg: string) => {
+  ipcMain.on(RELOAD, async () => {
     mainWindow.webContents.reloadIgnoringCache();
   });
 
-  ipcMain.handle(GET_CPU_COUNT, async (event) => {
+  ipcMain.handle(GET_CPU_COUNT, async () => {
     return os.cpus().length;
   });
 

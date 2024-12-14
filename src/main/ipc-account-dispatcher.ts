@@ -2,7 +2,6 @@ import { ipcMain } from 'electron';
 import { chmod, mkdir, readFile, writeFile } from 'fs/promises';
 import path from 'path';
 import wallet from '@lidh04/circle-chain-sdk';
-// @ts-ignore
 import { Account, RegisterInput, ResetPasswordInput, VerifyCodeInput } from '../common/account-types';
 import { getAccountInfoPath } from '../common/acount';
 import { PrivateWalletPackage } from './wallet-privacy';
@@ -18,19 +17,26 @@ import {
   SEND_LOGIN_VERIFY_CODE,
   SEND_REGISTER_VERIFY_CODE,
   SEND_RESET_PASSWORD_VERIFY_CODE,
-  SetPayPassword
+  SetPayPassword,
 } from '../common/wallet-constants';
 
 let uploaded = false;
+let logged = false;
 export default function setUpAccountDispatcher() {
-  ipcMain.handle(GetAccount, async (event) => {
+  ipcMain.handle(GetAccount, async () => {
     const accountInfoPath = getAccountInfoPath();
     try {
       const content = await readFile(accountInfoPath, { encoding: 'utf8' });
       const account = JSON.parse(content) as Account;
+      if (logged) {
+        console.log('account:', account.value, 'is already logged in');
+        return account;
+      }
+
       const response = await wallet.user.userInfo();
       const { status, data } = response;
       if (status === 200 && data && data.userId) {
+        logged = true;
         console.log('get account:', account, 'in account info path:', accountInfoPath);
         if (!uploaded) {
           // async upload account info
@@ -49,8 +55,11 @@ export default function setUpAccountDispatcher() {
       }
 
       return null;
-    } catch (err: any) {
-      console.warn('get file error:', err.message, err);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        console.warn('get file error:', err.message, err);
+      }
+
       return null;
     }
   });
@@ -64,8 +73,11 @@ export default function setUpAccountDispatcher() {
       await writeFile(accountInfoPath, content);
       await chmod(accountInfoPath, 0o600);
       return true;
-    } catch (err: any) {
-      console.error('cannot write file in path: ', accountInfoPath, 'error:', err.message, err);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        console.error('cannot write file in path: ', accountInfoPath, 'error:', err.message, err);
+      }
+
       return false;
     }
   });
@@ -135,6 +147,7 @@ export default function setUpAccountDispatcher() {
     const { status, message } = response || {};
     if (status === 200) {
       console.log('login success for user:', value);
+      logged = true;
       return status;
     }
 
@@ -165,6 +178,7 @@ export default function setUpAccountDispatcher() {
     const { status, message } = response || {};
     if (status === 200) {
       console.log('login success for user:', value);
+      logged = true;
       return status;
     }
 
@@ -244,11 +258,12 @@ export default function setUpAccountDispatcher() {
     return status;
   });
 
-  ipcMain.handle(LOGOUT, async (event) => {
+  ipcMain.handle(LOGOUT, async () => {
     const response = await wallet.user.logout();
     const { status } = response;
     if (status === 200) {
       console.log('logout success!');
+      logged = false;
       return status;
     }
 

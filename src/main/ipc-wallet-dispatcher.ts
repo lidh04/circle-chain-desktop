@@ -14,7 +14,7 @@ import {
   SAVE_MINE_BLOCK_LOG_CHANNEL,
   SendToChannel,
   SET_MINE_BLOCK_INFO_CHANNEL,
-  STOP_MINE_BLOCK_CHANNEL
+  STOP_MINE_BLOCK_CHANNEL,
 } from '../common/wallet-constants';
 import createWallet from './create-wallet';
 import { EmailAccount } from '../common/account-types';
@@ -23,7 +23,7 @@ import { sendTo } from './blocks';
 import { mineBlock, stopMineBlock } from './wallet-service';
 
 export default function setUpWalletDispatcher() {
-  ipcMain.handle(CreateWallet, async (event) => {
+  ipcMain.handle(CreateWallet, async () => {
     console.log('create wallet request...');
     const wallet = await createWallet();
     return wallet;
@@ -40,8 +40,11 @@ export default function setUpWalletDispatcher() {
         await PrivateWalletPackage.initLoad(account);
       }
       return await PrivateWalletPackage.getWalletPackage();
-    } catch (err: any) {
-      console.error('cannot get wallet package by email:', email, 'error:', err.message, err);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        console.error('cannot get wallet package by email:', email, 'error:', err.message, err);
+      }
+
       throw err;
     }
   });
@@ -51,8 +54,11 @@ export default function setUpWalletDispatcher() {
     try {
       const newPrivateKey = PrivateWalletPackage.decodePrivatePoem(keywords);
       return await PrivateWalletPackage.addPrivateKeyAndSave(newPrivateKey);
-    } catch (err: any) {
-      console.error('cannot import wallet by keyworkds:', keywords, 'error:', err.message, err);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        console.error('cannot import wallet by keyworkds:', keywords, 'error:', err.message, err);
+      }
+
       throw err;
     }
   });
@@ -73,7 +79,7 @@ export default function setUpWalletDispatcher() {
     }
   );
 
-  ipcMain.handle(GET_MINE_BLOCK_INFO_CHANNEL, async (event) => {
+  ipcMain.handle(GET_MINE_BLOCK_INFO_CHANNEL, async () => {
     const store = new Store();
     const content = store.get(MINE_BLOCK_INFO_STORE_KEY, '');
     console.log('key:', MINE_BLOCK_INFO_STORE_KEY, 'content:', content);
@@ -92,7 +98,7 @@ export default function setUpWalletDispatcher() {
     return true;
   });
 
-  ipcMain.handle(READ_MINE_BLOCK_LOG_CHANNEL, async (event) => {
+  ipcMain.handle(READ_MINE_BLOCK_LOG_CHANNEL, async () => {
     const store = new Store();
     const value = store.get(MINE_BLOCK_LOG_STORE_KEY);
     if (!value) {
@@ -130,7 +136,8 @@ export default function setUpWalletDispatcher() {
       });
     return true;
   });
-  ipcMain.handle(STOP_MINE_BLOCK_CHANNEL, async (event) => {
+
+  ipcMain.handle(STOP_MINE_BLOCK_CHANNEL, async () => {
     return stopMineBlock();
   });
 }

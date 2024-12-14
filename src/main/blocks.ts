@@ -44,7 +44,7 @@ type ConfirmSendToRequest = {
 type RemoteInput = {
   txId: Uint8Array;
   txOutputIndex: number;
-  unlockScript: any;
+  unlockScript: unknown;
   serialNO: number;
 };
 
@@ -52,8 +52,8 @@ type RemoteOutput = {
   txId: Uint8Array;
   idx: number;
   status: number;
-  value: any;
-  lockScript: any;
+  value: unknown;
+  lockScript: unknown;
 };
 type RemoteTransaction = {
   txId: Uint8Array;
@@ -92,19 +92,22 @@ export async function searchTransaction(
     if (response.status === 200) {
       const json = response.data as { status: number; data: TransactionInfo[] };
       if (json.status === 200) {
-        const data = json.data as TransactionInfo[];
-        console.log('receive data from url:', url, 'data:', data);
-        return data.map((t) => ({
-          from: t.fromAddress,
-          to: t.toAddress,
-          txType: t.txType as TxType,
-          trans: buildTrans(t),
-          timestamp: t.timestamp,
+        const txInfos = json.data as TransactionInfo[];
+        console.log('receive data from url:', url, 'data:', JSON.stringify(txInfos));
+        return txInfos.map((tx) => ({
+          from: tx.fromAddress,
+          to: tx.toAddress,
+          txType: tx.txType as TxType,
+          // eslint-disable-next-line @typescript-eslint/no-use-before-define
+          trans: buildTrans(tx),
+          timestamp: tx.timestamp,
         }));
       }
     }
-  } catch (err: any) {
-    console.error('cannot post to url', url, 'with data:', data, 'error:', err.name, err.message, err);
+  } catch (err: unknown) {
+    if (err instanceof Error) {
+      console.error('cannot post to url', url, 'with data:', data, 'error:', err.name, err.message, err);
+    }
   }
 
   return [];
@@ -163,6 +166,7 @@ export async function sendTo(
         const txJson = json.data;
         const tx = JSON.parse(txJson) as RemoteTransaction;
         const publicKey = PrivateWalletPackage.getPublicKey(from);
+        // eslint-disable-next-line @typescript-eslint/no-use-before-define
         const keyToSignedDataMap: Record<string, string> = makeKeyToSignedDataMap(tx, from);
         const confirmSendToRequest: ConfirmSendToRequest = {
           publicKey: Buffer.from(publicKey).toString('hex'),
@@ -195,9 +199,12 @@ export async function sendTo(
     }
     console.error('post url:', url, 'data:', data, 'status:', tryResponse.status);
     return [false, `status: ${tryResponse.status}`];
-  } catch (err: any) {
-    console.error('try to send to request url:', url, 'error:', err.name, err.messge, err);
-    return [false, err.message as string];
+  } catch (err: unknown) {
+    if (err instanceof Error) {
+      console.error('try to send to request url:', url, 'error:', err.name, err.message, err);
+      return [false, err.message as string];
+    }
+    return [false, 'unknown error'];
   }
 }
 
