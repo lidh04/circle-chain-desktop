@@ -86,9 +86,12 @@ Please referer to [intro](https://gitee.com/lidh04/circle-chain-desktop/tree/mai
 
 ## Community
 
+- slack: circlechain
+- QQ: 233098427
+
 ## Versions
 
-- 4.7.1 support mac arm64 mine block locally
+- 4.7.1 support mac arm64 and Windows mine block locally
 
 - 4.7.0 support mine block locally and improved UI
 
