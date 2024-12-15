@@ -33,8 +33,8 @@ export default function Home(props: Props) {
       <div>
         <h2>Introduction</h2>
         <p>
-          CircleChain app is blockchain based application. Its token is circle coin, the unit of <i>cc</i> is <i>li</i>,
-          1<i>cc</i> = 100,000
+          CircleChain app is an blockchain based application. Its token is circle coin, the unit of <i>cc</i> is{' '}
+          <i>li</i>, 1<i>cc</i> = 100,000
           <i>li</i>.
         </p>
         <p>

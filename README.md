@@ -10,13 +10,13 @@
 
 ### circlechain
 
-This is the blockchain project which is the same like bitcoin, but it has more types than bitcoin which only has coins.
+This is the blockchain project which is the same as bitcoin, but it has more types than bitcoin which only has coins.
 
 Circlechain has coin, identity and ownership 3 types asset.
 
-Circlecoin assets are mined by miners about in 600 seconds, and the success mined miner will be given 100,000 li coins, 1 ownership and 1 identity assets.
+Circlechain assets are mined by miners about in 600 seconds, and the success mined miner will be given 100,000 li coins, 1 ownership and 1 identity assets.
 
-Circlecoin is designed to be the runing rule base of the virtual world. Please join us the make the virtual world real.
+Circlechain is designed to be the running rule base of the virtual world. Please join us the make the virtual world real.
 
 ### circle-chain-desktop
 
@@ -27,21 +27,39 @@ Linux users please make the distribution from the source.
 
 - login
 
+![login](https://d530encj0ljay.cloudfront.net/release/images/circle-chain/login.png)
+
 - register
+
+![register](https://d530encj0ljay.cloudfront.net/release/images/circle-chain/signup.png)
 
 - home
 
+![home](https://d530encj0ljay.cloudfront.net/release/images/circle-chain/home.png)
+
 - wallet info
+
+![wallet information](https://d530encj0ljay.cloudfront.net/release/images/circle-chain/wallet-info.png)
 
 - create wallet
 
+![create wallet](https://d530encj0ljay.cloudfront.net/release/images/circle-chain/create-wallet.png)
+
 - mine block
+
+![mine block](https://d530encj0ljay.cloudfront.net/release/images/circle-chain/mine-block.png)
 
 - import wallet
 
+![import wallet](https://d530encj0ljay.cloudfront.net/release/images/circle-chain/import-wallet.png)
+
 - transaction
 
+![transaction](https://d530encj0ljay.cloudfront.net/release/images/circle-chain/wallet-transaction.png)
+
 - payment
+
+![payment](https://d530encj0ljay.cloudfront.net/release/images/circle-chain/wallet-payment.png)
 
 ## Install
 
