@@ -44,6 +44,7 @@ import {
 } from '../../common/wallet-types';
 import CircleDialog from '../components/CircleDialog';
 import MinHeightTextarea from 'renderer/components/MinHeightTextarea';
+import { Account } from 'common/account-types';
 
 interface Column {
   id: 'address' | 'balance' | 'identity' | 'ownership' | 'operation' | 'keywords';
@@ -288,7 +289,13 @@ function AddressDialog(props: AddressDialogProps) {
   );
 }
 
-export default function WalletInfo() {
+interface Props {
+  account: Account | null;
+  walletPackage: WalletPackage | null;
+}
+
+export default function WalletInfo(props: Props) {
+  const { account, walletPackage } = props;
   const [page, setPage] = React.useState(0);
   const [searchedRows, setSearchedRows] = React.useState<Data[] | null>(null);
   const [rows, setRows] = React.useState<Data[] | null>(null);
@@ -309,41 +316,40 @@ export default function WalletInfo() {
   const navigate = useNavigate();
 
   React.useEffect(() => {
-    window.electron.ipcRenderer.getWalletPackage('').then((result: WalletPackage) => {
-      console.log('wallet-info walletPackage:', result);
-      const totalRows = result.wallets.map((wallet: PublicWallet) =>
-        createData(
-          wallet.address,
-          wallet.balance,
-          wallet.unconfirmed,
-          wallet.identities.length,
-          wallet.ownerships.length
-        )
-      );
-      const balanceTotal = result.wallets
-        .map((wallet) => wallet.balance + wallet.unconfirmed)
-        .reduce((total, balance) => total + balance, 0);
-      setAllBalance(balanceTotal);
-      const identityTotal = result.wallets
-        .map((wallet) => wallet.identities.length)
-        .reduce((total, identity) => total + identity, 0);
-      setIdentityCnt(identityTotal);
-      const ownershipsTotal = result.wallets
-        .map((wallet) => wallet.ownerships.length)
-        .reduce((total, ownership) => total + ownership, 0);
-      setOwnershipCnt(ownershipsTotal);
-      setWalletCnt(result.wallets.length);
-      setSearchedRows(totalRows);
-      setRows(totalRows);
-      setAddresses(
-        totalRows.map((row, index) => ({
-          value: row.address,
-          label: makeWalletLabel(row.address, index),
-        }))
-      );
-      return true;
-    });
-  }, [setAllBalance, setOwnershipCnt, setIdentityCnt, setSearchedRows, setRows, setAddresses]);
+    if (!account) {
+      navigate('/signin');
+      return;
+    }
+
+    if (!walletPackage) {
+      return;
+    }
+
+    const totalRows = walletPackage.wallets.map((wallet: PublicWallet) =>
+      createData(wallet.address, wallet.balance, wallet.unconfirmed, wallet.identities.length, wallet.ownerships.length)
+    );
+    const balanceTotal = walletPackage.wallets
+      .map((wallet) => wallet.balance + wallet.unconfirmed)
+      .reduce((total, balance) => total + balance, 0);
+    setAllBalance(balanceTotal);
+    const identityTotal = walletPackage.wallets
+      .map((wallet) => wallet.identities.length)
+      .reduce((total, identity) => total + identity, 0);
+    setIdentityCnt(identityTotal);
+    const ownershipsTotal = walletPackage.wallets
+      .map((wallet) => wallet.ownerships.length)
+      .reduce((total, ownership) => total + ownership, 0);
+    setOwnershipCnt(ownershipsTotal);
+    setWalletCnt(walletPackage.wallets.length);
+    setSearchedRows(totalRows);
+    setRows(totalRows);
+    setAddresses(
+      totalRows.map((row, index) => ({
+        value: row.address,
+        label: makeWalletLabel(row.address, index),
+      }))
+    );
+  }, [account, walletPackage]);
 
   const handleDialogClose = (value?: string) => {
     setOpen(false);
@@ -395,7 +401,7 @@ export default function WalletInfo() {
       return;
     }
     try {
-      const [importedAddress, _] = await window.electron.ipcRenderer.importWallet(newKeywords);
+      const [importedAddress] = await window.electron.ipcRenderer.importWallet(newKeywords);
       setImportError(false);
       setErrorMessage('');
       setNewKeyworkds('');

@@ -37,83 +37,60 @@ const FireNav = styled(List)<{ component?: React.ElementType }>({
 });
 
 type WalletSidebar = {
-  icon: any;
+  icon: unknown;
   label: string;
   handleClick: () => void;
 };
 
-export default function Root() {
+interface Props {
+  account: Account | null;
+  walletPackage: WalletPackage | null;
+}
+
+export default function Root(props: Props) {
+  const { account, walletPackage } = props;
   const [open, setOpen] = React.useState(true);
   const [accountOpen, setAccountOpen] = React.useState(false);
-  const [login, setLogin] = React.useState(false);
-  const [account, setAccount] = React.useState<Account | null>(null);
-  const [walletPackage, setWalletPackage] = React.useState<WalletPackage | null>(null);
   const [walletData, setWalletData] = React.useState<WalletSidebar[] | null>(null);
   const navigate = useNavigate();
 
-  const initDataWithWalletPackage = (wp: WalletPackage) => {
-    setWalletPackage(wp);
-    const { wallets } = wp;
-    const walletDataArray: WalletSidebar[] = [
-      // {
-      //   icon: <AddCircleIcon />,
-      //   label: 'Create',
-      //   handleClick: () => {
-      //     navigate('/create-wallet');
-      //   },
-      // },
-      {
-        icon: <AccountBalanceWalletIcon />,
-        label: 'Wallet',
-        handleClick: () => {
-          navigate('/wallet-info');
-        },
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const walletDataArray: WalletSidebar[] = [
+    // {
+    //   icon: <AddCircleIcon />,
+    //   label: 'Create',
+    //   handleClick: () => {
+    //     navigate('/create-wallet');
+    //   },
+    // },
+    {
+      icon: <AccountBalanceWalletIcon />,
+      label: 'Wallet',
+      handleClick: () => {
+        navigate('/wallet-info');
       },
-      {
-        icon: <PaidIcon />,
-        label: 'Payment',
-        handleClick: () => {
-          navigate('/wallet-payment');
-        },
+    },
+    {
+      icon: <PaidIcon />,
+      label: 'Payment',
+      handleClick: () => {
+        navigate('/wallet-payment');
       },
-      {
-        icon: <ReceiptIcon />,
-        label: 'Transaction',
-        handleClick: () => {
-          navigate('/wallet-trans');
-        },
+    },
+    {
+      icon: <ReceiptIcon />,
+      label: 'Transaction',
+      handleClick: () => {
+        navigate('/wallet-trans');
       },
-    ];
-    // if (wallets && wallets.length >= 3) {
-    //   walletDataArray.splice(0, 1);
-    // }
-    setWalletData(walletDataArray);
-  };
+    },
+  ];
+
   React.useEffect(() => {
-    // eslint-disable-next-line @typescript-eslint/no-shadow
-    window.electron.ipcRenderer
-      .getAccount()
-      // eslint-disable-next-line @typescript-eslint/no-shadow
-      .then((account) => {
-        setAccount(account);
-        if (account) {
-          setLogin(true);
-          return window.electron.ipcRenderer.getWalletPackage(account.value);
-        }
-        setLogin(false);
-        return false;
-      })
-      .then((result) => {
-        console.log('root page walletPackage:', result);
-        if (result) {
-          const wp: WalletPackage = result as WalletPackage;
-          initDataWithWalletPackage(wp);
-          return true;
-        }
-        return false;
-      })
-      .catch((err) => console.error(err));
-  }, [setAccount]);
+    if (walletPackage) {
+      setWalletData(walletDataArray);
+    }
+  }, [walletPackage]);
 
   const unLoggedAccountData = [
     {
@@ -146,8 +123,8 @@ export default function Root() {
         try {
           const result = await window.electron.ipcRenderer.logout();
           if (result) {
-            setLogin(false);
             navigate('/home');
+            await window.electron.ipcRenderer.reload();
           }
           return result;
         } catch (err) {
@@ -160,23 +137,6 @@ export default function Root() {
   const goHome = () => {
     navigate('/home');
   };
-
-  const handleEmailInput = async (email: string) => {
-    try {
-      // eslint-disable-next-line @typescript-eslint/no-shadow
-      const walletPackage: WalletPackage = (await window.electron.ipcRenderer.getWalletPackage(email)) as WalletPackage;
-      await window.electron.ipcRenderer.saveAccount(walletPackage.account);
-      setWalletPackage(walletPackage);
-      initDataWithWalletPackage(walletPackage);
-      setAccount(walletPackage.account);
-    } catch (err: any) {
-      console.error('cannot get wallet package by email:', email, 'error:', err.message, err);
-    }
-  };
-
-  // if (!account) {
-  //   return <InputAccountDialog initOpen callback={handleEmailInput} />;
-  // }
 
   return (
     <div className="root" style={{ display: 'flex', width: '100%' }}>
@@ -279,7 +239,7 @@ export default function Root() {
                 >
                   {
                     /* Wallet section */
-                    login && (
+                    account && (
                       <>
                         <ListItemButton
                           alignItems="flex-start"
@@ -385,7 +345,7 @@ export default function Root() {
                     />
                   </ListItemButton>
                   {accountOpen &&
-                    !login &&
+                    !account &&
                     unLoggedAccountData.map((item) => (
                       <ListItemButton
                         key={item.label}
@@ -407,7 +367,7 @@ export default function Root() {
                       </ListItemButton>
                     ))}
                   {accountOpen &&
-                    login &&
+                    account &&
                     loggedAccountData.map((item) => (
                       <ListItemButton
                         key={item.label}

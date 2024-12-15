@@ -4,10 +4,15 @@ import Box from '@mui/material/Box';
 import LoginIcon from '@mui/icons-material/Login';
 import { useNavigate } from 'react-router-dom';
 import AppRegistrationIcon from '@mui/icons-material/AppRegistration';
+import { Account } from 'common/account-types';
 import icon from '../../../assets/icon.svg';
 
-export default function Home() {
-  const [login, setLogin] = React.useState(false);
+interface Props {
+  account: Account | null;
+}
+
+export default function Home(props: Props) {
+  const { account } = props;
   const navigate = useNavigate();
 
   const gotoLogin = () => {
@@ -18,28 +23,6 @@ export default function Home() {
     console.log('navigate to signup');
     navigate('/signup');
   };
-  React.useEffect(() => {
-    // eslint-disable-next-line @typescript-eslint/no-shadow
-    window.electron.ipcRenderer
-      .getAccount()
-      // eslint-disable-next-line @typescript-eslint/no-shadow
-      .then((account) => {
-        if (account) {
-          setLogin(true);
-          return true;
-        }
-        setLogin(false);
-        return false;
-      })
-      .then((result) => {
-        console.log('root page walletPackage:', result);
-        if (result) {
-          return true;
-        }
-        return false;
-      })
-      .catch((err) => console.error(err));
-  }, [setLogin]);
 
   return (
     <div style={{ maxHeight: '100%', overflow: 'auto' }}>
@@ -50,8 +33,8 @@ export default function Home() {
       <div>
         <h2>Introduction</h2>
         <p>
-          CircleChain app is blockchain based application. Its token is circle coin, the unit of <i>cc</i> is <i>li</i>,
-          1<i>cc</i> = 100,000
+          CircleChain app is an blockchain based application. Its token is circle coin, the unit of <i>cc</i> is{' '}
+          <i>li</i>, 1<i>cc</i> = 100,000
           <i>li</i>.
         </p>
         <p>
@@ -137,7 +120,7 @@ export default function Home() {
           user, please click "Signin" to login.
         </p>
 
-        {!login && (
+        {!account && (
           <div className="hello">
             <Box
               sx={{

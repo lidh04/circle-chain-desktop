@@ -1,6 +1,6 @@
 import { Box, Grid, MenuItem, Select, Stack, TextField, Typography } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import Autocomplete from '@mui/material/Autocomplete';
 import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
@@ -22,6 +22,7 @@ import {
 import CircleDialog from '../components/CircleDialog';
 import { TxType } from '../../common/block-types';
 import PayPasswordDialog from '../components/PayPasswordDialog';
+import { Account } from 'common/account-types';
 
 const makeAddressOptionList = (addressList: string[]) =>
   addressList.map((address, index) => ({
@@ -29,41 +30,12 @@ const makeAddressOptionList = (addressList: string[]) =>
     value: address,
   }));
 
-let addressList: string[] = [
-  '1MVQfJrU3mK3M62hygJz9pmgBxVoGzPaKj',
-  '12UdA785W3Y6M3SR8HxxExe7PRcwvVg88S',
-  '1L8eRrBuWnBxcQ6DKCDkkPM7ozxDcmpho1',
-];
-let addresses: AutocompleteOption[] = makeAddressOptionList(addressList);
-
 const makeAssetOptionList = (assetList: string[], type: string) =>
   assetList.map((asset) => ({
     label: makeAssetLabel(asset, type),
     value: asset,
   }));
 
-let identityList: string[] = [
-  '1MVQfJrU3mK3M62hygJz9pmgBxVoGzPaKj',
-  '12UdA785W3Y6M3SR8HxxExe7PRcwvVg88S',
-  '1L8eRrBuWnBxcQ6DKCDkkPM7ozxDcmpho1',
-  '16rcESr6pm3x3PByQH6JEbJBzZkf5W5NQk',
-  '1745rpVqjXSntEniXdFhvuRHNESoYpyynp',
-  '1Jhf7pUtmqK2ZqR9du7xa6uL1Qxdc14atG',
-];
-let identities: AutocompleteOption[] = makeAssetOptionList(identityList, 'IDT');
-let ownershipList: string[] = [
-  '12cSSRmfLMH8s5MrxeEdtgbKWnk28Si6cr',
-  '1APGzvGwcDKWDobEEDiHtEehVz4G4jWeoR',
-  '1HDv7a7PqbYugZjaVJtMxvsnvpk7GS554s',
-  '1EnfGqqXhUgo2fU63JMxJf7jgM1cSQULKg',
-  '1N7Y3QdRjm8KVEi2e2ejPjriAskHcxLFJu',
-  '14hF1BynFVnBEFKxyo51FHmJksVwfxg4sg',
-  '1NMhhRzQtyhocMa31kB5hhtXy2fRPy2rn',
-];
-let ownerships: AutocompleteOption[] = makeAssetOptionList(
-  ownershipList,
-  'OWN'
-);
 
 const assetTypes = ['CRY', 'OWN', 'IDT'];
 
@@ -82,7 +54,13 @@ type MyDialog = {
   open: boolean;
 };
 
-export default function WalletPayment() {
+interface Props {
+  account: Account | null;
+  walletPackage: WalletPackage | null;
+}
+
+export default function WalletPayment(props: Props) {
+  const { account, walletPackage } = props;
   const [payType, setPayType] = React.useState('from');
   const [payType2, setPayType2] = React.useState('to');
   const [otherEmail, setOtherEmail] = React.useState('');
@@ -96,51 +74,63 @@ export default function WalletPayment() {
     label: '',
     value: '',
   });
-  const [walletPackage, setWalletPackage] =
-    React.useState<WalletPackage | null>(null);
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
   const [error, setError] = React.useState<MyError>({} as MyError);
   const [dialog, setDialog] = React.useState<MyDialog>({} as MyDialog);
   const [payPasswordOpen, setPayPasswordOpen] = React.useState<boolean>(false);
+  const [addresses, setAddresses] = React.useState<AutocompleteOption[]>([]);
+  const [identities, setIdentities] = React.useState<AutocompleteOption[]>([]);
+  const [ownerships, setOwnerships] = React.useState<AutocompleteOption[]>([]);
   const [queryParameters] = useSearchParams();
 
-  const selectWallet = (walletPackage: WalletPackage, addr: string) => {
-    const wallet = walletPackage.wallets.find(
-      (w: PublicWallet) => w.address === addr
-    );
+  const navigate = useNavigate();
+
+  const selectWallet = (wp: WalletPackage | null, addr: string) => {
+    if (!wp) {
+      return;
+    }
+
+    const wallet = wp.wallets.find((w: PublicWallet) => w.address === addr);
     if (!wallet) {
       return;
     }
 
-    identityList = wallet.identities.map((item) => item.uuid);
+    const identityList = wallet.identities.map((item) => item.uuid);
     console.log('identityList:', identityList);
-    identities = makeAssetOptionList(identityList, 'IDT');
+    const walletIdentities = makeAssetOptionList(identityList, 'IDT');
+    setIdentities(walletIdentities);
 
-    ownershipList = wallet.ownerships.map((item) => item.uuid);
-    ownerships = makeAssetOptionList(ownershipList, 'OWN');
+    const ownershipList = wallet.ownerships.map((item) => item.uuid);
+    const walletOwnerships = makeAssetOptionList(ownershipList, 'OWN');
+    setOwnerships(walletOwnerships);
   };
 
   React.useEffect(() => {
-    window.electron.ipcRenderer
-      .getWalletPackage('')
-      .then((result: WalletPackage) => {
-        console.log('wallet-payment walletPackage:', result);
-        setWalletPackage(result);
-        const addr = queryParameters.get('address');
-        addressList = addressListOf(result);
-        if (addr && checkValidAddress(addr)) {
-          if (addressList.includes(addr)) {
-            const address: AutocompleteOption = addresses.find(
-              (item) => item.value === addr
-            )!;
-            setAddress(address);
-            selectWallet(result, addr);
-          }
+    if (!account) {
+      navigate('/signin');
+      return;
+    }
+
+    const addr = queryParameters.get('address');
+    const walletAddressList = addressListOf(walletPackage);
+    if (addr && checkValidAddress(addr)) {
+      if (walletAddressList && walletAddressList.includes(addr)) {
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        const walletAddress = walletAddressList.find((item) => item === addr)!;
+        if (walletAddress) {
+          setAddress({
+            label: makeWalletLabel(walletAddress, walletAddressList.indexOf(walletAddress)),
+            value: walletAddress,
+          });
         }
 
-        addresses = makeAddressOptionList(addressList);
-      });
-  }, [queryParameters, setAddress]);
+        selectWallet(walletPackage, addr);
+      }
+    }
+
+    const allAddresses = makeAddressOptionList(walletAddressList);
+    setAddresses(allAddresses);
+  }, [queryParameters, account]);
 
   const handlePayTypeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const {
@@ -167,21 +157,18 @@ export default function WalletPayment() {
     clearSubAddressMenu();
   };
 
-  const handleAddressChange = (
-    event: React.SyntheticEvent,
-    value: string,
-    reason: string
-  ) => {
+  const handleAddressChange = (event: React.SyntheticEvent, value: string, reason: string) => {
     console.log('input value:', value, 'reason:', reason);
     if (!value) {
       clearAddressMenu();
       return;
     }
     if (checkValidAddress(value)) {
-      if (addressList.includes(value)) {
-        const address = addresses.find((item) => item.value === value)!;
-        console.log('selected address:', address);
-        setAddress(address);
+      const walletAddressList = walletPackage ? addressListOf(walletPackage) : [];
+      if (walletAddressList.includes(value)) {
+        const walletAddress = addresses.find((item) => item.value === value)!;
+        console.log('selected address:', walletAddress);
+        setAddress(walletAddress);
         if (walletPackage) {
           selectWallet(walletPackage, value);
         }
@@ -202,9 +189,7 @@ export default function WalletPayment() {
     console.log('use click search button, handle by payType:', payType);
   };
 
-  const handleAssetTypeChange = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
+  const handleAssetTypeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const {
       target: { value },
     } = event;
@@ -220,11 +205,7 @@ export default function WalletPayment() {
     console.log('asset:', value);
   };
 
-  const handleInputAssetChange = (
-    event: React.SyntheticEvent,
-    value: string,
-    reason: string
-  ) => {
+  const handleInputAssetChange = (event: React.SyntheticEvent, value: string, reason: string) => {
     console.log('input value:', value, 'reason:', reason);
     if (!value) {
       setAsset({ label: '', value: '' });
@@ -238,19 +219,8 @@ export default function WalletPayment() {
     }
   };
 
-  const payWithCurrency = async (
-    from: string,
-    toEmail: string,
-    value: number,
-    payPassword: string
-  ) => {
-    const [result, msg] = await window.electron.ipcRenderer.sendTo(
-      from,
-      toEmail,
-      0,
-      value,
-      payPassword
-    );
+  const payWithCurrency = async (from: string, toEmail: string, value: number, payPassword: string) => {
+    const [result, msg] = await window.electron.ipcRenderer.sendTo(from, toEmail, 0, value, payPassword);
     console.log('payWithCurrency result:', result, 'msg:', msg);
     if (result) {
       setDialog({
@@ -278,13 +248,7 @@ export default function WalletPayment() {
     assetType: TxType,
     payPassword: string
   ) => {
-    const [result, msg] = await window.electron.ipcRenderer.sendTo(
-      from,
-      toEmail,
-      assetType,
-      value,
-      payPassword
-    );
+    const [result, msg] = await window.electron.ipcRenderer.sendTo(from, toEmail, assetType, value, payPassword);
     console.log('sendWithAsset result:', result, 'msg:', msg);
     if (result) {
       setDialog({
@@ -315,22 +279,11 @@ export default function WalletPayment() {
 
     switch (assetType) {
       case 0:
-        await payWithCurrency(
-          address.value,
-          otherEmail,
-          currencyValue,
-          payPassword
-        );
+        await payWithCurrency(address.value, otherEmail, currencyValue, payPassword);
         break;
       case 1:
       case 2:
-        await sendWithAsset(
-          address.value,
-          otherEmail,
-          asset.value,
-          assetType,
-          payPassword
-        );
+        await sendWithAsset(address.value, otherEmail, asset.value, assetType, payPassword);
         break;
       default:
         break;
@@ -381,9 +334,7 @@ export default function WalletPayment() {
       <Grid container spacing={2} sx={{ mb: '1rem', mt: '1rem', padding: '0.3rem 1rem' }}>
         <Grid item xs={3}>
           <FormControl sx={{ m: 0, width: '100%' }} disabled>
-            <InputLabel id="demo-simple-select-error-label1">
-              {payType}
-            </InputLabel>
+            <InputLabel id="demo-simple-select-error-label1">{payType}</InputLabel>
             <Select
               labelId="Filters"
               id="filter-by-address"
@@ -403,14 +354,11 @@ export default function WalletPayment() {
             id="combo-box-demo"
             options={addresses}
             sx={{ width: '100%' }}
-            isOptionEqualToValue={(
-              option: AutocompleteOption,
-              value: AutocompleteOption
-            ) => option.value === value.value}
-            onInputChange={handleAddressChange}
-            getOptionLabel={(option) =>
-              typeof option === 'string' ? option : option.value
+            isOptionEqualToValue={(option: AutocompleteOption, value: AutocompleteOption) =>
+              option.value === value.value
             }
+            onInputChange={handleAddressChange}
+            getOptionLabel={(option) => (typeof option === 'string' ? option : option.value)}
             renderOption={(props, option) => (
               <Box component="li" {...props}>
                 {option.label}
@@ -430,23 +378,11 @@ export default function WalletPayment() {
         </Grid>
       </Grid>
 
-      <Grid
-        container
-        spacing={2}
-        sx={{ mb: '1rem', mt: '1rem', padding: '0.3rem 1rem' }}
-      >
+      <Grid container spacing={2} sx={{ mb: '1rem', mt: '1rem', padding: '0.3rem 1rem' }}>
         <Grid item xs={3}>
           <FormControl sx={{ m: 0, width: '100%' }} disabled>
-            <InputLabel id="demo-simple-select-error-label2">
-              {payType2}
-            </InputLabel>
-            <Select
-              labelId="Filters2"
-              id="filter-by-address"
-              value={payType2}
-              label="Filters"
-              sx={{ width: '100%' }}
-            >
+            <InputLabel id="demo-simple-select-error-label2">{payType2}</InputLabel>
+            <Select labelId="Filters2" id="filter-by-address" value={payType2} label="Filters" sx={{ width: '100%' }}>
               <MenuItem value="from">Pay From</MenuItem>
               <MenuItem value="to">Pay To</MenuItem>
             </Select>
@@ -469,11 +405,7 @@ export default function WalletPayment() {
         <Grid item xs={2} />
       </Grid>
 
-      <Grid
-        container
-        spacing={2}
-        sx={{ mb: '1rem', mt: '1rem', padding: '0.3rem 1rem' }}
-      >
+      <Grid container spacing={2} sx={{ mb: '1rem', mt: '1rem', padding: '0.3rem 1rem' }}>
         <Grid item xs={3}>
           <FormControl sx={{ m: 0, width: '100%' }}>
             <InputLabel id="assetType">{assetTypes[assetType]}</InputLabel>
@@ -502,9 +434,7 @@ export default function WalletPayment() {
               value={currencyValue}
               onChange={handleValueChange}
               error={!!error.currency}
-              helperText={
-                error.currency ? 'currency value must be larger than 0!' : ''
-              }
+              helperText={error.currency ? 'currency value must be larger than 0!' : ''}
             />
           )}
           {assetType === 1 && (
@@ -515,14 +445,11 @@ export default function WalletPayment() {
               value={asset}
               sx={{ width: '100%' }}
               freeSolo
-              isOptionEqualToValue={(
-                option: AutocompleteOption,
-                value: AutocompleteOption
-              ) => option.value === value.value}
-              onInputChange={handleInputAssetChange}
-              getOptionLabel={(option) =>
-                typeof option === 'string' ? option : option.value
+              isOptionEqualToValue={(option: AutocompleteOption, value: AutocompleteOption) =>
+                option.value === value.value
               }
+              onInputChange={handleInputAssetChange}
+              getOptionLabel={(option) => (typeof option === 'string' ? option : option.value)}
               renderOption={(props, option) => (
                 <Box component="li" {...props}>
                   {option.label}
@@ -546,14 +473,11 @@ export default function WalletPayment() {
               value={asset}
               sx={{ width: '100%' }}
               freeSolo
-              isOptionEqualToValue={(
-                option: AutocompleteOption,
-                value: AutocompleteOption
-              ) => option.value === value.value}
-              onInputChange={handleInputAssetChange}
-              getOptionLabel={(option) =>
-                typeof option === 'string' ? option : option.value
+              isOptionEqualToValue={(option: AutocompleteOption, value: AutocompleteOption) =>
+                option.value === value.value
               }
+              onInputChange={handleInputAssetChange}
+              getOptionLabel={(option) => (typeof option === 'string' ? option : option.value)}
               renderOption={(props, option) => (
                 <Box component="li" {...props}>
                   {option.label}
@@ -608,10 +532,7 @@ export default function WalletPayment() {
           close={() => setDialog({ ...dialog, open: false })}
         />
       </Grid>
-      <PayPasswordDialog
-        initOpen={payPasswordOpen}
-        callback={handlePayPasswordCallback}
-      />
+      <PayPasswordDialog initOpen={payPasswordOpen} callback={handlePayPasswordCallback} />
     </Paper>
   );
 }

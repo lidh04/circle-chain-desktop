@@ -7,13 +7,7 @@ import { AddressType } from '../common/wallet-types';
 export default function setUpBlockDispatcher() {
   ipcMain.handle(
     SearchTransaction,
-    async (
-      event,
-      address: string,
-      addressType: AddressType,
-      txType?: TxType,
-      uuid?: string
-    ) => {
+    async (event, address: string, addressType: AddressType, txType?: TxType, uuid?: string) => {
       console.log(
         'search transaction by address:',
         address,

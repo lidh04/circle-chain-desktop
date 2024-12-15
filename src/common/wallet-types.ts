@@ -67,31 +67,36 @@ export interface MyBlockRequest {
   blockHeaderHexString: string;
 }
 
-export function addressListOf(walletPackage: WalletPackage) {
+export function addressListOf(walletPackage: WalletPackage | null) {
+  if (!walletPackage) {
+    return [] as string[];
+  }
   return walletPackage.wallets.map((w) => w.address);
 }
 
-export function allBalanceOf(walletPackage: WalletPackage) {
-  return walletPackage.wallets
-    .map((w) => w.balance)
-    .reduce((prev, total) => total + prev, 0);
+export function allBalanceOf(walletPackage: WalletPackage | null) {
+  if (!walletPackage) {
+    return 0;
+  }
+  return walletPackage.wallets.map((w) => w.balance).reduce((prev, total) => total + prev, 0);
 }
 
-export function identityCount(walletPackage: WalletPackage) {
-  return walletPackage.wallets
-    .map((w) => w.identities.length)
-    .reduce((prev, total) => total + prev, 0);
+export function identityCount(walletPackage: WalletPackage | null) {
+  if (!walletPackage) {
+    return 0;
+  }
+  return walletPackage.wallets.map((w) => w.identities.length).reduce((prev, total) => total + prev, 0);
 }
 
-export function ownershipCount(walletPackage: WalletPackage) {
-  return walletPackage.wallets
-    .map((w) => w.ownerships.length)
-    .reduce((prev, total) => total + prev, 0);
+export function ownershipCount(walletPackage: WalletPackage | null) {
+  if (!walletPackage) {
+    return 0;
+  }
+  return walletPackage.wallets.map((w) => w.ownerships.length).reduce((prev, total) => total + prev, 0);
 }
 
 export function validateEmail(inputText: string) {
-  const mailFormat =
-    /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)+$/;
+  const mailFormat = /^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)+$/;
   if (inputText.match(mailFormat)) {
     return true;
   }

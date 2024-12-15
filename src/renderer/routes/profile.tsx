@@ -44,20 +44,12 @@ function stringAvatar(name: string) {
   };
 }
 
-export default function Profile() {
-  const [account, setAccount] = React.useState<Account | null>(null);
+interface Props {
+  account: Account | null;
+}
 
-  React.useEffect(() => {
-    window.electron.ipcRenderer
-      .getAccount()
-      .then((acc) => {
-        console.info('account:', acc);
-        setAccount(acc);
-      })
-      .catch((err) => {
-        console.error('error:', err);
-      });
-  }, []);
+export default function Profile(props: Props) {
+  const { account } = props;
 
   const getAccountName = () => {
     if (!account || !account.value) {

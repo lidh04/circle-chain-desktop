@@ -10,6 +10,8 @@ import FormInput from '../components/FormInput';
 import { LinkItem } from './login';
 import WalletError from '../../common/wallet-error';
 import { WalletPackage } from '../../common/wallet-types';
+import { useNavigate } from 'react-router-dom';
+import CircleDialog from '../components/CircleDialog';
 
 // 👇 SignUp Schema with Zod
 const signupSchema = object({
@@ -43,6 +45,9 @@ const SignupPage: FC = () => {
   const [verifyCodeError, setVerifyCodeError] = React.useState('');
   const [registerError, setRegisterError] = React.useState('');
   const [isLoading, setIsLoading] = React.useState(false);
+  const [openSignupSuccess, setOpenSignupSuccess] = React.useState(false);
+
+  const navigate = useNavigate();
 
   // 👇 Default Values
   const defaultValues: ISignUp = {
@@ -75,9 +80,10 @@ const SignupPage: FC = () => {
       return false;
     }
     try {
+      const email = values.email.toLowerCase();
       const result = await window.electron.ipcRenderer.register({
         type: 'email',
-        value: values.email,
+        value: email,
         passwordInput1: values.password1,
         passwordInput2: values.password2,
         verifyCode: values.verifyCode || '',
@@ -85,10 +91,10 @@ const SignupPage: FC = () => {
       console.log('register result:', result);
       if (result === 200) {
         const walletPackage: WalletPackage = (await window.electron.ipcRenderer.getWalletPackage(
-          values.email
+          email
         )) as WalletPackage;
         await window.electron.ipcRenderer.saveAccount(walletPackage.account);
-        window.electron.ipcRenderer.reload();
+        setOpenSignupSuccess(true);
       } else {
         const message = buildMessageFromCode(result);
         setRegisterError(message);
@@ -108,11 +114,12 @@ const SignupPage: FC = () => {
 
   const handleSendVerifyCode: SubmitHandler<ISignUp> = async (values: ISignUp) => {
     console.log('send register verify code...');
+    const email = values.email.toLowerCase();
     if (!startTimer) {
       try {
         const result = await window.electron.ipcRenderer.sendRegisterVerifyCode({
           type: 'email',
-          value: values.email,
+          value: email,
         });
         console.log('send register verify code result:', result);
         if (result !== 200) {
@@ -282,6 +289,16 @@ const SignupPage: FC = () => {
           </Grid>
         </Grid>
       </Grid>
+      <CircleDialog
+        open={openSignupSuccess}
+        title="Signup Success"
+        body={['Congrats!', 'You signup success, please jump to login page to login.']}
+        btnText="Close"
+        close={() => {
+          setOpenSignupSuccess(false);
+          navigate('/signin');
+        }}
+      />
     </Container>
   );
 };

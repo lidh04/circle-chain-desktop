@@ -6,6 +6,63 @@
   </p>
 </div>
 
+## Introduction
+
+### circlechain
+
+This is the blockchain project which is the same as bitcoin, but it has more types than bitcoin which only has coins.
+
+Circlechain has coin, identity and ownership 3 types asset.
+
+Circlechain assets are mined by miners about in 600 seconds, and the success mined miner will be given 100,000 li coins, 1 ownership and 1 identity assets.
+
+Circlechain is designed to be the running rule base of the virtual world. Please join us the make the virtual world real.
+
+### circle-chain-desktop
+
+This is the circlechain desktop application which is designed to running on the desktop. It supports MacOS and Windows binary distributions. For
+Linux users please make the distribution from the source.
+
+All the wallet data are stored in local machine securely.
+
+#### snapshots
+
+- login
+
+![login](https://d530encj0ljay.cloudfront.net/release/images/circle-chain/login.png)
+
+- register
+
+![register](https://d530encj0ljay.cloudfront.net/release/images/circle-chain/signup.png)
+
+- home
+
+![home](https://d530encj0ljay.cloudfront.net/release/images/circle-chain/home.png)
+
+- wallet info
+
+![wallet information](https://d530encj0ljay.cloudfront.net/release/images/circle-chain/wallet-info.png)
+
+- create wallet
+
+![create wallet](https://d530encj0ljay.cloudfront.net/release/images/circle-chain/create-wallet.png)
+
+- mine block
+
+![mine block](https://d530encj0ljay.cloudfront.net/release/images/circle-chain/mine-block.png)
+
+- import wallet
+
+![import wallet](https://d530encj0ljay.cloudfront.net/release/images/circle-chain/import-wallet.png)
+
+- transaction
+
+![transaction](https://d530encj0ljay.cloudfront.net/release/images/circle-chain/wallet-transaction.png)
+
+- payment
+
+![payment](https://d530encj0ljay.cloudfront.net/release/images/circle-chain/wallet-payment.png)
+
 ## Install
 
 Using the node version: 16.15.0, please install node with this version.
@@ -13,7 +70,10 @@ Using the node version: 16.15.0, please install node with this version.
 Clone the repo and install dependencies:
 
 ```bash
+## for Chinese Users
 git clone --depth 1 --branch main git@gitee.com:lidh04/circle-chain-desktop.git circle-chain-desktop
+## for Global Users
+git clone --depth 1 --branch main git@github.com:lidh04/circle-chain-desktop.git circle-chain-desktop
 cd circle-chain-desktop
 npm install
 ```
@@ -82,13 +142,22 @@ Full migration advice : https://peps.python.org/pep-0632/#migration-advice
 
 ## Docs
 
-Please referer to [intro](https://gitee.com/lidh04/circle-chain-desktop/tree/main/docs/intro.md).
+Please referer to:
+
+- [Intro on github](https://github.com/lidh04/circle-chain-desktop/tree/main/docs/intro.md)
+- [Intro on gitee](https://gitee.com/lidh04/circle-chain-desktop/tree/main/docs/intro.md)
 
 ## Community
 
+- Slack: circlechain
+
+- QQ: 233098427
+
 ## Versions
 
-- 4.7.1 support mac arm64 mine block locally
+- 4.7.2 optimize the UI performance and some background tasks improvements.
+
+- 4.7.1 support mac arm64 and Windows mine block locally
 
 - 4.7.0 support mine block locally and improved UI
 
@@ -96,19 +165,23 @@ Please referer to [intro](https://gitee.com/lidh04/circle-chain-desktop/tree/mai
 
 ## Donations
 
-- None
+- SHC
 
 ## Backers
 
-- None
+- SHC
 
 ## Sponsors
 
-- None
+- SHC
 
 ## Maintainers
 
-- [lidh04](https://gitee.com/lidh04)
+- lidh04
+- dhoegreet
+- jhtu0232
+- dhoegreedy
+- alexander.stack
 
 ## License
 

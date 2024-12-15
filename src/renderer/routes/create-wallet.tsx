@@ -5,6 +5,7 @@ import React, { useEffect } from 'react';
 import QRCode from 'qrcode';
 
 import { useNavigate } from 'react-router-dom';
+import { Account } from 'common/account-types';
 import { PrivatePoem, PublicWallet } from '../../common/wallet-types';
 
 type Point2D = {
@@ -32,7 +33,12 @@ async function generateQRcode(address: string): Promise<string> {
   return svg;
 }
 
-export default function CreateWallet() {
+interface Props {
+  account: Account | null;
+}
+
+export default function CreateWallet(props: Props) {
+  const { account } = props;
   const [showNext, setShowNext] = React.useState(false);
   const [step, setStep] = React.useState(0);
   const [svg, setSvg] = React.useState('');
@@ -81,11 +87,16 @@ export default function CreateWallet() {
   };
 
   useEffect(() => {
+    if (!account) {
+      navigate('/signin');
+      return;
+    }
+
     setTimeout(() => {
       setShowNext(true);
       setStep(1);
     }, 3000);
-  }, []);
+  }, [account]);
 
   return (
     <Stack

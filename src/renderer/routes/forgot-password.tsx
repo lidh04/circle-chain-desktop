@@ -80,10 +80,12 @@ const ForgotPassword: FC = () => {
       setIsLoading(false);
       return false;
     }
+
+    const email = values.email.toLowerCase();
     try {
       const result = await window.electron.ipcRenderer.resetPassword({
         account: {
-          email: values.email,
+          email,
         },
         password1: values.password1,
         password2: values.password2,
@@ -112,11 +114,12 @@ const ForgotPassword: FC = () => {
 
   const handleSendVerifyCode: SubmitHandler<IReset> = async (values: IReset) => {
     console.log('send reset password verify code...');
+    const email = values.email.toLowerCase();
     if (!startTimer) {
       try {
         const result = await window.electron.ipcRenderer.sendResetPasswordVerifyCode({
           type: 'email',
-          value: values.email,
+          value: email,
         });
         console.log('send reset password verify code result:', result);
         if (result !== 200) {
@@ -161,12 +164,7 @@ const ForgotPassword: FC = () => {
   // 👇 JSX to be rendered
   return (
     <Container maxWidth="sm" sx={{ height: '100vh', maxWidth: '560px' }}>
-      <Grid
-        container
-        justifyContent="center"
-        alignItems="center"
-        sx={{ width: '100%', height: 'auto' }}
-      >
+      <Grid container justifyContent="center" alignItems="center" sx={{ width: '100%', height: 'auto' }}>
         <Grid item sx={{ maxWidth: '45rem', width: '100%' }}>
           <Typography
             variant="h4"

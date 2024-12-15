@@ -9,7 +9,7 @@ import { randomBytes } from 'crypto';
 import secp256k1 from 'secp256k1';
 
 import { PrivateWalletPackage } from './wallet-privacy';
-import { PublicWallet } from '../common/wallet-types';
+import { Identity, Ownership, PublicWallet } from '../common/wallet-types';
 
 const PRIVATE_KEY_LEN = 32;
 export default async function createWallet(): Promise<PublicWallet> {
@@ -36,7 +36,8 @@ export default async function createWallet(): Promise<PublicWallet> {
     address,
     publicKey,
     balance: 0,
-    identities: [],
-    ownerships: [],
+    unconfirmed: 0,
+    identities: [] as Identity[],
+    ownerships: [] as Ownership[],
   };
 }
