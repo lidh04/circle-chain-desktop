@@ -8,6 +8,8 @@
 
 ## Introduction
 
+### circlechain
+
 This is the blockchain project which is the same like bitcoin, but it has more types than bitcoin which only has coins.
 
 Circlechain has coin, identity and ownership 3 types asset.
@@ -15,6 +17,31 @@ Circlechain has coin, identity and ownership 3 types asset.
 Circlecoin assets are mined by miners about in 600 seconds, and the success mined miner will be given 100,000 li coins, 1 ownership and 1 identity assets.
 
 Circlecoin is designed to be the runing rule base of the virtual world. Please join us the make the virtual world real.
+
+### circle-chain-desktop
+
+This is the circlechain desktop application which is designed to running on the desktop. It supports MacOS and Windows binary distributions. For
+Linux users please make the distribution from the source.
+
+#### snapshots
+
+- login
+
+- register
+
+- home
+
+- wallet info
+
+- create wallet
+
+- mine block
+
+- import wallet
+
+- transaction
+
+- payment
 
 ## Install
 
