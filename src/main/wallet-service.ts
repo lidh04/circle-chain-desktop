@@ -238,6 +238,11 @@ export async function mineBlock(event: IpcMainEvent, address: string, threadCoun
           msg: message,
         };
       }
+
+      return {
+        code: 500,
+        msg: message,
+      };
     }
 
     return {

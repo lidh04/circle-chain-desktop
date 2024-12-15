@@ -151,6 +151,7 @@
     "@types/jest": "^28.1.8",
     "@types/js-cookie": "^3.0.6",
     "@types/jsrsasign": "^10.5.14",
+    "@types/lodash": "^4.17.13",
     "@types/node": "18.7.6",
     "@types/qrcode": "^1.5.0",
     "@types/react": "^18.0.17",

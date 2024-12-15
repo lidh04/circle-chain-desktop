@@ -47,7 +47,7 @@ function decodePrivatePoem(poem: string | PrivatePoem): Uint8Array {
     poemContent = poemContent.replaceAll(nonCharRegExp, '');
   }
   const value = decode(poemContent);
-  console.log('keywords raw:', poem, 'trimed content:', poemContent, 'value:', value);
+  console.log('keywords raw:', poem, 'stripped content:', poemContent, 'value:', value);
   const buf = toBufferBE(value, 32);
   return buf;
 }
@@ -292,8 +292,7 @@ function addPrivateKey(privateKey: Uint8Array): [string, Uint8Array] {
 
   privateKeys.push(privateKey);
   const privatePoem = makePrivatePoem(privateKey);
-  const key = decodePrivatePoem(privatePoem);
-
+  // const key = decodePrivatePoem(privatePoem);
   /// / debug codes here
   // const oldValue = toBigIntBE(Buffer.from(privateKey));
   // const newValue = toBigIntBE(Buffer.from(key));
@@ -383,49 +382,57 @@ async function save(account: PrivateEmailAccount | PrivatePhoneAccount) {
   }
 }
 
+async function fetchRemoteData(walletPackage: WalletPackage) {
+  const batchSize = 5;
+  const publicWalletChunks = _.chunk(walletPackage.wallets, batchSize);
+  // eslint-disable-next-line no-restricted-syntax
+  for (const chunk of publicWalletChunks) {
+    const promises = chunk.map(async (pw: PublicWallet) => {
+      const { address } = pw;
+      const walletAssets = await getWalletAssetsByAddress(address);
+      pw.balance = walletAssets.balance!;
+      pw.unconfirmed = walletAssets.unconfirmed!;
+      pw.identities = walletAssets.identities!;
+      pw.ownerships = walletAssets.ownerships!;
+    });
+    // eslint-disable-next-line no-await-in-loop
+    await Promise.all(promises);
+  }
+}
+
 async function getWalletPackage(): Promise<WalletPackage> {
   if (!account) {
     throw new Error('cannot get WalletPackage because account is not intialized!');
   }
-  const batchSize = 5;
-  const privateKeysChunks = _.chunk(privateKeys, batchSize);
-  let publicWallets: PublicWallet[] = [] as PublicWallet[];
-  // eslint-disable-next-line no-restricted-syntax
-  for (const chunk of privateKeysChunks) {
-    const promises = chunk.map(async (pk: Uint8Array) => {
-      const [address, pubKey] = getAddressAndPubKey(pk);
-      const publicKey = Buffer.from(pubKey).toString('hex');
-      const walletAssets = await getWalletAssetsByAddress(address);
-      return {
-        address,
-        publicKey,
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        balance: walletAssets.balance!,
-        unconfirmed: walletAssets.unconfirmed!,
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        identities: walletAssets.identities!,
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        ownerships: walletAssets.ownerships!,
-      };
-    });
-    // eslint-disable-next-line no-await-in-loop
-    const items: PublicWallet[] = await Promise.all(promises);
-    publicWallets = publicWallets.concat(items);
-  }
 
-  return {
+  const publicWallets: PublicWallet[] = privateKeys.map((pk) => {
+    const [address, pubKey] = getAddressAndPubKey(pk);
+    const publicKey = Buffer.from(pubKey).toString('hex');
+    return {
+      address,
+      publicKey,
+      balance: 0,
+      unconfirmed: 0,
+      identities: [],
+      ownerships: [],
+    };
+  });
+
+  const walletPackage = {
     account: {
       type: account.type,
       value: account.value,
     },
     wallets: publicWallets,
   };
+  await fetchRemoteData(walletPackage);
+  return walletPackage;
 }
 
 function signData(data: Uint8Array, address: string) {
   const privateKey = privateKeys.find((priv) => {
-    const [addr, _] = getAddressAndPubKey(priv);
-    return addr === address;
+    const [originAddress] = getAddressAndPubKey(priv);
+    return originAddress === address;
   });
   if (!privateKey) {
     throw new Error(`not found private key for address:${address}`);
@@ -435,8 +442,8 @@ function signData(data: Uint8Array, address: string) {
 
 function signString(str: string, address: string) {
   const privateKey = privateKeys.find((priv) => {
-    const [addr, _] = getAddressAndPubKey(priv);
-    return addr === address;
+    const [originAddress] = getAddressAndPubKey(priv);
+    return originAddress === address;
   });
   if (!privateKey) {
     throw new Error(`not found private key for address:${address}`);
