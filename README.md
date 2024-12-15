@@ -6,6 +6,16 @@
   </p>
 </div>
 
+## Introduction
+
+This is the blockchain project which is the same like bitcoin, but it has more types than bitcoin which only has coins.
+
+Circlechain has coin, identity and ownership 3 types asset.
+
+Circlecoin assets are mined by miners about in 600 seconds, and the success mined miner will be given 100,000 li coins, 1 ownership and 1 identity assets.
+
+Circlecoin is designed to be the runing rule base of the virtual world. Please join us the make the virtual world real.
+
 ## Install
 
 Using the node version: 16.15.0, please install node with this version.
@@ -87,12 +97,13 @@ Full migration advice : https://peps.python.org/pep-0632/#migration-advice
 
 Please referer to:
 
-- [Intro on github](https://github.com/lidh04/circle-chain-desktop/tree/main/docs/intro.md).
+- [Intro on github](https://github.com/lidh04/circle-chain-desktop/tree/main/docs/intro.md)
 - [Intro on gitee](https://gitee.com/lidh04/circle-chain-desktop/tree/main/docs/intro.md)
 
 ## Community
 
-- slack: circlechain
+- Slack: circlechain
+
 - QQ: 233098427
 
 ## Versions
