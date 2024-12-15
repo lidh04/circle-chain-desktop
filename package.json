@@ -118,7 +118,7 @@
     "@emotion/styled": "^11.10.5",
     "@fontsource/roboto": "^4.5.8",
     "@hookform/resolvers": "^2.9.10",
-    "@lidh04/circle-chain-sdk": "^1.0.20",
+    "@lidh04/circle-chain-sdk": "^1.0.21",
     "@mui/icons-material": "^5.11.0",
     "@mui/lab": "^5.0.0-alpha.117",
     "@mui/material": "^5.11.6",
