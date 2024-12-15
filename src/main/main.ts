@@ -4,6 +4,7 @@ import log from 'electron-log';
 import { app, BrowserWindow, shell } from 'electron';
 import path from 'path';
 import Store from 'electron-store';
+import wallet from '@lidh04/circle-chain-sdk';
 import { resolveHtmlPath } from './util';
 import MenuBuilder from './menu';
 import setUpIPCMainDispatchers from './ipc-main-dispatcher';
@@ -27,10 +28,12 @@ if (process.env.NODE_ENV === 'production') {
   console.log('init host circle-node.net for store json file:', `${app.getPath('userData')}/config.json`);
   const store = new Store();
   store.set('host', 'https://circle-node.net');
+  wallet.common.setNodeEnv('production');
 } else {
   const store = new Store();
   store.set('host', 'http://localhost:8888');
   console.log('init host localhost for store json file:', `${app.getPath('userData')}/config.json`);
+  wallet.common.setNodeEnv('development');
 }
 
 const isDebug = process.env.NODE_ENV === 'development' || process.env.DEBUG_PROD === 'true';
