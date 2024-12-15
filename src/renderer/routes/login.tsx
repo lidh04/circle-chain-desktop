@@ -65,7 +65,7 @@ const LoginPage: FC = () => {
       console.log('login result:', result);
       if (result === 200) {
         const walletPackage: WalletPackage = (await window.electron.ipcRenderer.getWalletPackage(
-          values.email
+          email
         )) as WalletPackage;
         await window.electron.ipcRenderer.saveAccount(walletPackage.account);
         window.electron.ipcRenderer.reload();

@@ -317,7 +317,7 @@ export default function WalletInfo(props: Props) {
 
   React.useEffect(() => {
     if (!account) {
-      navigate('/login');
+      navigate('/signin');
       return;
     }
 

@@ -20,6 +20,7 @@ const BootstrapDialog = styled(Dialog)(({ theme }) => ({
 
 export interface DialogTitleProps {
   id: string;
+  // eslint-disable-next-line react/require-default-props
   children?: React.ReactNode;
   onClose: () => void;
 }
@@ -48,27 +49,41 @@ function BootstrapDialogTitle(props: DialogTitleProps) {
   );
 }
 
-export default function CustomizedDialogs(props: { title: string, body: string[], btnText: string, open: boolean, close: () => void}) {
+export default function CustomizedDialogs({
+  title,
+  body,
+  btnText,
+  open,
+  close,
+}: {
+  title: string;
+  body: string[];
+  btnText: string;
+  open: boolean;
+  close: () => void;
+}) {
   const handleClose = () => {
-    props.close();
+    // eslint-disable-next-line react/destructuring-assignment
+    close();
   };
 
   return (
     <div>
-      <BootstrapDialog
-        onClose={handleClose}
-        aria-labelledby="customized-dialog-title"
-        open={props.open}
-      >
+      <BootstrapDialog onClose={handleClose} aria-labelledby="customized-dialog-title" open={open}>
         <BootstrapDialogTitle id="customized-dialog-title" onClose={handleClose}>
-          {props.title}
+          {title}
         </BootstrapDialogTitle>
         <DialogContent dividers>
-          {props.body && props.body.map((p) => <Typography gutterBottom key={p}>{p}</Typography>)}
+          {body &&
+            body.map((p) => (
+              <Typography gutterBottom key={p}>
+                {p}
+              </Typography>
+            ))}
         </DialogContent>
         <DialogActions>
           <Button autoFocus onClick={handleClose}>
-            {props.btnText}
+            {btnText}
           </Button>
         </DialogActions>
       </BootstrapDialog>

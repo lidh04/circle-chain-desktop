@@ -17,7 +17,7 @@ import {
   makeWalletLabel,
   PublicWallet,
   validateEmail,
-  WalletPackage,
+  WalletPackage
 } from '../../common/wallet-types';
 import CircleDialog from '../components/CircleDialog';
 import { TxType } from '../../common/block-types';
@@ -107,7 +107,7 @@ export default function WalletPayment(props: Props) {
 
   React.useEffect(() => {
     if (!account) {
-      navigate('/login');
+      navigate('/signin');
       return;
     }
 

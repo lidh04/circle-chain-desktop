@@ -10,6 +10,8 @@ import FormInput from '../components/FormInput';
 import { LinkItem } from './login';
 import WalletError from '../../common/wallet-error';
 import { WalletPackage } from '../../common/wallet-types';
+import { useNavigate } from 'react-router-dom';
+import CircleDialog from '../components/CircleDialog';
 
 // 👇 SignUp Schema with Zod
 const signupSchema = object({
@@ -43,6 +45,9 @@ const SignupPage: FC = () => {
   const [verifyCodeError, setVerifyCodeError] = React.useState('');
   const [registerError, setRegisterError] = React.useState('');
   const [isLoading, setIsLoading] = React.useState(false);
+  const [openSignupSuccess, setOpenSignupSuccess] = React.useState(false);
+
+  const navigate = useNavigate();
 
   // 👇 Default Values
   const defaultValues: ISignUp = {
@@ -89,7 +94,7 @@ const SignupPage: FC = () => {
           email
         )) as WalletPackage;
         await window.electron.ipcRenderer.saveAccount(walletPackage.account);
-        window.electron.ipcRenderer.reload();
+        setOpenSignupSuccess(true);
       } else {
         const message = buildMessageFromCode(result);
         setRegisterError(message);
@@ -284,6 +289,16 @@ const SignupPage: FC = () => {
           </Grid>
         </Grid>
       </Grid>
+      <CircleDialog
+        open={openSignupSuccess}
+        title="Signup Success"
+        body={['Congrats!', 'You signup success, please jump to login page to login.']}
+        btnText="Close"
+        close={() => {
+          setOpenSignupSuccess(false);
+          navigate('/signin');
+        }}
+      />
     </Container>
   );
 };

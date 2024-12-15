@@ -82,7 +82,7 @@ export default function MineBlock(props: Props) {
 
   useEffect(() => {
     if (!account) {
-      navigate('/login');
+      navigate('/signin');
       return;
     }
 

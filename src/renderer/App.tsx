@@ -55,7 +55,7 @@ export default function App() {
         children: [
           {
             path: 'signin',
-            element: <LoginPage  />,
+            element: <LoginPage />,
             errorElement: <ErrorPage />,
           },
           {

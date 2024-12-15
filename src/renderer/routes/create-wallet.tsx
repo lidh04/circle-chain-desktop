@@ -6,7 +6,7 @@ import QRCode from 'qrcode';
 
 import { useNavigate } from 'react-router-dom';
 import { Account } from 'common/account-types';
-import { PrivatePoem, PublicWallet, WalletPackage } from '../../common/wallet-types';
+import { PrivatePoem, PublicWallet } from '../../common/wallet-types';
 
 type Point2D = {
   x: number;
@@ -88,7 +88,7 @@ export default function CreateWallet(props: Props) {
 
   useEffect(() => {
     if (!account) {
-      navigate('/login');
+      navigate('/signin');
       return;
     }
 

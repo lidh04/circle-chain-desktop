@@ -24,7 +24,7 @@ import {
   makeAssetLabel,
   makeWalletLabel,
   PublicWallet,
-  WalletPackage,
+  WalletPackage
 } from '../../common/wallet-types';
 
 const Note = styled('div')(({ theme }) => ({
@@ -97,7 +97,7 @@ export default function WalletTrans(props: Props) {
 
   React.useEffect(() => {
     if (!account) {
-      navigate('/login');
+      navigate('/signin');
       return;
     }
 
@@ -118,7 +118,7 @@ export default function WalletTrans(props: Props) {
 
   React.useEffect(() => {
     if (!account) {
-      navigate('/login');
+      navigate('/signin');
       return;
     }
 
