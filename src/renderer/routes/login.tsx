@@ -55,10 +55,11 @@ const LoginPage: FC = () => {
   const onSubmitHandler: SubmitHandler<ILogin> = async (values: ILogin) => {
     console.log('user input:', values, 'isBrowser:', typeof window);
     setIsLoading(true);
+    const email = values.email.toLowerCase();
     try {
       const result = await window.electron.ipcRenderer.loginWitPassword({
         type: 'email',
-        value: values.email,
+        value: email,
         password: values.password,
       });
       console.log('login result:', result);

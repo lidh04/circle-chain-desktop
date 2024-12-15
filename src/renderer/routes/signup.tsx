@@ -75,9 +75,10 @@ const SignupPage: FC = () => {
       return false;
     }
     try {
+      const email = values.email.toLowerCase();
       const result = await window.electron.ipcRenderer.register({
         type: 'email',
-        value: values.email,
+        value: email,
         passwordInput1: values.password1,
         passwordInput2: values.password2,
         verifyCode: values.verifyCode || '',
@@ -85,7 +86,7 @@ const SignupPage: FC = () => {
       console.log('register result:', result);
       if (result === 200) {
         const walletPackage: WalletPackage = (await window.electron.ipcRenderer.getWalletPackage(
-          values.email
+          email
         )) as WalletPackage;
         await window.electron.ipcRenderer.saveAccount(walletPackage.account);
         window.electron.ipcRenderer.reload();
@@ -108,11 +109,12 @@ const SignupPage: FC = () => {
 
   const handleSendVerifyCode: SubmitHandler<ISignUp> = async (values: ISignUp) => {
     console.log('send register verify code...');
+    const email = values.email.toLowerCase();
     if (!startTimer) {
       try {
         const result = await window.electron.ipcRenderer.sendRegisterVerifyCode({
           type: 'email',
-          value: values.email,
+          value: email,
         });
         console.log('send register verify code result:', result);
         if (result !== 200) {

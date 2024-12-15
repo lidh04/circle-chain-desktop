@@ -401,7 +401,7 @@ export default function WalletInfo(props: Props) {
       return;
     }
     try {
-      const [importedAddress, _] = await window.electron.ipcRenderer.importWallet(newKeywords);
+      const [importedAddress] = await window.electron.ipcRenderer.importWallet(newKeywords);
       setImportError(false);
       setErrorMessage('');
       setNewKeyworkds('');

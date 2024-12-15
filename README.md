@@ -23,6 +23,8 @@ Circlechain is designed to be the running rule base of the virtual world. Please
 This is the circlechain desktop application which is designed to running on the desktop. It supports MacOS and Windows binary distributions. For
 Linux users please make the distribution from the source.
 
+All the wallet data are stored in local machine securely.
+
 #### snapshots
 
 - login
