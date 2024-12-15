@@ -13,7 +13,7 @@ Using the node version: 16.15.0, please install node with this version.
 Clone the repo and install dependencies:
 
 ```bash
-## for China Users
+## for Chinese Users
 git clone --depth 1 --branch main git@gitee.com:lidh04/circle-chain-desktop.git circle-chain-desktop
 ## for Global Users
 git clone --depth 1 --branch main git@github.com:lidh04/circle-chain-desktop.git circle-chain-desktop
@@ -85,7 +85,10 @@ Full migration advice : https://peps.python.org/pep-0632/#migration-advice
 
 ## Docs
 
-Please referer to [intro](/lidh04/circle-chain-desktop/tree/main/docs/intro.md).
+Please referer to:
+
+- [Intro on github](https://github.com/lidh04/circle-chain-desktop/tree/main/docs/intro.md).
+- [Intro on gitee](https://gitee.com/lidh04/circle-chain-desktop/tree/main/docs/intro.md)
 
 ## Community
 
