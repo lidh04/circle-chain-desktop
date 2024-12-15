@@ -49,7 +49,7 @@ interface Props {
 }
 
 export default function Profile(props: Props) {
-  const {account} = props;
+  const { account } = props;
 
   const getAccountName = () => {
     if (!account || !account.value) {

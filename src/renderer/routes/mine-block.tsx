@@ -83,7 +83,9 @@ export default function MineBlock(props: Props) {
   useEffect(() => {
     if (!account) {
       navigate('/signin');
-      return;
+      return () => {
+        console.log('user not login, now jump to login page.');
+      };
     }
 
     window.electron.ipcRenderer
