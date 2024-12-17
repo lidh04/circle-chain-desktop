@@ -35,19 +35,19 @@ import RunCircleIcon from '@mui/icons-material/RunCircle';
 import QRCode from 'qrcode';
 
 import Divider from '@mui/material/Divider';
+import MinHeightTextarea from 'renderer/components/MinHeightTextarea';
+import { Account } from 'common/account-types';
 import {
   AutocompleteOption,
   makeWalletLabel,
   PrivatePoem,
   PublicWallet,
-  WalletPackage
+  WalletPackage,
 } from '../../common/wallet-types';
 import CircleDialog from '../components/CircleDialog';
-import MinHeightTextarea from 'renderer/components/MinHeightTextarea';
-import { Account } from 'common/account-types';
 
 interface Column {
-  id: 'address' | 'balance' | 'identity' | 'ownership' | 'operation' | 'keywords';
+  id: 'address' | 'balance' | 'unconfirmed' | 'identity' | 'ownership' | 'operation' | 'keywords';
   label: string;
   minWidth?: number;
   align?: 'right';

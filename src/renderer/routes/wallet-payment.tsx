@@ -8,6 +8,7 @@ import Paper from '@mui/material/Paper';
 import PaymentIcon from '@mui/icons-material/Payment';
 import * as React from 'react';
 
+import { Account } from 'common/account-types';
 import {
   addressListOf,
   AutocompleteOption,
@@ -17,12 +18,11 @@ import {
   makeWalletLabel,
   PublicWallet,
   validateEmail,
-  WalletPackage
+  WalletPackage,
 } from '../../common/wallet-types';
 import CircleDialog from '../components/CircleDialog';
 import { TxType } from '../../common/block-types';
 import PayPasswordDialog from '../components/PayPasswordDialog';
-import { Account } from 'common/account-types';
 
 const makeAddressOptionList = (addressList: string[]) =>
   addressList.map((address, index) => ({

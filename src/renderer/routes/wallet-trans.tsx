@@ -17,6 +17,7 @@ import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
 
 import { TxType } from 'common/block-types';
+import { Account } from 'common/account-types';
 import {
   AddressType,
   AutocompleteOption,
@@ -24,7 +25,7 @@ import {
   makeAssetLabel,
   makeWalletLabel,
   PublicWallet,
-  WalletPackage
+  WalletPackage,
 } from '../../common/wallet-types';
 
 const Note = styled('div')(({ theme }) => ({
