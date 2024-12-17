@@ -291,5 +291,6 @@
       "src/main/**"
     ],
     "logLevel": "quiet"
-  }
+  },
+  "version": "4.7.2"
 }
