@@ -71,9 +71,9 @@ Clone the repo and install dependencies:
 
 ```bash
 ## for Chinese Users
-git clone --depth 1 --branch main git@gitee.com:lidh04/circle-chain-desktop.git circle-chain-desktop
+git clone --depth 1 --branch main https://gitee.com/lidh04/circle-chain-desktop.git circle-chain-desktop
 ## for Global Users
-git clone --depth 1 --branch main git@github.com:lidh04/circle-chain-desktop.git circle-chain-desktop
+git clone --depth 1 --branch main https://github.com/lidh04/circle-chain-desktop.git circle-chain-desktop
 cd circle-chain-desktop
 npm install
 ```
