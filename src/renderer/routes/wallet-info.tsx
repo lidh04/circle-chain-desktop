@@ -212,10 +212,16 @@ function AddressDialog(props: AddressDialogProps) {
   const { onClose, open, address } = props;
 
   React.useEffect(() => {
-    window.electron.ipcRenderer.getEncodedPrivateKey(address).then((r) => {
-      setPoem(r);
-    });
-    generateQRcode(address).then((svg) => setSvg(svg));
+    window.electron.ipcRenderer
+      .getEncodedPrivateKey(address)
+      .then((r) => {
+        setPoem(r);
+        return true;
+      })
+      .catch((err) => console.error(err));
+    generateQRcode(address)
+      .then((svgResult) => setSvg(svgResult))
+      .catch((err) => console.error(err));
   }, [address, setPoem]);
 
   const handleClose = () => {
