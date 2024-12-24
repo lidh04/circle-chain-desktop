@@ -9,8 +9,7 @@ module.exports = {
     avoidEscape: 0,
     allowTemplateLiterals: 0,
     'no-console': 0,
-    'comma-dangle': true,
-    'max-len': 120
+    'comma-dangle': 0,
   },
   parserOptions: {
     ecmaVersion: 2020,
