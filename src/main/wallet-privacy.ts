@@ -179,9 +179,12 @@ async function loadAccount(accountPath: string): Promise<PrivateEmailAccount | P
   const content = await readFile(accountPath, { encoding: 'utf8' });
   try {
     return JSON.parse(content);
-  } catch (err: any) {
-    console.error('cannot parse json:', content, ', error: ', err.message, err);
-    // TODO try to parse the malformat json data
+  } catch (err) {
+    if (err instanceof Error) {
+      console.error('cannot parse json:', content, ', error: ', err.message, err);
+    } else {
+      console.error('cannot parse json:', content, ', error: ', err);
+    }
     return null;
   }
 }
@@ -209,7 +212,7 @@ async function initLoad(accountInput: Account) {
   }
   console.log('initLoad account:', account?.value);
   clearPrivateData();
-  const pathStr = getPrivateKeyPath(account!);
+  const pathStr = getPrivateKeyPath(account);
   try {
     if (!(await exists(pathStr))) {
       console.log(`path: ${pathStr} not exists for account: ${JSON.stringify(accountInput)}`);
