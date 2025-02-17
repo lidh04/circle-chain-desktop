@@ -18,8 +18,8 @@ import Paper from '@mui/material/Paper';
 import People from '@mui/icons-material/People';
 import * as React from 'react';
 import ReceiptIcon from '@mui/icons-material/Receipt';
-
 import { WalletPackage } from 'common/wallet-types';
+import icon from '../../../assets/icon_64x64.png';
 import { Account } from '../../common/account-types';
 
 const FireNav = styled(List)<{ component?: React.ElementType }>({
@@ -90,7 +90,7 @@ export default function Root(props: Props) {
     if (walletPackage) {
       setWalletData(walletDataArray);
     }
-  }, [walletPackage]);
+  }, [walletDataArray, walletPackage]);
 
   const unLoggedAccountData = [
     {
@@ -169,7 +169,9 @@ export default function Root(props: Props) {
             <Paper elevation={0} sx={{ width: '100%' }}>
               <FireNav component="nav" disablePadding>
                 <ListItemButton component="a" href="#customized-list">
-                  <ListItemIcon sx={{ fontSize: 20 }}>🔥</ListItemIcon>
+                  <ListItemIcon sx={{ fontSize: 20 }}>
+                    <img src={icon} alt="icon" width="20" />
+                  </ListItemIcon>
                   <ListItemText
                     sx={{ my: 0 }}
                     primary="CircleChain"

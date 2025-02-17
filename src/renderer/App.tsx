@@ -118,7 +118,6 @@ export default function App() {
     },
   });
 
-
   return (
     <React.StrictMode>
       <ThemeProvider theme={darkTheme}>

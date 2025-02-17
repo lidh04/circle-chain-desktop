@@ -5,7 +5,7 @@ import LoginIcon from '@mui/icons-material/Login';
 import { useNavigate } from 'react-router-dom';
 import AppRegistrationIcon from '@mui/icons-material/AppRegistration';
 import { Account } from 'common/account-types';
-import icon from '../../../assets/icon.svg';
+import icon from '../../../assets/icon_128x128.png';
 
 interface Props {
   account: Account | null;
@@ -27,7 +27,7 @@ export default function Home(props: Props) {
   return (
     <div style={{ maxHeight: '100%', overflow: 'auto' }}>
       <div className="hello">
-        <img width="200" alt="icon" src={icon} />
+        <img width="128" alt="icon" src={icon} />
       </div>
       <h1 className="hello">CircleChain app</h1>
       <div>
