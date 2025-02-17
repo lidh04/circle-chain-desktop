@@ -238,7 +238,7 @@
       "entitlementsInherit": "assets/entitlements.mac.plist",
       "gatekeeperAssess": false,
       "notarize": {
-        "teamId": "YOUR_TEAM_ID"
+        "teamId": "NKBR3Y45B3"
       }
     },
     "dmg": {
