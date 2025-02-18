@@ -162,8 +162,8 @@ export default function Root(props: Props) {
             <Paper elevation={0} sx={{ width: '100%' }}>
               <FireNav component="nav" disablePadding>
                 <ListItemButton component="a" href="#customized-list">
-                  <ListItemIcon sx={{ fontSize: 32 }}>
-                    <img src={icon} alt="icon" width="32" />
+                  <ListItemIcon sx={{ fontSize: 20 }}>
+                    <img src={icon} alt="icon" width="20" />
                   </ListItemIcon>
                   <ListItemText
                     sx={{ my: 0 }}

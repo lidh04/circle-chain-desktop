@@ -307,7 +307,7 @@ export default function WalletInfo(props: Props) {
   const [page, setPage] = React.useState(0);
   const [searchedRows, setSearchedRows] = React.useState<Data[] | null>(null);
   const [rows, setRows] = React.useState<Data[] | null>(null);
-  const [rowsPerPage, setRowsPerPage] = React.useState(10);
+  const [rowsPerPage, setRowsPerPage] = React.useState(5);
   const [address, setAddress] = React.useState('');
   const [newKeywords, setNewKeyworkds] = React.useState('');
   const [importError, setImportError] = React.useState(false);
@@ -560,7 +560,7 @@ export default function WalletInfo(props: Props) {
           </Button>
         </Grid>
       </Grid>
-      <TableContainer sx={{ maxHeight: 420 }}>
+      <TableContainer sx={{ maxHeight: 240 }}>
         <Table stickyHeader aria-label="sticky table">
           <TableHead>
             <TableRow>
@@ -601,7 +601,7 @@ export default function WalletInfo(props: Props) {
         </Table>
       </TableContainer>
       <TablePagination
-        rowsPerPageOptions={[10, 25, 100]}
+        rowsPerPageOptions={[5, 10, 25, 100]}
         component="div"
         count={(rows || []).length}
         rowsPerPage={rowsPerPage}
