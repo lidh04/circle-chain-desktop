@@ -13,6 +13,7 @@ import _ from 'lodash';
 import { access, chmod, mkdir, readFile, writeFile } from 'fs/promises';
 import os from 'os';
 import path from 'path';
+import { toBigIntBE, toBufferBE } from 'bigint-buffer';
 
 import { Account, EmailAccount, PhoneAccount } from '../common/account-types';
 import { PrivatePoem, PublicWallet, WalletPackage } from '../common/wallet-types';
@@ -47,14 +48,13 @@ function decodePrivatePoem(poem: string | PrivatePoem): Uint8Array {
   }
   const value = decode(poemContent);
   console.log('keywords raw:', poem, 'stripped content:', poemContent, 'value:', value);
-  const buf = Buffer.allocUnsafe(32);
-  buf.writeBigInt64BE(value);
+  const buf = toBufferBE(value, 32);
   return buf;
 }
 function makePrivatePoem(privKey: Uint8Array) {
   console.time('privateKey');
   const buf = Buffer.from(privKey);
-  const value = buf.readBigInt64BE();
+  const value = toBigIntBE(buf);
   const encodedString = encode(value);
   // console.log('private key length:', privKeyHex.length, privKeyHex,
   // 'bigint value:', value,
@@ -297,10 +297,10 @@ function addPrivateKey(privateKey: Uint8Array): [string, Uint8Array] {
   const privatePoem = makePrivatePoem(privateKey);
   // const key = decodePrivatePoem(privatePoem);
   /// / debug codes here
-  // const oldValue = Buffer.from(privateKey).readBigInt64BE();
-  // const newValue = Buffer.from(key).readBigInt64BE();
+  // const oldValue = toBigIntBE(Buffer.from(privateKey));
+  // const newValue = toBigIntBE(Buffer.from(key));
   // console.log('old:', oldValue, 'new:', newValue, 'equal:', oldValue === newValue);
-  // console.log('private keys:', Buffer.from(privateKey).readBigInt64BE(), 'private Poem:', privatePoem);
+  // console.log('private keys:', toBigIntBE(Buffer.from(privateKey)), 'private Poem:', privatePoem);
   /// /// end debug code
 
   keyMap[address] = privatePoem;
