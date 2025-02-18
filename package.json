@@ -226,20 +226,18 @@
     ],
     "afterSign": ".erb/scripts/notarize.js",
     "mac": {
-      "target": [
-        {
-          "target": "dmg",
-          "arch": ["arm64", "x64"]
-        }
-      ],
+      "target": {
+        "target": "default",
+        "arch": [
+          "arm64",
+          "x64"
+        ]
+      },
       "type": "distribution",
       "hardenedRuntime": true,
       "entitlements": "assets/entitlements.mac.plist",
       "entitlementsInherit": "assets/entitlements.mac.plist",
-      "gatekeeperAssess": false,
-      "notarize": {
-        "teamId": "NKBR3Y45B3"
-      }
+      "gatekeeperAssess": false
     },
     "dmg": {
       "contents": [
