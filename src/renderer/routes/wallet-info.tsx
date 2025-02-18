@@ -210,8 +210,10 @@ function AddressDialog(props: AddressDialogProps) {
   const [poem, setPoem] = React.useState<PrivatePoem | null>(null);
   const [svg, setSvg] = React.useState<string>('');
   const { onClose, open, address } = props;
-
   React.useEffect(() => {
+    if (!address) {
+      return;
+    }
     window.electron.ipcRenderer
       .getEncodedPrivateKey(address)
       .then((r) => {

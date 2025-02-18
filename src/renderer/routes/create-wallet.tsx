@@ -65,6 +65,7 @@ export default function CreateWallet(props: Props) {
       if (!r) {
         throw new Error('cannot create wallet!');
       }
+
       const { address } = r;
       console.log('new wallet address:', address);
       const poem1 = await window.electron.ipcRenderer.getEncodedPrivateKey(address);
@@ -72,9 +73,13 @@ export default function CreateWallet(props: Props) {
       console.log('new wallet private poem:', r);
       setStep(step + 1);
     } else if (step === 2) {
-      const svg1 = await generateQRcode(wallet!.address);
-      setSvg(svg1);
-      setTimeout(() => setStep(3), 1000);
+      if (wallet) {
+        const svg1 = await generateQRcode(wallet.address);
+        setSvg(svg1);
+        setTimeout(() => setStep(3), 1000);
+      } else {
+        console.error('wallet is not initialized!');
+      }
     } else {
       setStep(step + 1);
     }
@@ -236,7 +241,7 @@ export default function CreateWallet(props: Props) {
                 variant="contained"
                 disableElevation
                 onClick={() => {
-                  navigate('/wallet-info');
+                  window.electron.ipcRenderer.reload();
                 }}
               >
                 OK
