@@ -1,6 +1,7 @@
 import { Outlet, useNavigate } from 'react-router-dom';
 import { createTheme, styled, ThemeProvider } from '@mui/material/styles';
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
+import AddCircleIcon from '@mui/icons-material/AddCircle';
 import AppRegistrationIcon from '@mui/icons-material/AppRegistration';
 import Box from '@mui/material/Box';
 import Divider from '@mui/material/Divider';
@@ -40,6 +41,7 @@ type WalletSidebar = {
   icon: unknown;
   label: string;
   handleClick: () => void;
+  subItems?: WalletSidebar[];
 };
 
 interface Props {
@@ -68,6 +70,22 @@ export default function Root(props: Props) {
       handleClick: () => {
         navigate('/wallet-info');
       },
+      subItems: [
+        {
+          icon: <AddCircleIcon />,
+          label: 'Create',
+          handleClick: () => {
+            navigate('/create-wallet');
+          },
+        },
+        {
+          icon: <AccountBalanceWalletIcon />,
+          label: 'Mine',
+          handleClick: () => {
+            navigate('/mine-block');
+          },
+        },
+      ],
     },
     {
       icon: <PaidIcon />,
@@ -277,24 +295,47 @@ export default function Root(props: Props) {
                         {open &&
                           walletPackage &&
                           walletDataArray.map((item) => (
-                            <ListItemButton
-                              key={item.label}
-                              sx={{
-                                py: 0,
-                                minHeight: 32,
-                                color: 'rgba(255,255,255,.8)',
-                              }}
-                              onClick={item.handleClick}
-                            >
-                              <ListItemIcon sx={{ color: 'inherit' }}>{item.icon}</ListItemIcon>
-                              <ListItemText
-                                primary={item.label}
-                                primaryTypographyProps={{
-                                  fontSize: 14,
-                                  fontWeight: 'medium',
+                            <React.Fragment key={item.label}>
+                              <ListItemButton
+                                sx={{
+                                  py: 0,
+                                  minHeight: 32,
+                                  color: 'rgba(255,255,255,.8)',
                                 }}
-                              />
-                            </ListItemButton>
+                                onClick={item.handleClick}
+                              >
+                                <ListItemIcon sx={{ color: 'inherit' }}>{item.icon}</ListItemIcon>
+                                <ListItemText
+                                  primary={item.label}
+                                  primaryTypographyProps={{
+                                    fontSize: 14,
+                                    fontWeight: 'medium',
+                                  }}
+                                />
+                              </ListItemButton>
+                              {item.subItems?.map((subItem) => (
+                                <ListItemButton
+                                  key={subItem.label}
+                                  sx={{
+                                    py: 0,
+                                    marginLeft: 2,
+                                    minHeight: 32,
+                                    color: 'rgba(255,255,255,.8)',
+                                    pl: 6,
+                                  }}
+                                  onClick={subItem.handleClick}
+                                >
+                                  <ListItemIcon sx={{ color: 'inherit' }}>{subItem.icon}</ListItemIcon>
+                                  <ListItemText
+                                    primary={subItem.label}
+                                    primaryTypographyProps={{
+                                      fontSize: 14,
+                                      fontWeight: 'medium',
+                                    }}
+                                  />
+                                </ListItemButton>
+                              ))}
+                            </React.Fragment>
                           ))}
                       </>
                     )
