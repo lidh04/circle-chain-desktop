@@ -15,7 +15,6 @@
     "link-modules": "node -r ts-node/register ../../.erb/scripts/link-modules.ts"
   },
   "dependencies": {
-    "bigint-buffer": "^1.1.5",
     "secp256k1": "^5.0.0"
   }
 }
