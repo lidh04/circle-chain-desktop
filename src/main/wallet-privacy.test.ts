@@ -52,11 +52,7 @@ describe('test suites for wallet privacy', () => {
     walletPackage.wallets.forEach((w) => {
       const { address } = w;
       const privatePoem = PrivateWalletPackage.getEncodedPrivateKey(address);
-      console.log(
-        `get private poem by address: ${address}, result: ${JSON.stringify(
-          privatePoem
-        )}`
-      );
+      console.log(`get private poem by address: ${address}, result: ${JSON.stringify(privatePoem)}`);
       expect(privatePoem).not.toBe(null);
     });
   });
@@ -70,11 +66,7 @@ describe('test suites for wallet privacy', () => {
     walletPackage.wallets.forEach((w) => {
       const { address } = w;
       const privatePoem = PrivateWalletPackage.getEncodedPrivateKey(address);
-      console.log(
-        `get private poem by address: ${address}, result: ${JSON.stringify(
-          privatePoem
-        )}`
-      );
+      console.log(`get private poem by address: ${address}, result: ${JSON.stringify(privatePoem)}`);
       expect(privatePoem).not.toBe(null);
       const privateKey = PrivateWalletPackage.decodePrivatePoem(privatePoem!);
       const privArray = new Uint8Array(32);

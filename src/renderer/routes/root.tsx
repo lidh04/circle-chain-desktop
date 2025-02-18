@@ -51,7 +51,6 @@ export default function Root(props: Props) {
   const { account, walletPackage } = props;
   const [open, setOpen] = React.useState(true);
   const [accountOpen, setAccountOpen] = React.useState(false);
-  const [walletData, setWalletData] = React.useState<WalletSidebar[] | null>(null);
   const navigate = useNavigate();
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -85,12 +84,6 @@ export default function Root(props: Props) {
       },
     },
   ];
-
-  React.useEffect(() => {
-    if (walletPackage) {
-      setWalletData(walletDataArray);
-    }
-  }, [walletDataArray, walletPackage]);
 
   const unLoggedAccountData = [
     {
@@ -282,8 +275,8 @@ export default function Root(props: Props) {
                           />
                         </ListItemButton>
                         {open &&
-                          walletData &&
-                          walletData.map((item) => (
+                          walletPackage &&
+                          walletDataArray.map((item) => (
                             <ListItemButton
                               key={item.label}
                               sx={{
