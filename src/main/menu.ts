@@ -145,25 +145,27 @@ export default class MenuBuilder {
         {
           label: 'Learn More',
           click() {
-            shell.openExternal('https://electronjs.org');
+            shell.openExternal('https://github.com/lidh04/circle-chain-desktop');
           },
         },
         {
           label: 'Documentation',
           click() {
-            shell.openExternal('https://github.com/electron/electron/tree/main/docs#readme');
+            shell.openExternal('https://github.com/lidh04/circle-chain-desktop/tree/main/docs');
           },
         },
+        /*
         {
           label: 'Community Discussions',
           click() {
             shell.openExternal('https://www.electronjs.org/community');
           },
         },
+        */
         {
           label: 'Search Issues',
           click() {
-            shell.openExternal('https://github.com/electron/electron/issues');
+            shell.openExternal('https://github.com/lidh04/circle-chain-desktop/issues');
           },
         },
       ],
@@ -236,25 +238,27 @@ export default class MenuBuilder {
           {
             label: 'Learn More',
             click() {
-              shell.openExternal('https://electronjs.org');
+              shell.openExternal('https://github.com/lidh04/circle-chain-desktop');
             },
           },
           {
             label: 'Documentation',
             click() {
-              shell.openExternal('https://github.com/electron/electron/tree/main/docs#readme');
+              shell.openExternal('https://github.com/lidh04/circle-chain-desktop/tree/main/docs');
             },
           },
+          /*
           {
             label: 'Community Discussions',
             click() {
               shell.openExternal('https://www.electronjs.org/community');
             },
           },
+          */
           {
             label: 'Search Issues',
             click() {
-              shell.openExternal('https://github.com/electron/electron/issues');
+              shell.openExternal('https://github.com/lidh04/circle-chain-desktop/issues');
             },
           },
         ],
