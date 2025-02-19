@@ -563,7 +563,7 @@ export default function WalletInfo(props: Props) {
       <TablePagination
         rowsPerPageOptions={[5, 10, 25, 100]}
         component="div"
-        count={(rows || []).length}
+        count={(searchedRows || []).length}
         rowsPerPage={rowsPerPage}
         page={page}
         onPageChange={handleChangePage}
