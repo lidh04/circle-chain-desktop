@@ -179,9 +179,12 @@ async function loadAccount(accountPath: string): Promise<PrivateEmailAccount | P
   const content = await readFile(accountPath, { encoding: 'utf8' });
   try {
     return JSON.parse(content);
-  } catch (err: any) {
-    console.error('cannot parse json:', content, ', error: ', err.message, err);
-    // TODO try to parse the malformat json data
+  } catch (err) {
+    if (err instanceof Error) {
+      console.error('cannot parse json:', content, ', error: ', err.message, err);
+    } else {
+      console.error('cannot parse json:', content, ', error: ', err);
+    }
     return null;
   }
 }
@@ -209,7 +212,7 @@ async function initLoad(accountInput: Account) {
   }
   console.log('initLoad account:', account?.value);
   clearPrivateData();
-  const pathStr = getPrivateKeyPath(account!);
+  const pathStr = getPrivateKeyPath(account);
   try {
     if (!(await exists(pathStr))) {
       console.log(`path: ${pathStr} not exists for account: ${JSON.stringify(accountInput)}`);
@@ -309,6 +312,7 @@ async function addPrivateKeyAndSave(privateKey: Uint8Array): Promise<[string, Ui
     throw new Error('account is not intialized!');
   }
   const result = addPrivateKey(privateKey);
+  console.log('add new privateKey:', Buffer.from(privateKey).toString('base64'));
   // eslint-disable-next-line @typescript-eslint/no-use-before-define
   await save(account);
 
@@ -371,6 +375,7 @@ async function save(account: PrivateEmailAccount | PrivatePhoneAccount) {
     const dirName = path.dirname(pathStr);
     await mkdir(dirName, { recursive: true });
   }
+  console.log('total private keys:', privateKeys.length, 'begin to save');
   const arr = privateKeys.map((privKey) => Buffer.from(privKey).toString('hex'));
   if (arr.length > 0) {
     const content = JSON.stringify(arr);
@@ -379,6 +384,7 @@ async function save(account: PrivateEmailAccount | PrivatePhoneAccount) {
     const encrypted = encrypt(securityKey, initVector, content);
     await writeFile(pathStr, encrypted);
     await chmod(pathStr, 0o600);
+    console.log('total private keys:', privateKeys.length, 'save success!');
   }
 }
 

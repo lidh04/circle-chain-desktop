@@ -210,12 +210,20 @@ function AddressDialog(props: AddressDialogProps) {
   const [poem, setPoem] = React.useState<PrivatePoem | null>(null);
   const [svg, setSvg] = React.useState<string>('');
   const { onClose, open, address } = props;
-
   React.useEffect(() => {
-    window.electron.ipcRenderer.getEncodedPrivateKey(address).then((r) => {
-      setPoem(r);
-    });
-    generateQRcode(address).then((svg) => setSvg(svg));
+    if (!address) {
+      return;
+    }
+    window.electron.ipcRenderer
+      .getEncodedPrivateKey(address)
+      .then((r) => {
+        setPoem(r);
+        return true;
+      })
+      .catch((err) => console.error(err));
+    generateQRcode(address)
+      .then((svgResult) => setSvg(svgResult))
+      .catch((err) => console.error(err));
   }, [address, setPoem]);
 
   const handleClose = () => {
@@ -299,7 +307,7 @@ export default function WalletInfo(props: Props) {
   const [page, setPage] = React.useState(0);
   const [searchedRows, setSearchedRows] = React.useState<Data[] | null>(null);
   const [rows, setRows] = React.useState<Data[] | null>(null);
-  const [rowsPerPage, setRowsPerPage] = React.useState(10);
+  const [rowsPerPage, setRowsPerPage] = React.useState(5);
   const [address, setAddress] = React.useState('');
   const [newKeywords, setNewKeyworkds] = React.useState('');
   const [importError, setImportError] = React.useState(false);
@@ -435,74 +443,34 @@ export default function WalletInfo(props: Props) {
       <Typography variant="h4" component="h1" sx={{ textAlign: 'center', mb: '1rem', mt: '1rem' }}>
         Wallet Information
       </Typography>
-      <Grid container spacing={2} sx={{ mb: '2rem', mt: '1rem', padding: '0.3rem 1rem' }}>
-        <Grid item xs={2}>
-          <Typography variant="h6" component="h2" sx={{ textAlign: 'right', mb: '0.5rem', mt: '0.5rem' }}>
-            Balance
-          </Typography>
-        </Grid>
-        <Grid item xs={2}>
-          <Typography variant="h6" component="h2" sx={{ textAlign: 'left', mb: '0.5rem', mt: '0.5rem' }}>
-            {allBalance} LI
-          </Typography>
-        </Grid>
-        <Grid item xs={2}>
-          <Typography variant="h6" component="h2" sx={{ textAlign: 'right', mb: '0.5rem', mt: '0.5rem' }}>
-            Ownerships
-          </Typography>
-        </Grid>
-        <Grid item xs={2}>
-          <Typography variant="h6" component="h2" sx={{ textAlign: 'left', mb: '0.5rem', mt: '0.5rem' }}>
-            {ownershipCnt}
-          </Typography>
-        </Grid>
-        <Grid item xs={2}>
-          <Typography variant="h6" component="h2" sx={{ textAlign: 'right', mb: '0.5rem', mt: '0.5rem' }}>
-            Identities
-          </Typography>
-        </Grid>
-        <Grid item xs={2}>
-          <Typography variant="h6" component="h2" sx={{ textAlign: 'left', mb: '0.5rem', mt: '0.5rem' }}>
-            {identityCnt}
-          </Typography>
-        </Grid>
-
-        <Grid item xs={2}>
-          <Typography variant="h6" component="h2" sx={{ textAlign: 'right', mb: '0.5rem', mt: '0.5rem' }}>
-            Wallets
-          </Typography>
-        </Grid>
-        <Grid item xs={3}>
-          <Typography variant="h6" component="h2" sx={{ textAlign: 'left', mb: '0.5rem', mt: '0.5rem' }}>
-            {walletCnt}
-          </Typography>
-        </Grid>
-        <Grid item xs={3}>
-          <Button
-            component="label"
-            role={undefined}
-            variant="contained"
-            onClick={() => {
-              navigate('/create-wallet');
-            }}
-            startIcon={<AddCircleIcon />}
-          >
-            Create wallet
-          </Button>
-        </Grid>
-        <Grid item xs={2}>
-          <Button
-            component="label"
-            role={undefined}
-            variant="contained"
-            onClick={() => {
-              navigate('/mine-block');
-            }}
-            startIcon={<RunCircleIcon />}
-          >
-            Mine Block
-          </Button>
-        </Grid>
+      <Grid container spacing={2} sx={{ mb: '2rem', mt: '1rem', padding: '0.3rem 1rem', justifyContent: 'center' }}>
+        {[
+          { label: 'Wallets', value: walletCnt },
+          { label: 'Balance', value: `${allBalance} li` },
+          { label: 'Ownerships', value: ownershipCnt },
+          { label: 'Identities', value: identityCnt },
+        ].map((item, index) => (
+          <React.Fragment key={item.label}>
+            <Grid item>
+              <Typography
+                variant="h6"
+                component="h2"
+                sx={{ textAlign: 'right', mb: '0.5rem', mt: '0.5rem', minWidth: '100px' }}
+              >
+                {item.label}
+              </Typography>
+            </Grid>
+            <Grid item>
+              <Typography
+                variant="h6"
+                component="h2"
+                sx={{ textAlign: 'left', mb: '0.5rem', mt: '0.5rem', minWidth: '100px' }}
+              >
+                {item.value}
+              </Typography>
+            </Grid>
+          </React.Fragment>
+        ))}
       </Grid>
       <Divider />
       <Grid container spacing={2} sx={{ mb: '1rem', mt: '1rem', padding: '0.3rem 1rem' }}>
@@ -552,7 +520,7 @@ export default function WalletInfo(props: Props) {
           </Button>
         </Grid>
       </Grid>
-      <TableContainer sx={{ maxHeight: 420 }}>
+      <TableContainer sx={{ maxHeight: 240 }}>
         <Table stickyHeader aria-label="sticky table">
           <TableHead>
             <TableRow>
@@ -593,9 +561,9 @@ export default function WalletInfo(props: Props) {
         </Table>
       </TableContainer>
       <TablePagination
-        rowsPerPageOptions={[10, 25, 100]}
+        rowsPerPageOptions={[5, 10, 25, 100]}
         component="div"
-        count={(rows || []).length}
+        count={(searchedRows || []).length}
         rowsPerPage={rowsPerPage}
         page={page}
         onPageChange={handleChangePage}

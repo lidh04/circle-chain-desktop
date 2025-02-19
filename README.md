@@ -182,6 +182,7 @@ Please referer to:
 - jhtu0232
 - dhoegreedy
 - alexander.stack
+- sinabo
 
 ## License
 

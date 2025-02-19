@@ -25,9 +25,11 @@ export default async function createWallet(): Promise<PublicWallet> {
     try {
       verifyOk = secp256k1.privateKeyVerify(privateKeyArray);
       console.log('private key verify result:', verifyOk);
-    } catch (err: any) {
+    } catch (err) {
       verifyOk = false;
-      console.error('secp256k1 privateKeyVerify error:', err.message, err);
+      if (err instanceof Error) {
+        console.error('secp256k1 privateKeyVerify error:', err.message, err);
+      }
     }
   }
   const [address, pubKey] = await PrivateWalletPackage.addPrivateKeyAndSave(privateKeyArray);

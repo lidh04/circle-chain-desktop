@@ -1,6 +1,7 @@
 import { Outlet, useNavigate } from 'react-router-dom';
 import { createTheme, styled, ThemeProvider } from '@mui/material/styles';
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
+import AddCircleIcon from '@mui/icons-material/AddCircle';
 import AppRegistrationIcon from '@mui/icons-material/AppRegistration';
 import Box from '@mui/material/Box';
 import Divider from '@mui/material/Divider';
@@ -18,8 +19,8 @@ import Paper from '@mui/material/Paper';
 import People from '@mui/icons-material/People';
 import * as React from 'react';
 import ReceiptIcon from '@mui/icons-material/Receipt';
-
 import { WalletPackage } from 'common/wallet-types';
+import icon from '../../../assets/icon_64x64.png';
 import { Account } from '../../common/account-types';
 
 const FireNav = styled(List)<{ component?: React.ElementType }>({
@@ -40,6 +41,7 @@ type WalletSidebar = {
   icon: unknown;
   label: string;
   handleClick: () => void;
+  subItems?: WalletSidebar[];
 };
 
 interface Props {
@@ -51,7 +53,6 @@ export default function Root(props: Props) {
   const { account, walletPackage } = props;
   const [open, setOpen] = React.useState(true);
   const [accountOpen, setAccountOpen] = React.useState(false);
-  const [walletData, setWalletData] = React.useState<WalletSidebar[] | null>(null);
   const navigate = useNavigate();
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -69,6 +70,22 @@ export default function Root(props: Props) {
       handleClick: () => {
         navigate('/wallet-info');
       },
+      subItems: [
+        {
+          icon: <AddCircleIcon />,
+          label: 'Create',
+          handleClick: () => {
+            navigate('/create-wallet');
+          },
+        },
+        {
+          icon: <AccountBalanceWalletIcon />,
+          label: 'Mine',
+          handleClick: () => {
+            navigate('/mine-block');
+          },
+        },
+      ],
     },
     {
       icon: <PaidIcon />,
@@ -85,12 +102,6 @@ export default function Root(props: Props) {
       },
     },
   ];
-
-  React.useEffect(() => {
-    if (walletPackage) {
-      setWalletData(walletDataArray);
-    }
-  }, [walletPackage]);
 
   const unLoggedAccountData = [
     {
@@ -169,7 +180,9 @@ export default function Root(props: Props) {
             <Paper elevation={0} sx={{ width: '100%' }}>
               <FireNav component="nav" disablePadding>
                 <ListItemButton component="a" href="#customized-list">
-                  <ListItemIcon sx={{ fontSize: 20 }}>🔥</ListItemIcon>
+                  <ListItemIcon sx={{ fontSize: 20 }}>
+                    <img src={icon} alt="icon" width="20" />
+                  </ListItemIcon>
                   <ListItemText
                     sx={{ my: 0 }}
                     primary="CircleChain"
@@ -280,26 +293,49 @@ export default function Root(props: Props) {
                           />
                         </ListItemButton>
                         {open &&
-                          walletData &&
-                          walletData.map((item) => (
-                            <ListItemButton
-                              key={item.label}
-                              sx={{
-                                py: 0,
-                                minHeight: 32,
-                                color: 'rgba(255,255,255,.8)',
-                              }}
-                              onClick={item.handleClick}
-                            >
-                              <ListItemIcon sx={{ color: 'inherit' }}>{item.icon}</ListItemIcon>
-                              <ListItemText
-                                primary={item.label}
-                                primaryTypographyProps={{
-                                  fontSize: 14,
-                                  fontWeight: 'medium',
+                          walletPackage &&
+                          walletDataArray.map((item) => (
+                            <React.Fragment key={item.label}>
+                              <ListItemButton
+                                sx={{
+                                  py: 0,
+                                  minHeight: 32,
+                                  color: 'rgba(255,255,255,.8)',
                                 }}
-                              />
-                            </ListItemButton>
+                                onClick={item.handleClick}
+                              >
+                                <ListItemIcon sx={{ color: 'inherit' }}>{item.icon}</ListItemIcon>
+                                <ListItemText
+                                  primary={item.label}
+                                  primaryTypographyProps={{
+                                    fontSize: 14,
+                                    fontWeight: 'medium',
+                                  }}
+                                />
+                              </ListItemButton>
+                              {item.subItems?.map((subItem) => (
+                                <ListItemButton
+                                  key={subItem.label}
+                                  sx={{
+                                    py: 0,
+                                    marginLeft: 2,
+                                    minHeight: 32,
+                                    color: 'rgba(255,255,255,.8)',
+                                    pl: 6,
+                                  }}
+                                  onClick={subItem.handleClick}
+                                >
+                                  <ListItemIcon sx={{ color: 'inherit' }}>{subItem.icon}</ListItemIcon>
+                                  <ListItemText
+                                    primary={subItem.label}
+                                    primaryTypographyProps={{
+                                      fontSize: 14,
+                                      fontWeight: 'medium',
+                                    }}
+                                  />
+                                </ListItemButton>
+                              ))}
+                            </React.Fragment>
                           ))}
                       </>
                     )
