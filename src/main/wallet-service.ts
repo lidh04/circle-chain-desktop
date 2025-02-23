@@ -96,8 +96,10 @@ async function getAssetsOfAddress(address: string, type: number): Promise<Identi
       }));
     }
     console.error('get url:', url, 'failed, response status:', response.status);
-  } catch (err: any) {
-    console.error('fetch url:', url, 'error:', err.name, err.message, err);
+  } catch (err) {
+    if (err instanceof Error) {
+      console.error('fetch url:', url, 'error:', err.name, err.message, err);
+    }
   }
   return [];
 }

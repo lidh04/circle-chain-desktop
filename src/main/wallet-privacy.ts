@@ -400,10 +400,10 @@ async function fetchRemoteData(walletPackage: WalletPackage) {
     const promises = chunk.map(async (pw: PublicWallet) => {
       const { address } = pw;
       const walletAssets = await getWalletAssetsByAddress(address);
-      pw.balance = walletAssets.balance!;
-      pw.unconfirmed = walletAssets.unconfirmed!;
-      pw.identities = walletAssets.identities!;
-      pw.ownerships = walletAssets.ownerships!;
+      pw.balance = walletAssets.balance ?? 0;
+      pw.unconfirmed = walletAssets.unconfirmed ?? 0;
+      pw.identities = walletAssets.identities ?? [];
+      pw.ownerships = walletAssets.ownerships ?? [];
     });
     // eslint-disable-next-line no-await-in-loop
     await Promise.all(promises);
