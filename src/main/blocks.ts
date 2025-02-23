@@ -26,13 +26,12 @@ type TransactionContentPO = {
   valueHex?: string;
 };
 
-type SendToRequest = {
+type TrySendToRequest = {
   from: string;
   address?: string;
   receivePhone?: string;
   email?: string;
   transContent: TransactionContentPO;
-  payPassword: string;
 };
 
 type ConfirmSendToRequest = {
@@ -126,25 +125,18 @@ function buildTrans(t: TransactionInfo) {
   }
 }
 
-export async function sendTo(
-  from: string,
-  toEmail: string,
-  assetType: number,
-  value: number | string,
-  payPassword: string
-) {
+export async function sendTo(from: string, toEmail: string, assetType: number, value: number | string) {
   const host = storeGet('host');
   const url = `${host}/wallet/public/v1/try-send-to`;
   // eslint-disable-next-line @typescript-eslint/no-use-before-define
   const valueHex = makeValueHex(value);
-  const data: SendToRequest = {
+  const data: TrySendToRequest = {
     from,
     email: toEmail,
     transContent: {
       type: assetType,
       valueHex,
     },
-    payPassword,
   };
   try {
     console.log('begin to post url:', url, 'data:', data);

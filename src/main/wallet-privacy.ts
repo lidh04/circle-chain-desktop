@@ -150,8 +150,12 @@ async function saveAccount() {
     await writeFile(accountPath, accountContent);
     await chmod(accountPath, 0o600);
     return true;
-  } catch (err: any) {
-    console.error(`cannot save account: ${JSON.stringify(account)}, error: ${err.message}`, err);
+  } catch (err) {
+    if (err instanceof Error) {
+      console.error(`cannot save account: ${JSON.stringify(account)}, error: ${err.message}`, err);
+    } else {
+      console.error(`cannot save account: ${JSON.stringify(account)}, error: ${err}`);
+    }
     return false;
   }
 }
