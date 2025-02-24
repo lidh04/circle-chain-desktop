@@ -41,21 +41,24 @@ type ConfirmSendToRequest = {
 };
 
 type RemoteInput = {
-  txId: Uint8Array;
+  txId: string;
+  txIdStr: string;
   txOutputIndex: number;
   unlockScript: unknown;
   serialNO: number;
 };
 
 type RemoteOutput = {
-  txId: Uint8Array;
+  txId: string;
+  txIdStr: string;
   idx: number;
   status: number;
   value: unknown;
   lockScript: unknown;
 };
 type RemoteTransaction = {
-  txId: Uint8Array;
+  txId: string;
+  txIdStr: string;
   type: number;
   inputs: RemoteInput[];
   outputs: RemoteOutput[];
@@ -165,6 +168,7 @@ export async function sendTo(from: string, toEmail: string, assetType: number, v
           keyToSignedDataMap,
           unsignedTxJson: txJson,
         };
+        console.log('confirmSendToRequest:', confirmSendToRequest);
         const confirmUrl = `${host}/wallet/public/v1/confirm-send-to`;
         const confirmResponse = await axios.post(confirmUrl, confirmSendToRequest, {
           headers: {
@@ -215,7 +219,7 @@ function makeValueHex(value: number | string) {
 function makeKeyToSignedDataMap(tx: RemoteTransaction, address: string) {
   const record: Record<string, string> = {};
   tx.inputs.forEach((input) => {
-    const key = `${Buffer.from(input.txId).toString('hex')}:${input.txOutputIndex}`;
+    const key = `${input.txIdStr}:${input.txOutputIndex}`;
     const data = Buffer.from(key);
     const signedData = PrivateWalletPackage.signData(data, address);
     record[key] = Buffer.from(signedData).toString('hex');

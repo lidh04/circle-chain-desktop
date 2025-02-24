@@ -252,6 +252,12 @@ async function initLoad(accountInput: Account) {
   }
 }
 
+/**
+ * sign a data with private key
+ * @param data the data to sign
+ * @param privateKey the private key
+ * @returns the signed data
+ */
 function signDataWithPrivateKey(data: Uint8Array, privateKey: Uint8Array) {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
@@ -272,6 +278,11 @@ function getPublicKeyHash(pubKey: Uint8Array): Uint8Array {
   return pubKeyHash;
 }
 
+/**
+ * get the address and public key from the private key
+ * @param privateKey the private key
+ * @returns the address and public key
+ */
 function getAddressAndPubKey(privateKey: Uint8Array): [string, Uint8Array] {
   // get the public key in a compressed format
   const pubKey = secp256k1.publicKeyCreate(privateKey);
@@ -439,17 +450,41 @@ async function getWalletPackage(): Promise<WalletPackage> {
   return walletPackage;
 }
 
+/**
+ * sign a data with private key
+ * @param data the data to sign
+ * @param address the address of the private key
+ * @returns the signed data
+ */
 function signData(data: Uint8Array, address: string) {
   const privateKey = privateKeys.find((priv) => {
-    const [originAddress] = getAddressAndPubKey(priv);
-    return originAddress === address;
+    const [originAddress, publicKey] = getAddressAndPubKey(priv);
+    if (originAddress === address) {
+      console.log(
+        'address:',
+        address,
+        'publicKey:',
+        Buffer.from(publicKey).toString('hex'),
+        'privateKey:',
+        Buffer.from(priv).toString('hex')
+      );
+      return true;
+    }
+    return false;
   });
   if (!privateKey) {
     throw new Error(`not found private key for address:${address}`);
   }
+  console.log('address:', address, 'privateKey:', Buffer.from(privateKey).toString('hex'));
   return signDataWithPrivateKey(data, privateKey);
 }
 
+/**
+ * sign a string with private key
+ * @param str the string to sign
+ * @param address the address of the private key
+ * @returns the signed string
+ */
 function signString(str: string, address: string) {
   const privateKey = privateKeys.find((priv) => {
     const [originAddress] = getAddressAndPubKey(priv);

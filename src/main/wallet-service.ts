@@ -123,8 +123,10 @@ export async function uploadUidAndAddress(uid: string, addresses: AddressSignVO[
       console.info('post url:', url, 'data:', data, 'status:', response.status, 'return data:', response.data);
       return json.status === 200;
     }
-  } catch (err: any) {
-    console.error('post url:', url, 'data:', data, 'error:', err.name, err.message, err);
+  } catch (err) {
+    if (err instanceof Error) {
+      console.error('post url:', url, 'data:', data, 'error:', err.name, err.message, err);
+    }
   }
   return false;
 }
@@ -143,8 +145,10 @@ export async function fetchMyBlockData(address: string) {
       console.error('cannot fetch my block data, status:', status, 'message:', message);
     }
     console.error('cannot fetch my block data, status:', response.status, 'message:', response.status);
-  } catch (err: any) {
-    console.error('get url:', url, 'error:', err.name, err.message, err);
+  } catch (err) {
+    if (err instanceof Error) {
+      console.error('get url:', url, 'error:', err.name, err.message, err);
+    }
   }
 
   return null;
@@ -165,8 +169,10 @@ export async function postMyBlock(data: MyBlockRequest) {
       console.info('post url:', url, 'data:', data, 'status:', response.status, 'return data:', response.data);
       return json.status === 200 && json.data;
     }
-  } catch (err: any) {
-    console.error('post url:', url, 'data:', data, 'error:', err.name, err.message, err);
+  } catch (err) {
+    if (err instanceof Error) {
+      console.error('post url:', url, 'data:', data, 'error:', err.name, err.message, err);
+    }
   }
   return false;
 }
