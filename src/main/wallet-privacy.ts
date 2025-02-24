@@ -327,7 +327,7 @@ async function addPrivateKeyAndSave(privateKey: Uint8Array): Promise<[string, Ui
     throw new Error('account is not intialized!');
   }
   const result = addPrivateKey(privateKey);
-  console.log('add new privateKey:', Buffer.from(privateKey).toString('base64'));
+  // console.log('add new privateKey:', Buffer.from(privateKey).toString('base64'));
   // eslint-disable-next-line @typescript-eslint/no-use-before-define
   await save(account);
 
@@ -460,14 +460,7 @@ function signData(data: Uint8Array, address: string) {
   const privateKey = privateKeys.find((priv) => {
     const [originAddress, publicKey] = getAddressAndPubKey(priv);
     if (originAddress === address) {
-      console.log(
-        'address:',
-        address,
-        'publicKey:',
-        Buffer.from(publicKey).toString('hex'),
-        'privateKey:',
-        Buffer.from(priv).toString('hex')
-      );
+      console.log('address:', address, 'publicKey:', Buffer.from(publicKey).toString('hex'));
       return true;
     }
     return false;
@@ -475,8 +468,9 @@ function signData(data: Uint8Array, address: string) {
   if (!privateKey) {
     throw new Error(`not found private key for address:${address}`);
   }
-  console.log('address:', address, 'privateKey:', Buffer.from(privateKey).toString('hex'));
-  return signDataWithPrivateKey(data, privateKey);
+  const signedData = signDataWithPrivateKey(data, privateKey);
+  console.log('address:', address, 'signedData:', signedData);
+  return signedData;
 }
 
 /**

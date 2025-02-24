@@ -222,7 +222,7 @@ function makeKeyToSignedDataMap(tx: RemoteTransaction, address: string) {
     const key = `${input.txIdStr}:${input.txOutputIndex}`;
     const data = Buffer.from(key);
     const signedData = PrivateWalletPackage.signData(data, address);
-    record[key] = Buffer.from(signedData).toString('hex');
+    record[key] = signedData;
   });
   return record;
 }
