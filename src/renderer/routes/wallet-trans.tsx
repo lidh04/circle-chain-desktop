@@ -20,11 +20,13 @@ import { TxType } from 'common/block-types';
 import { Account } from 'common/account-types';
 import {
   AddressType,
+  addressListOf,
   AutocompleteOption,
   checkValidAddress,
   makeAssetLabel,
   makeWalletLabel,
   PublicWallet,
+  publicWalletsOf,
   WalletPackage,
 } from '../../common/wallet-types';
 
@@ -115,21 +117,9 @@ export default function WalletTrans(props: Props) {
         })
         .catch((err) => console.log(err));
     }
-  }, [queryParameters, filter, account]);
 
-  React.useEffect(() => {
-    if (!account) {
-      navigate('/signin');
-      return;
-    }
-
-    if (!walletPackage) {
-      return;
-    }
-
-    const addr = queryParameters.get('address');
-    const walletAddressList = walletPackage.wallets.map((w: PublicWallet) => w.address);
-    if (addr && checkValidAddress(addr)) {
+    const walletAddressList = addressListOf(walletPackage);
+    if (checkValidAddress(addr)) {
       if (!walletAddressList.includes(addr)) {
         walletAddressList.push(addr);
         setInput({
@@ -143,7 +133,7 @@ export default function WalletTrans(props: Props) {
     }
     setAddressList(walletAddressList);
 
-    const allUuids = walletPackage.wallets.flatMap((w: PublicWallet) => {
+    const allUuids = publicWalletsOf(walletPackage).flatMap((w: PublicWallet) => {
       const idts = (w.identities || []).map((idt) => ({ asset: idt.uuid, type: 'IDT' }));
       const owns = (w.ownerships || []).map((own) => ({ asset: own.uuid, type: 'OWN' }));
       return [...idts, ...owns];
@@ -155,12 +145,12 @@ export default function WalletTrans(props: Props) {
     setUuids(walletUuids);
 
     setAddresses(
-      addressList.map((address, index) => ({
+      walletAddressList.map((address, index) => ({
         label: makeWalletLabel(address, index),
         value: address,
       }))
     );
-  }, [queryParameters]);
+  }, [queryParameters, filter, account]);
 
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage);
