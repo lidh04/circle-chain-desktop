@@ -88,6 +88,45 @@ export default function MineBlock(props: Props) {
       };
     }
 
+    // set cpu list.
+    window.electron.ipcRenderer
+      .getCpuCount()
+      .then((cpuCount) => {
+        const items = [];
+        for (let i = 0; i < cpuCount; i += 1) {
+          items.push(i + 1);
+        }
+        setCpuList(items);
+        return true;
+      })
+      .catch((err) => console.error(err));
+
+    // set address list and selected address.
+    window.electron.ipcRenderer
+      .getWalletPackage('')
+      .then((result: WalletPackage) => {
+        const addresses = result.wallets.map((wallet: PublicWallet) => wallet.address);
+        setAddressList(addresses);
+        if (addresses.length > 0 && !address) {
+          setAddress(addresses[0]);
+        }
+        return true;
+      })
+      .catch((err) => console.error(err));
+
+    // set mine block log.
+    window.electron.ipcRenderer
+      .readMineBlockLog()
+      .then((logs: string[]) => {
+        if (logs.length > 0 && info.isLoading) {
+          setLogStore(logs);
+          setMineBlockLog([...logs]);
+        }
+        return true;
+      })
+      .catch((err) => console.error('readMineBlockLog error:', err));
+
+    // get mine block info.
     window.electron.ipcRenderer
       .getMineBlockInfo()
       .then((mineBlockInfo) => {
@@ -99,48 +138,14 @@ export default function MineBlock(props: Props) {
         };
         if (mineBlockInfo) {
           info = JSON.parse(mineBlockInfo);
+          setCore(info.core);
+          if (info.address) {
+            setAddress(info.address);
+          }
         }
-        window.electron.ipcRenderer
-          .getCpuCount()
-          .then((cpuCount) => {
-            const items = [];
-            for (let i = 0; i < cpuCount; i += 1) {
-              items.push(i + 1);
-            }
-            setCpuList(items);
-            setCore(info.core);
-            return true;
-          })
-          .catch((err) => console.error(err));
-
-        // set address list and selected address.
-        window.electron.ipcRenderer
-          .getWalletPackage('')
-          .then((result: WalletPackage) => {
-            const addresses = result.wallets.map((wallet: PublicWallet) => wallet.address);
-            setAddressList(addresses);
-            if (info.address) {
-              setAddress(info.address);
-            } else if (addresses.length > 0) {
-              setAddress(addresses[0]);
-            }
-            return true;
-          })
-          .catch((err) => console.error(err));
 
         // set loading.
         setIsLoading(info.isLoading);
-
-        window.electron.ipcRenderer
-          .readMineBlockLog()
-          .then((logs: string[]) => {
-            if (logs.length > 0 && info.isLoading) {
-              setLogStore(logs);
-              setMineBlockLog([...logs]);
-            }
-            return true;
-          })
-          .catch((err) => console.error('readMineBlockLog error:', err));
 
         return true;
       })
