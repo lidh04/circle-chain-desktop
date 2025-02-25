@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Box, Button, Grid, Stack, Typography } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
@@ -79,6 +79,19 @@ export default function MineBlock(props: Props) {
     event.preventDefault();
     setAddress(event.target.value as string);
   };
+  // set mine block log.
+  const readMineBlockLog = useCallback(() => {
+    window.electron.ipcRenderer
+      .readMineBlockLog()
+      .then((logs: string[]) => {
+        if (logs.length > 0) {
+          setLogStore(logs);
+          setMineBlockLog([...logs]);
+        }
+        return true;
+      })
+      .catch((err) => console.error('readMineBlockLog error:', err));
+  }, []);
 
   useEffect(() => {
     if (!account) {
@@ -114,18 +127,6 @@ export default function MineBlock(props: Props) {
       })
       .catch((err) => console.error(err));
 
-    // set mine block log.
-    window.electron.ipcRenderer
-      .readMineBlockLog()
-      .then((logs: string[]) => {
-        if (logs.length > 0 && info.isLoading) {
-          setLogStore(logs);
-          setMineBlockLog([...logs]);
-        }
-        return true;
-      })
-      .catch((err) => console.error('readMineBlockLog error:', err));
-
     // get mine block info.
     window.electron.ipcRenderer
       .getMineBlockInfo()
@@ -141,6 +142,9 @@ export default function MineBlock(props: Props) {
           setCore(info.core);
           if (info.address) {
             setAddress(info.address);
+          }
+          if (info.isLoading) {
+            readMineBlockLog();
           }
         }
 
