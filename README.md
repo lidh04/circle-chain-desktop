@@ -155,6 +155,8 @@ Please referer to:
 
 ## Versions
 
+- 4.7.3 fix the bugs for windows
+
 - 4.7.2 optimize the UI performance and some background tasks improvements.
 
 - 4.7.1 support mac arm64 and Windows mine block locally

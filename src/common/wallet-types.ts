@@ -88,6 +88,13 @@ export function identityCount(walletPackage: WalletPackage | null) {
   return walletPackage.wallets.map((w) => w.identities.length).reduce((prev, total) => total + prev, 0);
 }
 
+export function publicWalletsOf(walletPackage: WalletPackage | null) {
+  if (!walletPackage) {
+    return [] as PublicWallet[];
+  }
+  return walletPackage.wallets;
+}
+
 export function ownershipCount(walletPackage: WalletPackage | null) {
   if (!walletPackage) {
     return 0;

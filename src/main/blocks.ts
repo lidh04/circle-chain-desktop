@@ -26,13 +26,12 @@ type TransactionContentPO = {
   valueHex?: string;
 };
 
-type SendToRequest = {
+type TrySendToRequest = {
   from: string;
   address?: string;
   receivePhone?: string;
   email?: string;
   transContent: TransactionContentPO;
-  payPassword: string;
 };
 
 type ConfirmSendToRequest = {
@@ -42,21 +41,24 @@ type ConfirmSendToRequest = {
 };
 
 type RemoteInput = {
-  txId: Uint8Array;
+  txId: string;
+  txIdStr: string;
   txOutputIndex: number;
   unlockScript: unknown;
   serialNO: number;
 };
 
 type RemoteOutput = {
-  txId: Uint8Array;
+  txId: string;
+  txIdStr: string;
   idx: number;
   status: number;
   value: unknown;
   lockScript: unknown;
 };
 type RemoteTransaction = {
-  txId: Uint8Array;
+  txId: string;
+  txIdStr: string;
   type: number;
   inputs: RemoteInput[];
   outputs: RemoteOutput[];
@@ -126,25 +128,18 @@ function buildTrans(t: TransactionInfo) {
   }
 }
 
-export async function sendTo(
-  from: string,
-  toEmail: string,
-  assetType: number,
-  value: number | string,
-  payPassword: string
-) {
+export async function sendTo(from: string, toEmail: string, assetType: number, value: number | string) {
   const host = storeGet('host');
   const url = `${host}/wallet/public/v1/try-send-to`;
   // eslint-disable-next-line @typescript-eslint/no-use-before-define
   const valueHex = makeValueHex(value);
-  const data: SendToRequest = {
+  const data: TrySendToRequest = {
     from,
     email: toEmail,
     transContent: {
       type: assetType,
       valueHex,
     },
-    payPassword,
   };
   try {
     console.log('begin to post url:', url, 'data:', data);
@@ -173,6 +168,7 @@ export async function sendTo(
           keyToSignedDataMap,
           unsignedTxJson: txJson,
         };
+        console.log('confirmSendToRequest:', confirmSendToRequest);
         const confirmUrl = `${host}/wallet/public/v1/confirm-send-to`;
         const confirmResponse = await axios.post(confirmUrl, confirmSendToRequest, {
           headers: {
@@ -223,10 +219,10 @@ function makeValueHex(value: number | string) {
 function makeKeyToSignedDataMap(tx: RemoteTransaction, address: string) {
   const record: Record<string, string> = {};
   tx.inputs.forEach((input) => {
-    const key = `${Buffer.from(input.txId).toString('hex')}:${input.txOutputIndex}`;
+    const key = `${input.txIdStr}:${input.txOutputIndex}`;
     const data = Buffer.from(key);
     const signedData = PrivateWalletPackage.signData(data, address);
-    record[key] = Buffer.from(signedData).toString('hex');
+    record[key] = signedData;
   });
   return record;
 }

@@ -36,7 +36,6 @@ const makeAssetOptionList = (assetList: string[], type: string) =>
     value: asset,
   }));
 
-
 const assetTypes = ['CRY', 'OWN', 'IDT'];
 
 type MyError = {
@@ -201,7 +200,7 @@ export default function WalletPayment(props: Props) {
     const {
       target: { value },
     } = event;
-    setCurrencyValue(parseInt(value));
+    setCurrencyValue(parseInt(value, 10));
     console.log('asset:', value);
   };
 
@@ -245,6 +244,7 @@ export default function WalletPayment(props: Props) {
     from: string,
     toEmail: string,
     value: string,
+    // eslint-disable-next-line @typescript-eslint/no-shadow
     assetType: TxType,
     payPassword: string
   ) => {

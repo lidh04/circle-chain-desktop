@@ -62,8 +62,10 @@ async function getBalance(address: string): Promise<BalanceVO> {
         console.error('not get balance for url:', url, 'status:', response.status);
       }
     }
-  } catch (err: any) {
-    console.error(`fetch balance from url: ${url}, error`, err.name, err.message, err);
+  } catch (err) {
+    if (err instanceof Error) {
+      console.error(`fetch balance from url: ${url}, error`, err.name, err.message, err);
+    }
   }
 
   return balanceVO;
@@ -96,8 +98,10 @@ async function getAssetsOfAddress(address: string, type: number): Promise<Identi
       }));
     }
     console.error('get url:', url, 'failed, response status:', response.status);
-  } catch (err: any) {
-    console.error('fetch url:', url, 'error:', err.name, err.message, err);
+  } catch (err) {
+    if (err instanceof Error) {
+      console.error('fetch url:', url, 'error:', err.name, err.message, err);
+    }
   }
   return [];
 }
@@ -121,8 +125,10 @@ export async function uploadUidAndAddress(uid: string, addresses: AddressSignVO[
       console.info('post url:', url, 'data:', data, 'status:', response.status, 'return data:', response.data);
       return json.status === 200;
     }
-  } catch (err: any) {
-    console.error('post url:', url, 'data:', data, 'error:', err.name, err.message, err);
+  } catch (err) {
+    if (err instanceof Error) {
+      console.error('post url:', url, 'data:', data, 'error:', err.name, err.message, err);
+    }
   }
   return false;
 }
@@ -141,8 +147,10 @@ export async function fetchMyBlockData(address: string) {
       console.error('cannot fetch my block data, status:', status, 'message:', message);
     }
     console.error('cannot fetch my block data, status:', response.status, 'message:', response.status);
-  } catch (err: any) {
-    console.error('get url:', url, 'error:', err.name, err.message, err);
+  } catch (err) {
+    if (err instanceof Error) {
+      console.error('get url:', url, 'error:', err.name, err.message, err);
+    }
   }
 
   return null;
@@ -163,14 +171,22 @@ export async function postMyBlock(data: MyBlockRequest) {
       console.info('post url:', url, 'data:', data, 'status:', response.status, 'return data:', response.data);
       return json.status === 200 && json.data;
     }
-  } catch (err: any) {
-    console.error('post url:', url, 'data:', data, 'error:', err.name, err.message, err);
+  } catch (err) {
+    if (err instanceof Error) {
+      console.error('post url:', url, 'data:', data, 'error:', err.name, err.message, err);
+    }
   }
   return false;
 }
 
 export async function stopMineBlock() {
-  await wallet.miner.terminateAndClearWorkers();
+  try {
+    await wallet.miner.terminateAndClearWorkers();
+  } catch (err) {
+    if (err instanceof Error) {
+      console.error('stop mine block error:', err.name, err.message, err);
+    }
+  }
 }
 
 export async function mineBlock(event: IpcMainEvent, address: string, threadCount: number) {

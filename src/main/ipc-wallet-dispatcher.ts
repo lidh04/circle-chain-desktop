@@ -75,7 +75,7 @@ export default function setUpWalletDispatcher() {
       console.log(
         `${SendToChannel} from: ${from}, toEmail: ${toEmail}, assetType: ${assetType}, value: ${value}, pay password: ${payPassword}`
       );
-      return sendTo(from, toEmail, assetType, value, payPassword);
+      return sendTo(from, toEmail, assetType, value);
     }
   );
 

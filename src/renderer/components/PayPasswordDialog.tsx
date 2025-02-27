@@ -51,12 +51,7 @@ export default function PayPasswordDialog({
   const handleInput = async () => {
     if (inited) {
       const oldPayPassword = await window.electron.ipcRenderer.getPayPassword();
-      console.log(
-        'old pay password:',
-        oldPayPassword,
-        'payPassword:',
-        payPassword
-      );
+      console.log('old pay password:', oldPayPassword, 'payPassword:', payPassword);
       if (oldPayPassword !== payPassword) {
         setError(true);
       } else {
@@ -77,13 +72,19 @@ export default function PayPasswordDialog({
     } else {
       setError(true);
     }
-
   };
 
   React.useEffect(() => {
-    window.electron.ipcRenderer.getPayPassword().then((oldPayPassword) => {
-      setInited(!!oldPayPassword);
-    });
+    window.electron.ipcRenderer
+      .getPayPassword()
+      .then((oldPayPassword) => {
+        setInited(!!oldPayPassword);
+        return true;
+      })
+      .catch((err) => {
+        console.error('getPayPassword error:', err);
+        return false;
+      });
   }, []);
 
   return (
@@ -92,9 +93,7 @@ export default function PayPasswordDialog({
         <DialogTitle>Pay Password</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            {inited
-              ? 'Please input pay password'
-              : 'Pay password is not set, Please set pay password.'}
+            {inited ? 'Please input pay password' : 'Pay password is not set, Please set pay password.'}
           </DialogContentText>
           <TextField
             autoFocus

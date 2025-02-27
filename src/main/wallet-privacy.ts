@@ -150,8 +150,12 @@ async function saveAccount() {
     await writeFile(accountPath, accountContent);
     await chmod(accountPath, 0o600);
     return true;
-  } catch (err: any) {
-    console.error(`cannot save account: ${JSON.stringify(account)}, error: ${err.message}`, err);
+  } catch (err) {
+    if (err instanceof Error) {
+      console.error(`cannot save account: ${JSON.stringify(account)}, error: ${err.message}`, err);
+    } else {
+      console.error(`cannot save account: ${JSON.stringify(account)}, error: ${err}`);
+    }
     return false;
   }
 }
@@ -248,6 +252,12 @@ async function initLoad(accountInput: Account) {
   }
 }
 
+/**
+ * sign a data with private key
+ * @param data the data to sign
+ * @param privateKey the private key
+ * @returns the signed data
+ */
 function signDataWithPrivateKey(data: Uint8Array, privateKey: Uint8Array) {
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
@@ -268,6 +278,11 @@ function getPublicKeyHash(pubKey: Uint8Array): Uint8Array {
   return pubKeyHash;
 }
 
+/**
+ * get the address and public key from the private key
+ * @param privateKey the private key
+ * @returns the address and public key
+ */
 function getAddressAndPubKey(privateKey: Uint8Array): [string, Uint8Array] {
   // get the public key in a compressed format
   const pubKey = secp256k1.publicKeyCreate(privateKey);
@@ -312,7 +327,7 @@ async function addPrivateKeyAndSave(privateKey: Uint8Array): Promise<[string, Ui
     throw new Error('account is not intialized!');
   }
   const result = addPrivateKey(privateKey);
-  console.log('add new privateKey:', Buffer.from(privateKey).toString('base64'));
+  // console.log('add new privateKey:', Buffer.from(privateKey).toString('base64'));
   // eslint-disable-next-line @typescript-eslint/no-use-before-define
   await save(account);
 
@@ -396,10 +411,10 @@ async function fetchRemoteData(walletPackage: WalletPackage) {
     const promises = chunk.map(async (pw: PublicWallet) => {
       const { address } = pw;
       const walletAssets = await getWalletAssetsByAddress(address);
-      pw.balance = walletAssets.balance!;
-      pw.unconfirmed = walletAssets.unconfirmed!;
-      pw.identities = walletAssets.identities!;
-      pw.ownerships = walletAssets.ownerships!;
+      pw.balance = walletAssets.balance ?? 0;
+      pw.unconfirmed = walletAssets.unconfirmed ?? 0;
+      pw.identities = walletAssets.identities ?? [];
+      pw.ownerships = walletAssets.ownerships ?? [];
     });
     // eslint-disable-next-line no-await-in-loop
     await Promise.all(promises);
@@ -435,17 +450,35 @@ async function getWalletPackage(): Promise<WalletPackage> {
   return walletPackage;
 }
 
+/**
+ * sign a data with private key
+ * @param data the data to sign
+ * @param address the address of the private key
+ * @returns the signed data
+ */
 function signData(data: Uint8Array, address: string) {
   const privateKey = privateKeys.find((priv) => {
-    const [originAddress] = getAddressAndPubKey(priv);
-    return originAddress === address;
+    const [originAddress, publicKey] = getAddressAndPubKey(priv);
+    if (originAddress === address) {
+      console.log('address:', address, 'publicKey:', Buffer.from(publicKey).toString('hex'));
+      return true;
+    }
+    return false;
   });
   if (!privateKey) {
     throw new Error(`not found private key for address:${address}`);
   }
-  return signDataWithPrivateKey(data, privateKey);
+  const signedData = signDataWithPrivateKey(data, privateKey);
+  console.log('address:', address, 'signedData:', signedData);
+  return signedData;
 }
 
+/**
+ * sign a string with private key
+ * @param str the string to sign
+ * @param address the address of the private key
+ * @returns the signed string
+ */
 function signString(str: string, address: string) {
   const privateKey = privateKeys.find((priv) => {
     const [originAddress] = getAddressAndPubKey(priv);
