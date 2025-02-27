@@ -62,8 +62,10 @@ async function getBalance(address: string): Promise<BalanceVO> {
         console.error('not get balance for url:', url, 'status:', response.status);
       }
     }
-  } catch (err: any) {
-    console.error(`fetch balance from url: ${url}, error`, err.name, err.message, err);
+  } catch (err) {
+    if (err instanceof Error) {
+      console.error(`fetch balance from url: ${url}, error`, err.name, err.message, err);
+    }
   }
 
   return balanceVO;
@@ -178,7 +180,13 @@ export async function postMyBlock(data: MyBlockRequest) {
 }
 
 export async function stopMineBlock() {
-  await wallet.miner.terminateAndClearWorkers();
+  try {
+    await wallet.miner.terminateAndClearWorkers();
+  } catch (err) {
+    if (err instanceof Error) {
+      console.error('stop mine block error:', err.name, err.message, err);
+    }
+  }
 }
 
 export async function mineBlock(event: IpcMainEvent, address: string, threadCount: number) {
